@@ -15,8 +15,8 @@
 #define FALSE   0
 
 int main( void ) {
-	int listen_sd = socket( AF_INET, SOCK_STREAM, 0 );
-	if ( listen_sd < 0 ) {
+	int socket_fd = socket( AF_INET, SOCK_STREAM, 0 );
+	if ( socket_fd < 0 ) {
 		perror( "socket() failed" );
 		exit( EXIT_FAILURE );
 	}
@@ -32,9 +32,9 @@ int main( void ) {
 	 */
 
 	int optval = 1;
-	if ( setsockopt( listen_sd, SOL_SOCKET, SO_REUSEADDR, (char *) &optval, sizeof( optval )) < 0 ) {
+	if ( setsockopt( socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &optval, sizeof( optval )) < 0 ) {
 		perror( "setsockopt() failed" );
-		close( listen_sd );
+		close( socket_fd );
 		exit( EXIT_FAILURE );
 	}
 	/*
@@ -48,9 +48,9 @@ int main( void ) {
 	 * "The parameters option_value and option_len are used to access option values for setsockopt()"
 	 */
 
-	if ( fcntl( listen_sd, O_NONBLOCK ) < 0 ) {
+	if ( fcntl( socket_fd, O_NONBLOCK ) < 0 ) {
 		perror( "fcntl() failed" );
-		close( listen_sd );
+		close( socket_fd );
 		exit( EXIT_FAILURE );
 	}
 	/*
@@ -70,9 +70,9 @@ int main( void ) {
 	 * hostshort = port to connect
 	 */
 
-	if ( bind( listen_sd, (struct sockaddr *) &address, sizeof( address )) < 0 ) {
+	if ( bind( socket_fd, (struct sockaddr *) &address, sizeof( address )) < 0 ) {
 		perror( "bind() failed" );
-		close( listen_sd );
+		close( socket_fd );
 		exit( EXIT_FAILURE );
 	}
 	/*
@@ -80,9 +80,9 @@ int main( void ) {
 	 *
 	 * assign address to socket
 	 */
-	if ( listen( listen_sd, 32 )) {
+	if ( listen( socket_fd, 32 )) {
 		perror( "listen() failed" );
-		close( listen_sd );
+		close( socket_fd );
 		exit( EXIT_FAILURE );
 	}
 	/*
@@ -93,50 +93,39 @@ int main( void ) {
 	 */
 	struct pollfd fds[200];
 	memset( fds, 0, sizeof( fds ));
-	fds[0].fd = listen_sd;
+	fds[0].fd = socket_fd;
 	fds[0].events = POLLIN;
 	int timeout = ( 3 * 60 * 1000 );
-
+	/*
+	 * .fd = our socket fd
+	 * .events = POLLIN (incoming signals in poll)
+	 */
 	int end_server = FALSE, compress_array = FALSE;
 	int nfds = 1, current_size = 0, i, j;
 	int new_sd, close_conn, len;
 	char buffer[80];
 	do {
 		std::cout << "Waiting on poll()...\n" << std::endl;
-		int rc = poll( fds, nfds, timeout );
-		if ( rc < 0 ) {
+		int ret = poll( fds, nfds, timeout );
+		if ( ret < 0 ) {
 			perror( " poll() failed" );
 			break;
 		}
-		if ( rc == 0 ) {
+		if ( ret == 0 ) {
 			printf( "  poll() timed out.  End program.\n" );
 			break;
 		}
 		current_size = nfds;
 		for ( i = 0; i < current_size; i++ ) {
-			/*********************************************************/
-			/* Loop through to find the descriptors that returned    */
-			/* POLLIN and determine whether it's the listening       */
-			/* or the active connection.                             */
-			/*********************************************************/
 			if ( fds[i].revents == 0 )
 				continue;
-			/*********************************************************/
-			/* If revents is not POLLIN, it's an unexpected result,  */
-			/* log and end the server.                               */
-			/*********************************************************/
 			if ( fds[i].revents != POLLIN ) {
 				printf( "  Error! revents = %d\n", fds[i].revents );
 				end_server = TRUE;
 				break;
-
 			}
-			if ( fds[i].fd == listen_sd ) {
-				/*******************************************************/
-				/* Listening descriptor is readable.                   */
-				/*******************************************************/
+			if ( fds[i].fd == socket_fd ) {
 				printf( "  Listening socket is readable\n" );
-
 				/*******************************************************/
 				/* Accept all incoming connections that are            */
 				/* queued up on the listening socket before we         */
@@ -150,7 +139,7 @@ int main( void ) {
 					/* failure on accept will cause us to end the        */
 					/* server.                                           */
 					/*****************************************************/
-					new_sd = accept( listen_sd, NULL, NULL );
+					new_sd = accept( socket_fd, NULL, NULL );
 					if ( new_sd < 0 ) {
 						if ( errno != EWOULDBLOCK ) {
 							perror( "  accept() failed" );
@@ -195,8 +184,8 @@ int main( void ) {
 					/* failure occurs, we will close the                 */
 					/* connection.                                       */
 					/*****************************************************/
-					rc = recv( fds[i].fd, buffer, sizeof( buffer ), 0 );
-					if ( rc < 0 ) {
+					ret = recv( fds[i].fd, buffer, sizeof( buffer ), 0 );
+					if ( ret < 0 ) {
 						if ( errno != EWOULDBLOCK ) {
 							perror( "  recv() failed" );
 							close_conn = TRUE;
@@ -208,7 +197,7 @@ int main( void ) {
 					/* Check to see if the connection has been           */
 					/* closed by the client                              */
 					/*****************************************************/
-					if ( rc == 0 ) {
+					if ( ret == 0 ) {
 						printf( "  Connection closed\n" );
 						close_conn = TRUE;
 						break;
@@ -217,14 +206,14 @@ int main( void ) {
 					/*****************************************************/
 					/* Data was received                                 */
 					/*****************************************************/
-					len = rc;
+					len = ret;
 					printf( "  %d bytes received\n", len );
 
 					/*****************************************************/
 					/* Echo the data back to the client                  */
 					/*****************************************************/
-					rc = send( fds[i].fd, buffer, len, 0 );
-					if ( rc < 0 ) {
+					ret = send( fds[i].fd, buffer, len, 0 );
+					if ( ret < 0 ) {
 						perror( "  send() failed" );
 						close_conn = TRUE;
 						break;
