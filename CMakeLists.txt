@@ -4,4 +4,4 @@ project(webserv)
 
 set(CMAKE_CXX_STANDARD 98)
 
-add_executable(webserv main.cpp)
+add_executable(webserv main.cpp deleted_code.cpp)
