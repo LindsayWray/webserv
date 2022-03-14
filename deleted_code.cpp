@@ -33,8 +33,8 @@ int main( void ){
 				end_server = TRUE;
 				break;
 			}
-			if ( fds[i].fd == socket_fd ) {
-				printf( "  Listening socket is readable\n" );
+			if ( fds[i]._socket == socket_fd ) {
+				printf( "  Listening sockOb is readable\n" );
 				while ( new_sd != -1 ) {
 					new_sd = accept( socket_fd, NULL, NULL );
 					if ( new_sd < 0 ) {
@@ -48,22 +48,22 @@ int main( void ){
 					 * int accept(int sockfd, struct sockaddr *restrict address, socklen_t *restrict address_len)
 					 *
 					 * sockfd = socket_fd
-					 * address = NULL (could also be sockaddr structure for the connecting socket adress)
+					 * address = NULL (could also be sockaddr structure for the connecting sockOb adress)
 					 * address_len = pointer to socklen_t for the len of supploed sockaddr
 					 *
 					 * EWOULDBLOCK in case O_NONBLOCK is set, any other failure will end server
 					 */
 					printf( "  New incoming connection - %d\n", new_sd );
-					fds[nfds].fd = new_sd;
+					fds[nfds]._socket = new_sd;
 					fds[nfds].events = POLLIN;
 					nfds++;
 				}
 			}
 			else {
-				printf( "  Descriptor %d is readable\n", fds[i].fd );
+				printf( "  Descriptor %d is readable\n", fds[i]._socket );
 				close_conn = FALSE;
 				while ( TRUE ) {
-					ret = recv( fds[i].fd, buffer, sizeof( buffer ), 0 );
+					ret = recv( fds[i]._socket, buffer, sizeof( buffer ), 0 );
 					if ( ret < 0 ) {
 						if ( errno != EWOULDBLOCK ) {
 							perror( "  recv() failed" );
@@ -88,7 +88,7 @@ int main( void ){
 						break;
 					}
 					printf( "  %d bytes received\n", ret );
-					ret = send( fds[i].fd, buffer, ret, 0 );
+					ret = send( fds[i]._socket, buffer, ret, 0 );
 					if ( ret < 0 ) {
 						perror( "  send() failed" );
 						close_conn = TRUE;
@@ -105,8 +105,8 @@ int main( void ){
 					 */
 				}
 				if ( close_conn ) {
-					close( fds[i].fd );
-					fds[i].fd = -1;
+					close( fds[i]._socket );
+					fds[i]._socket = -1;
 					compress_array = TRUE;
 				}
 			}
@@ -121,9 +121,9 @@ int main( void ){
 		if ( compress_array ) {
 			compress_array = FALSE;
 			for ( int i = 0; i < nfds; i++ ) {
-				if ( fds[i].fd == -1 ) {
+				if ( fds[i]._socket == -1 ) {
 					for ( int j = i; j < nfds; j++ ) {
-						fds[j].fd = fds[j + 1].fd;
+						fds[j]._socket = fds[j + 1]._socket;
 					}
 					i--;
 					nfds--;
@@ -132,7 +132,7 @@ int main( void ){
 		}
 	}
 	for ( int i = 0; i < nfds; i++ ) {
-		if ( fds[i].fd >= 0 )
-			close( fds[i].fd );
+		if ( fds[i]._socket >= 0 )
+			close( fds[i]._socket );
 	}
 }
