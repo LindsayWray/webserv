@@ -3,7 +3,7 @@
 //
 
 #ifndef WEBSERV_PARENTSOCKET_HPP
-#define WEBSERV_SOCKOB_HPP
+#define WEBSERV_PARENTSOCKET_HPP
 
 #include <iostream>
 #include <sys/socket.h>
