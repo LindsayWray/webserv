@@ -1,13 +1,7 @@
-#include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
 #include <sys/poll.h>
-#include <sys/socket.h>
 #include <sys/time.h>
-#include <netinet/in.h>
-#include <errno.h>
-#include <fcntl.h>
 #include "sockets/listeningSocket.hpp"
 #define SERVER_PORT 80
 
@@ -22,10 +16,6 @@ int main( void ) {
 	fd_array[0].fd = server.get_sock();
 	fd_array[0].events = POLLIN;
 	int timeout = ( 3 * 60 * 1000 );
-	/*
-	 * ._sock = our parentSocket _sock
-	 * .events = POLLIN (incoming signals in poll)
-	 */
 	int end_server = FALSE;
 	int new_socket, ret;
 	nfds_t n_fds = 1;
