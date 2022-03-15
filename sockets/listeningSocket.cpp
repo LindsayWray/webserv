@@ -4,8 +4,7 @@
 
 #include "listeningSocket.hpp"
 
-webserv::listeningSocket::listeningSocket( int domain, int service, int protocol, int port, u_long interface, int backlog )
-		: serverSocket( domain, service, protocol, port, interface ) {
+webserv::listeningSocket::listeningSocket( socketData input, int backlog ) : serverSocket( input ) {
 	_backlog = backlog;
 	start_listening();
 	test_connection( "Listening", _listening );
@@ -13,4 +12,10 @@ webserv::listeningSocket::listeningSocket( int domain, int service, int protocol
 
 void webserv::listeningSocket::start_listening( void ) {
 	_listening = listen( _socket, _backlog );
+}
+
+bool webserv::listeningSocket::is_listening( void ) {
+	if ( _listening >= 0 )
+		return true;
+	return false;
 }

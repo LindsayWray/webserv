@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include "../utils/dataStructs.hpp"
 
 namespace webserv {
 
@@ -22,7 +23,7 @@ namespace webserv {
 
 	public:
 
-		parentSocket( int domain, int service, int protocol, int port, u_long interface );
+		parentSocket( socketData input );
 
 		virtual void connect_to_network( void ) = 0;
 

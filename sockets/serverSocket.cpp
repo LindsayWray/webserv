@@ -4,8 +4,8 @@
 
 #include "serverSocket.hpp"
 
-webserv::serverSocket::serverSocket( int domain, int service, int protocol, int port, u_long interface )
-		: parentSocket( domain, service, protocol, port, interface ) {
+webserv::serverSocket::serverSocket( socketData input )
+		: parentSocket( input ) {
 	set_sockt_opt( SO_REUSEADDR );
 	set_nonblock();
 	connect_to_network();
