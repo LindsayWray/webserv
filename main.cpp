@@ -34,7 +34,7 @@ int main( void ) {
 			std::cerr << " poll() failed " << strerror(errno) << std::endl;
 			break;
 		}
-		if ( ret < 0 ){
+		if ( ret == 0 ){		// If the time limit expires, poll() returns 0
 			std::cout << " poll() timed out " << std::endl;
 			break;
 		}

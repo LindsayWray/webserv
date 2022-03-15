@@ -17,7 +17,7 @@ void webserv::serverSocket::connect_to_network( void ) {
 }
 
 void webserv::serverSocket::set_nonblock( void ) {
-	if ( fcntl( _socket, O_NONBLOCK ) < 0 ) {
+	if ( fcntl( _socket, F_SETFL, O_NONBLOCK ) < 0 ) {
 		std::cerr << "Fcntl() failed: " << strerror(errno) << std::endl;
 		exit( EXIT_FAILURE );
 	}
