@@ -38,14 +38,20 @@ void webserv::testServer::_handler( int fd ) {
 	outfile.open("../resp.html");
 	while( getline( outfile, line ) ) {
 		send( fd, line.c_str(), line.length(), 0 );
-		send( fd, "\n", 1, 0 );
+		send( fd, "\r\n", 2, 0 );
 	}
-	send( fd, "\n", 1, 0 );
-	send( fd, "\n", 1, 0 );
+	send( fd, "\r\n", 2, 0 );
+	send( fd, "\r\n", 2, 0 );
 }
 
 void webserv::testServer::_responder() {
 
+}
+
+void print_all( struct pollfd*	_connections ){
+    for (int i = 0; i < 10; i++){
+        std::cout << i << " fd " << _connections[i].fd << " event " << _connections[i].events << " revent " << _connections[i].revents << std::endl;
+    }
 }
 
 void webserv::testServer::launch() {
@@ -54,10 +60,13 @@ void webserv::testServer::launch() {
 	_current = 1;
 	int close_conn, end_server, compress_array;
 	do {
-		timeout = 3 * 60 * 1000;
 		std::cout << "Waiting on poll()..." << std::endl;
+		print_all( _connections );
 		rc = poll( _connections, _current, timeout );
-		if ( rc < 0 ) {
+        std::cout << "after " << std::endl;
+        print_all( _connections );
+
+        if ( rc < 0 ) {
 			std::cerr << "  poll() failed" << std::endl;
 			break;
 		}
@@ -97,7 +106,7 @@ void webserv::testServer::launch() {
 					std::cout << _incoming.bytesread << " bytes received" << std::endl;
 					std::cout << _incoming.buf << std::endl;
 					_handler( _connections[i].fd );
-//					rc = send( _connections[i].fd, "hoi\n", 4, 0 );
+                    _connections[i].revents = 0;
 //					if ( rc < 0 ) {
 //						std::cerr << "  send() failed" << std::endl;
 //						close_conn = true;

@@ -6,6 +6,12 @@
 #define WEBSERV_DATASTRUCTS_HPP
 
 #include <iostream>
+#include <vector>
+#include <map>
+
+#define GET 0
+#define POST 1
+#define RESPONSE 2
 
 namespace webserv{
 
@@ -17,6 +23,15 @@ namespace webserv{
 		u_long interface;
 		int backlog;
 		int worker_connections;
+	};
+
+	struct httpData{
+	    std::vector<std::string> server_name;
+        std::string root;
+        int allowed_response[3];
+	    std::map<int, std::string> error_page;
+        std::map<int, std::string> redirect;
+        bool autoindex;
 	};
 
 	struct readData{
