@@ -62,7 +62,5 @@ int main( void ) {
 			std::cerr << " send() failed " << std::endl;
 			break;
 		}
-
 	}
-
 }
