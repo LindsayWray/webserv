@@ -35,17 +35,13 @@ void webserv::testServer::_accepter() {
 void webserv::testServer::_handler( int fd ) {
 	std::ifstream outfile;
 	std::string line;
-	int ret = 0;
 	outfile.open("../resp.html");
 	while( getline( outfile, line ) ) {
-		ret += line.length();
-		std::cout << line << " " << line.length() << std::endl;
 		send( fd, line.c_str(), line.length(), 0 );
 		send( fd, "\n", 1, 0 );
 	}
 	send( fd, "\n", 1, 0 );
 	send( fd, "\n", 1, 0 );
-	std::cout << ret << std::endl;
 }
 
 void webserv::testServer::_responder() {
@@ -58,6 +54,7 @@ void webserv::testServer::launch() {
 	_current = 1;
 	int close_conn, end_server, compress_array;
 	do {
+		timeout = 3 * 60 * 1000;
 		std::cout << "Waiting on poll()..." << std::endl;
 		rc = poll( _connections, _current, timeout );
 		if ( rc < 0 ) {
