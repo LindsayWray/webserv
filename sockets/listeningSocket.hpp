@@ -16,9 +16,10 @@ namespace webserv {
 		int _listening;
 
 	public:
-		listeningSocket( int domain, int service, int protocol, int port, u_long interface, int backlog );
+		listeningSocket( socketData input );
 
 		void start_listening( void );
+		bool is_listening( void );
 	};
 }
 

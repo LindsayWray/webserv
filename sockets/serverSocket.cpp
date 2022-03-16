@@ -4,8 +4,8 @@
 
 #include "serverSocket.hpp"
 
-webserv::serverSocket::serverSocket( int domain, int service, int protocol, int port, u_long interface )
-		: parentSocket( domain, service, protocol, port, interface ) {
+webserv::serverSocket::serverSocket( socketData input )
+		: parentSocket( input ) {
 	set_sockt_opt( SO_REUSEADDR );
 	set_nonblock();
 	connect_to_network();
@@ -17,7 +17,7 @@ void webserv::serverSocket::connect_to_network( void ) {
 }
 
 void webserv::serverSocket::set_nonblock( void ) {
-	if ( fcntl( _socket, O_NONBLOCK ) < 0 ) {
+	if ( fcntl( _socket, F_SETFL, O_NONBLOCK ) < 0 ) {
 		std::cerr << "Fcntl() failed: " << strerror(errno) << std::endl;
 		exit( EXIT_FAILURE );
 	}
