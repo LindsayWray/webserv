@@ -13,7 +13,7 @@ namespace webserv{
 		char _buffer[20];
 		int	_current;
 		void _accepter();
-		void _handler();
+		void _handler( int );
 		void _responder();
 
 	public:

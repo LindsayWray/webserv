@@ -15,7 +15,7 @@ namespace webserv{
 		readData _incoming;
 		int _Ncon;
 		virtual void _accepter() = 0;
-		virtual void _handler() = 0;
+		virtual void _handler( int ) = 0;
 		virtual void _responder() = 0;
 
 	public:

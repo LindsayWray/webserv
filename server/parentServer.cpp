@@ -5,7 +5,7 @@
 
 webserv::parentServer::parentServer( socketData input, int backlog, int worker_connections ){
 	_socket = new listeningSocket( input, backlog );
-	_incoming.buflen = 256;
+	_incoming.buflen = 1024;
 	_incoming.buf = new char[_incoming.buflen];
 	_Ncon = worker_connections;
 	_connections = new struct pollfd[_Ncon];

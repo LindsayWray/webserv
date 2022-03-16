@@ -4,6 +4,9 @@
 #include "testServer.hpp"
 #include <stdio.h>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 webserv::testServer::testServer( socketData input, int backlog, int worker_connections ) : parentServer( input, backlog, worker_connections ) {
 	_connections->fd = _socket->get_sock();
@@ -29,8 +32,20 @@ void webserv::testServer::_accepter() {
 	}
 }
 
-void webserv::testServer::_handler() {
-
+void webserv::testServer::_handler( int fd ) {
+	std::ifstream outfile;
+	std::string line;
+	int ret = 0;
+	outfile.open("../resp.html");
+	while( getline( outfile, line ) ) {
+		ret += line.length();
+		std::cout << line << " " << line.length() << std::endl;
+		send( fd, line.c_str(), line.length(), 0 );
+		send( fd, "\n", 1, 0 );
+	}
+	send( fd, "\n", 1, 0 );
+	send( fd, "\n", 1, 0 );
+	std::cout << ret << std::endl;
 }
 
 void webserv::testServer::_responder() {
@@ -43,14 +58,14 @@ void webserv::testServer::launch() {
 	_current = 1;
 	int close_conn, end_server, compress_array;
 	do {
-		printf( "Waiting on poll()...\n" );
+		std::cout << "Waiting on poll()..." << std::endl;
 		rc = poll( _connections, _current, timeout );
 		if ( rc < 0 ) {
-			perror( "  poll() failed" );
+			std::cerr << "  poll() failed" << std::endl;
 			break;
 		}
 		if ( rc == 0 ) {
-			printf( "  poll() timed out.  End program.\n" );
+			std::cerr << "  poll() timed out.  End program." << std::endl;
 			break;
 		}
 		int current_size = _current;
@@ -58,45 +73,47 @@ void webserv::testServer::launch() {
 			if ( _connections[i].revents == 0 )
 				continue;
 			if ( _connections[i].revents != POLLIN ) {
-				printf( "  Error! revents = %d\n", _connections[i].revents );
+				std::cerr << "  Error! revents = " << _connections[i].revents << std::endl;
 				end_server = true;
 				break;
 			}
 			if ( _connections[i].fd == _socket->get_sock() ) {
 				_accepter();
 			} else {
-				printf( "  Descriptor %d is readable\n", _connections[i].fd );
+				std::cout << "  Descriptor " << _connections[i].fd << " is readable" << std::endl;
 				close_conn = false;
 				do {
+					memset( _incoming.buf, 0, _incoming.buflen);
 					_incoming.bytesread = recv( _connections[i].fd, _incoming.buf, _incoming.buflen, 0 );
 					if ( _incoming.bytesread < 0 ) {
 						if ( errno != EWOULDBLOCK ) {
-							perror( "  recv() failed" );
+							std::cerr << "  recv() failed" << std::endl;
 							close_conn = true;
 						}
 						break;
 					}
 					if ( _incoming.bytesread == 0 ) {
-						printf( "  Connection closed\n" );
+						std::cout << "  Connection closed" << std::endl;
 						close_conn = true;
 						break;
 					}
-					printf( "  %d bytes received\n", _incoming.bytesread );
-					rc = send( _connections[i].fd, "hoi\n", 4, 0 );
-					if ( rc < 0 ) {
-						perror( "  send() failed" );
-						close_conn = true;
-						break;
-					}
+					std::cout << _incoming.bytesread << " bytes received" << std::endl;
+					std::cout << _incoming.buf << std::endl;
+					_handler( _connections[i].fd );
+//					rc = send( _connections[i].fd, "hoi\n", 4, 0 );
+//					if ( rc < 0 ) {
+//						std::cerr << "  send() failed" << std::endl;
+//						close_conn = true;
+//						break;
+//					}
 				} while ( true );
 				if ( close_conn ) {
 					close( _connections[i].fd );
 					_connections[i].fd = -1;
 					compress_array = true;
 				}
-			}  /* End of existing connection is readable             */
-			std::cout << "going through" << std::endl;
-		} /* End of loop through pollable descriptors              */
+			}
+		}
 		if ( compress_array ) {
 			compress_array = false;
 			for ( i = 0; i < _current; i++ ) {
@@ -109,7 +126,7 @@ void webserv::testServer::launch() {
 				}
 			}
 		}
-	} while ( end_server == false ); /* End of serving running.    */
+	} while ( end_server == false );
 	for ( i = 0; i < _current; i++ ) {
 		if ( _connections[i].fd >= 0 )
 			close( _connections[i].fd );
