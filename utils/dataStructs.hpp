@@ -15,6 +15,8 @@ namespace webserv{
 		int protocol;
 		int port;
 		u_long interface;
+		int backlog;
+		int worker_connections;
 	};
 
 	struct readData{

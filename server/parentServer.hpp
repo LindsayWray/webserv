@@ -19,7 +19,7 @@ namespace webserv{
 		virtual void _responder() = 0;
 
 	public:
-		parentServer( socketData input, int backlog, int worker_connections );
+		parentServer( socketData input );
 		~parentServer();
 		virtual void launch() = 0;
 		listeningSocket* get_socket();

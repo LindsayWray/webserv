@@ -16,7 +16,7 @@ namespace webserv {
 		int _listening;
 
 	public:
-		listeningSocket( socketData input, int backlog );
+		listeningSocket( socketData input );
 
 		void start_listening( void );
 		bool is_listening( void );

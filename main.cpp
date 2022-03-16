@@ -16,7 +16,9 @@ int main( void ) {
 	init.protocol = 0;
 	init.port = SERVER_PORT;
 	init.interface = INADDR_ANY;
-	webserv::testServer server( init, 32, 100 );
+	init.backlog = 32;
+	init.worker_connections = 100;
+	webserv::testServer server( init );
 	server.launch();
 
 }

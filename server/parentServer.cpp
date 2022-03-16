@@ -3,11 +3,11 @@
 //
 #include "parentServer.hpp"
 
-webserv::parentServer::parentServer( socketData input, int backlog, int worker_connections ){
-	_socket = new listeningSocket( input, backlog );
+webserv::parentServer::parentServer( socketData input ){
+	_socket = new listeningSocket( input );
 	_incoming.buflen = 1024;
 	_incoming.buf = new char[_incoming.buflen];
-	_Ncon = worker_connections;
+	_Ncon = input.worker_connections;
 	_connections = new struct pollfd[_Ncon];
 }
 

@@ -17,7 +17,7 @@ namespace webserv{
 		void _responder();
 
 	public:
-		testServer( socketData input, int backlog, int worker_connections );
+		testServer( socketData input );
 		void launch();
 	};
 }

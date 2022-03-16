@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-webserv::testServer::testServer( socketData input, int backlog, int worker_connections ) : parentServer( input, backlog, worker_connections ) {
+webserv::testServer::testServer( socketData input ) : parentServer( input ) {
 	_connections->fd = _socket->get_sock();
 	_connections->events = POLLIN;
 }
