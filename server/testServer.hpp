@@ -6,14 +6,15 @@
 #define WEBSERV_TESTSERVER_HPP
 
 #include "parentServer.hpp"
+#include "../http/Request.hpp"
 
 namespace webserv{
 	class testServer : public parentServer{
 	protected:
 		char _buffer[20];
-		int	_current;
+		int	_nb_of_conns;
 		void _accepter();
-		void _handler( int );
+		void _handler( int, Request );
 		void _responder();
 
 	public:

@@ -16,7 +16,7 @@ webserv::testServer::testServer( socketData input ) : parentServer( input ) {
 void webserv::testServer::_accepter() {
 	struct sockaddr_in address = _socket->get_address();
 	int new_sd = 0;
-	while ( new_sd != -1 && _current < _Ncon ) {
+	while ( new_sd != -1 && _nb_of_conns < _Ncon ) {
 		new_sd = accept( _socket->get_sock(), (struct sockaddr *) &address, (socklen_t *) &address.sin_len);
 		if ( new_sd < 0 ) {
 			if (errno != EWOULDBLOCK) {
@@ -26,17 +26,17 @@ void webserv::testServer::_accepter() {
 			return ;
 		}
 		printf( "  New incoming connection - %d\n", new_sd );
-		_connections[_current].fd = new_sd;
-		_connections[_current].events = POLLIN;
-		_current++;
+		_connections[_nb_of_conns].fd = new_sd;
+		_connections[_nb_of_conns].events = POLLIN;
+		_nb_of_conns++;
 	}
 }
 
-void webserv::testServer::_handler( int fd ) {
+void webserv::testServer::_handler( int fd, Request request ) {
 	std::ifstream outfile;
 	std::string line;
-	outfile.open("../resp.html");
-	while( getline( outfile, line ) ) {
+	outfile.open("resp.html");
+	while( std::getline( outfile, line ) ) {
 		send( fd, line.c_str(), line.length(), 0 );
 		send( fd, "\n", 1, 0 );
 	}
@@ -45,18 +45,16 @@ void webserv::testServer::_handler( int fd ) {
 }
 
 void webserv::testServer::_responder() {
-
 }
 
 void webserv::testServer::launch() {
 	int rc, i, j;
 	int timeout = 3 * 60 * 1000;
-	_current = 1;
+	_nb_of_conns = 1;
 	int close_conn, end_server, compress_array;
 	do {
-		timeout = 3 * 60 * 1000;
 		std::cout << "Waiting on poll()..." << std::endl;
-		rc = poll( _connections, _current, timeout );
+		rc = poll( _connections, _nb_of_conns, timeout );
 		if ( rc < 0 ) {
 			std::cerr << "  poll() failed" << std::endl;
 			break;
@@ -65,7 +63,7 @@ void webserv::testServer::launch() {
 			std::cerr << "  poll() timed out.  End program." << std::endl;
 			break;
 		}
-		int current_size = _current;
+		int current_size = _nb_of_conns;
 		for ( i = 0; i < current_size; i++ ) {
 			if ( _connections[i].revents == 0 )
 				continue;
@@ -77,10 +75,11 @@ void webserv::testServer::launch() {
 			if ( _connections[i].fd == _socket->get_sock() ) {
 				_accepter();
 			} else {
-				std::cout << "  Descriptor " << _connections[i].fd << " is readable" << std::endl;
+
+
 				close_conn = false;
-				do {
-					memset( _incoming.buf, 0, _incoming.buflen);
+				while ( true ) {
+					memset( _incoming.buf, 0, _incoming.buflen);	//clean struct
 					_incoming.bytesread = recv( _connections[i].fd, _incoming.buf, _incoming.buflen, 0 );
 					if ( _incoming.bytesread < 0 ) {
 						if ( errno != EWOULDBLOCK ) {
@@ -94,16 +93,22 @@ void webserv::testServer::launch() {
 						close_conn = true;
 						break;
 					}
-					std::cout << _incoming.bytesread << " bytes received" << std::endl;
-					std::cout << _incoming.buf << std::endl;
-					_handler( _connections[i].fd );
-//					rc = send( _connections[i].fd, "hoi\n", 4, 0 );
-//					if ( rc < 0 ) {
-//						std::cerr << "  send() failed" << std::endl;
-//						close_conn = true;
-//						break;
-//					}
-				} while ( true );
+					_requests[_connections[i].fd] += _incoming.buf;
+					if ( _requests[_connections[i].fd].find("\r\n\r\n") != std::string::npos ){
+						try{
+							webserv::Request request( _requests[_connections[i].fd] );
+							_handler( _connections[i].fd, request);
+						}
+						catch(Request::IncorrectRequestException& e){		// catches parsing errors from request 
+							std::cout << e.what() << std::endl;
+						}
+						close_conn = true;
+						break;
+					}
+
+				} 
+				
+
 				if ( close_conn ) {
 					close( _connections[i].fd );
 					_connections[i].fd = -1;
@@ -113,18 +118,18 @@ void webserv::testServer::launch() {
 		}
 		if ( compress_array ) {
 			compress_array = false;
-			for ( i = 0; i < _current; i++ ) {
+			for ( i = 0; i < _nb_of_conns; i++ ) {
 				if ( _connections[i].fd == -1 ) {
-					for ( j = i; j < _current; j++ ) {
+					for ( j = i; j < _nb_of_conns; j++ ) {
 						_connections[j].fd = _connections[j + 1].fd;
 					}
 					i--;
-					_current--;
+					_nb_of_conns--;
 				}
 			}
 		}
 	} while ( end_server == false );
-	for ( i = 0; i < _current; i++ ) {
+	for ( i = 0; i < _nb_of_conns; i++ ) {
 		if ( _connections[i].fd >= 0 )
 			close( _connections[i].fd );
 	}
