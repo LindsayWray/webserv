@@ -8,6 +8,7 @@
 #include "../utils/dataStructs.hpp"
 #include "../server/testServer.hpp"
 #include <fstream>
+#include <vector>
 
 #define ERROR -1
 #define NEXTLINE 0
@@ -21,12 +22,16 @@ namespace webserv{
     private:
         std::ifstream _configFile;
         std::string _line;
+        std::vector<std::string> _tokens;
 
     public:
-        parentConfig( char* config_file );
+        parentConfig( const char* config_file );
         ~parentConfig();
 
         int readParseConfigFile( socketData* t_socketData, httpData* t_httpData );
+        void tokenizer( void );
+        int newToken( std::string line );
+        std::vector<std::string> getTokens( void );
         int parseServer( socketData* t_socketData, httpData* t_httpData );
         std::size_t checkLine( const char* str, char c );
 //        void parseLine( std::string line );

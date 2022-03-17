@@ -1,13 +1,16 @@
+//
+// Created by Kester kas De rooij on 3/14/21.
+//
+
 #include "catch.hpp"
 #include "../config/parentConfig.hpp"
 
-#define MAX_VAL 2345
 
 TEST_CASE( "configParsing", "[parentConfig]" ){
-	int a = 1;
-	int b = 1;
+	webserv::parentConfig object( "config.webserv" );
+	std::vector<std::string> thing = object.getTokens();
     SECTION( "index" ){
-		REQUIRE( a == 1 );
-        REQUIRE( b == 1 );
+		REQUIRE( thing[0] == "server{" );
+        REQUIRE( thing[1] == "listen" );
 	}
 }
