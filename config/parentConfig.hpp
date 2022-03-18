@@ -31,12 +31,12 @@ namespace webserv{
         FileType& getFile( void );
         TokenType getTokens( void );
 
-        int setSocket( TokenType::iterator* it, socketData* socketData );
-        int setIndex( TokenType::iterator* it, httpData* httpData );
-        int setLocation( TokenType::iterator* it, httpData* httpData );
-        int setServerName( TokenType::iterator* it, httpData* httpData );
-        int setErrorPage( TokenType::iterator* it, httpData* httpData );
-        int setRedirect( TokenType::iterator* it, httpData* httpData );
+        int setSocket( TokenType::iterator& it, socketData* socketData );
+        int setIndex( TokenType::iterator& it, httpData* httpData );
+        int setLocation( TokenType::iterator& it, httpData* httpData );
+        int setServerName( TokenType::iterator& it, httpData* httpData );
+        int setErrorPage( TokenType::iterator& it, httpData* httpData );
+        int setRedirect( TokenType::iterator& it, httpData* httpData );
 
     private:
         int _newToken( std::string line );

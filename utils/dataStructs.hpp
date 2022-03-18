@@ -45,9 +45,11 @@ namespace webserv{
 
 		void addPort( int newPort ){
 			int i = 0;
-			int len = ports ? sizeof(ports) : 0;
+			int len = ports ? 1 : 0;
 			int* tmp = new int[len + 1];
 
+			std::cout << "len " << len << std::endl;
+			std::cout << "new " << newPort << std::endl;
 			for (; i < len; i++)
 				tmp[i] = ports[i];
 			tmp[i] = newPort;

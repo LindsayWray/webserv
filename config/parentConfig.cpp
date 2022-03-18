@@ -55,18 +55,18 @@ int webserv::parentConfig::parseIntoPieces( httpData* httpData, socketData* sock
 	if ( (it++)->compare("server") || it->compare("{") )
 		return ERROR;
 	while ( ++it != _tokens.end() && it->compare( "}" ) ) {
-		if ( it->compare( "listen" ) )
-			ret = setSocket( &it, socketData );
-		else if ( it->compare( "index" ) )
-			ret = setIndex( &it, httpData );
-		else if ( it->compare( "location" ) )
-			ret = setLocation( &it, httpData );
-		else if ( it->compare( "server_name" ) )
-			ret = setServerName( &it, httpData );
-		else if ( it->compare( "error_page" ) )
-			ret = setErrorPage( &it, httpData );
-		else if ( it->compare( "return" ) )
-			ret = setRedirect( &it, httpData );
+		if ( !it->compare( "listen" ) )
+			ret = setSocket( ++it, socketData );
+		else if ( !it->compare( "index" ) )
+			ret = setIndex( ++it, httpData );
+		else if ( !it->compare( "location" ) )
+			ret = setLocation( ++it, httpData );
+		else if ( !it->compare( "server_name" ) )
+			ret = setServerName( ++it, httpData );
+		else if ( !it->compare( "error_page" ) )
+			ret = setErrorPage( ++it, httpData );
+		else if ( !it->compare( "return" ) )
+			ret = setRedirect( ++it, httpData );
 		else
 			return ERROR;
 		if ( ret == ERROR )
@@ -75,89 +75,72 @@ int webserv::parentConfig::parseIntoPieces( httpData* httpData, socketData* sock
 	return SUCCES;
 }
 
-int webserv::parentConfig::setSocket( TokenType::iterator* it, socketData* socketData ){
-	TokenType::iterator tmp = ++(*it);
-
+int webserv::parentConfig::setSocket( TokenType::iterator& it, socketData* socketData ){
 	try {
-		socketData->addPort( stoi(*tmp) );
+		socketData->addPort( stoi(*it) );
 	} catch ( std::exception &e ){ // TODO:: test to see if "iterator out of bounds" will be catched properly;
-		std::cerr << "parentConfig::setSocket " << e.what() << std::endl;
+		std::cerr << "parentConfig::setSocket " << *it << " " << e.what() << std::endl;
 		return ERROR;
 	}
-	if ( (++tmp)->compare(";") )
+	if ( (++it)->compare(";") )
 		return ERROR;
-	*it = tmp;
 	return SUCCES;
 }
 
-int webserv::parentConfig::setIndex( TokenType::iterator* it, httpData* httpData ){
-	TokenType::iterator tmp = ++(*it);
-
-	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+int webserv::parentConfig::setIndex( TokenType::iterator& it, httpData* httpData ){
+	if ( it == _tokens.end() || !(++it)->compare(";") )
 		return ERROR;
-	for (; tmp != _tokens.end() && (tmp)->compare(";"); tmp++ )
-		httpData->index.push_back( *tmp );
-	if ( tmp == _tokens.end() )
+	for (; it != _tokens.end() && (it)->compare(";"); it++ )
+		httpData->index.push_back( *it );
+	if ( it == _tokens.end() )
 		return ERROR;
-	*it = tmp;
 	return SUCCES;
 }
 
-int webserv::parentConfig::setServerName( TokenType::iterator* it, httpData* httpData ){
-	TokenType::iterator tmp = ++(*it);
-
-	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+int webserv::parentConfig::setServerName( TokenType::iterator& it, httpData* httpData ){
+	if ( it == _tokens.end() || !(++it)->compare(";") )
 		return ERROR;
-	for (; tmp != _tokens.end() && (tmp)->compare(";"); tmp++ )
-		httpData->server_name.push_back( *tmp );
-	if ( tmp == _tokens.end() )
+	for (; it != _tokens.end() && (it)->compare(";"); it++ )
+		httpData->server_name.push_back( *it );
+	if ( it == _tokens.end() )
 		return ERROR;
-	*it = tmp;
 	return SUCCES;
 }
 
-int webserv::parentConfig::setRedirect( TokenType::iterator* it, httpData* httpData ){
-	TokenType::iterator tmp = ++(*it);
-
-	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+int webserv::parentConfig::setRedirect( TokenType::iterator& it, httpData* httpData ){
+	if ( it == _tokens.end() || !(++it)->compare(";") )
 		return ERROR;
 	try {
-		httpData->redirect.emplace_back( std::make_pair(std::stoi( *(tmp++) ), (*tmp)));
+		httpData->redirect.emplace_back( std::make_pair(std::stoi( *(it++) ), (*it)));
 	} catch ( std::exception &e ){
-		std::cerr << "parentConfig::setRedirect " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
+		std::cerr << "parentConfig::setRedirect " << *it << " " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
 		return ERROR;
 	}
-	if ( tmp == _tokens.end() || (++tmp)->compare(";") ) // TODO:: check different url's to see if some charachters mess up the tokenizer
+	if ( it == _tokens.end() || (++it)->compare(";") ) // TODO:: check different url's to see if some charachters mess up the tokenizer
 		return ERROR;
-	*it = tmp;
 	return SUCCES;
 }
 
-int webserv::parentConfig::setErrorPage( TokenType::iterator* it, httpData* httpData ){
-	TokenType::iterator tmp = ++(*it);
-
-	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+int webserv::parentConfig::setErrorPage( TokenType::iterator& it, httpData* httpData ){
+	if ( it == _tokens.end() || !(++it)->compare(";") )
 		return ERROR;
-	for (; tmp != _tokens.end() && (tmp)->compare(";"); tmp++ ){
+	for (; it != _tokens.end() && (it)->compare(";"); it++ ){
 		try {
-			httpData->error_page.emplace_back( std::make_pair(std::stoi( *(tmp++) ), (*tmp)));
+			httpData->error_page.emplace_back( std::make_pair(std::stoi( *(it++) ), (*it)));
 		} catch ( std::exception &e ){
-			std::cerr << "parentConfig::setErrorPage " << e.what() << std::endl;
+			std::cerr << "parentConfig::setErrorPage " << *it << " " << e.what() << std::endl;
 			return ERROR;
 		}
 	}
-	*it = tmp;
 	return SUCCES;
 }
 
-int webserv::parentConfig::setLocation( TokenType::iterator* it, httpData* httpData ){
-	TokenType::iterator tmp = ++(*it);
+int webserv::parentConfig::setLocation( TokenType::iterator& it, httpData* httpData ){
 	int ret = SUCCES;
 //
-//	if ( tmp == _tokens.end() || (++tmp) == ";" )
+//	if ( it == _tokens.end() || (++it) == ";" )
 //		return ERROR;
-//	if ( !(++tmp)->compare("{") || (++tmp)->compare(";") )
-	*it = tmp;
+//	if ( !(++it)->compare("{") || (++it)->compare(";") )
 	return ret;
 }
 
