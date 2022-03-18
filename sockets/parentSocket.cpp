@@ -7,7 +7,7 @@
 webserv::parentSocket::parentSocket( socketData input ){
 	_address.sin_addr.s_addr = input.interface;
 	_address.sin_family = input.domain;
-	_address.sin_port = htons( input.port);
+	_address.sin_port = htons( input.ports);
 	_socket = socket( input.domain, input.service, input.protocol );
 	test_connection( "Socket", _socket );
 }

@@ -36,7 +36,7 @@ void webserv::serverSocket::set_sockt_opt( int option ) {
 	 * level = SOL_SOCKET -> manipulate options at parentSocket level
 	 * option_name =
 	 * -    SO_REUSEADDR = allow parentSocket descriptor to be reusable <sys/parentSocket.h>
-	 * -    SO_REUSEPORT = allow port to be reusable
+	 * -    SO_REUSEPORT = allow ports to be reusable
 	 * "The parameters option_value and option_len are used to access option values for setsockopt()"
 	 */
 }

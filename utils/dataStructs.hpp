@@ -8,10 +8,14 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <netinet/in.h>
+
+#define SUCCES 0
+#define ERROR 1
 
 #define GET 0
 #define POST 1
-#define RESPONSE 2
+#define DELETE 2
 
 namespace webserv{
 
@@ -19,20 +23,59 @@ namespace webserv{
 		int domain;
 		int service;
 		int protocol;
-		int port;
+		int* ports;
 		u_long interface;
 		int backlog;
 		int worker_connections;
+
+		socketData( void ){
+			domain = AF_INET;
+			service = SOCK_STREAM;
+			protocol = 0;
+			ports = NULL;
+			interface = INADDR_ANY;
+			backlog = 32;
+			worker_connections = 0;
+		}
+
+		~socketData( void ){
+			delete ports;
+		}
+
+		void addPort( int newPort ){
+			int i = 0;
+			int len = ports ? sizeof(ports) : 0;
+			int* tmp = new int[len + 1];
+
+			for (; i < len; i++)
+				tmp[i] = ports[i];
+			tmp[i] = newPort;
+			delete ports;
+			ports = tmp;
+		}
+	};
+
+	struct locationData{
+		std::string location;
+		std::string root;
+		int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
+		bool autoindex;
+
+		locationData( void ){
+			root = "NONE";
+			memset( allowed_response, 1, 3);
+			autoindex = false;
+		}
 	};
 
 	struct httpData{
 	    std::vector<std::string> server_name;
-        std::string root;
-        int allowed_response[3];
-	    std::map<int, std::string> error_page;
-        std::map<int, std::string> redirect;
-        bool autoindex;
+		std::vector<std::string> index;
+	    std::vector<std::pair<int, std::string>> error_page; // maybe map because of unique key's
+        std::vector<std::pair<int, std::string>> redirect; // but vector is chronological which is nice
+		std::vector<locationData> locations;
 	};
+
 
 	struct readData{
 		char* buf;

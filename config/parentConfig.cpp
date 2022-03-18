@@ -4,13 +4,14 @@
 
 #include "parentConfig.hpp"
 
-
 webserv::parentConfig::parentConfig( const char* config_file ) {
 	_configFile.open( config_file, std::fstream::in );
-	std::cout << " good()=" << _configFile.good();
-	std::cout << " eof()=" << _configFile.eof();
-	std::cout << " fail()=" << _configFile.fail();
-	std::cout << " bad()=" << _configFile.bad();
+	if ( _configFile.fail() )
+		std::cerr << "opening file failed" << std::endl;
+	if ( _configFile.bad() )
+		std::cerr << "opened file is bad" << std::endl;
+	if ( _configFile.eof() )
+		std::cerr << "end of file while opening" << std::endl;
     tokenizer();
     return;
 }
@@ -26,12 +27,12 @@ void webserv::parentConfig::tokenizer( void ){
 	while ( getline( _configFile, line ) ){
 		for( int i = 0; line[i]; i++ ){
 			if ( !isspace( line[i] ) )
-				i += newToken( &line[i] );
+				i += _newToken( &line[i] );
 		}
 	}
 }
 
-int webserv::parentConfig::newToken( std::string line ){
+int webserv::parentConfig::_newToken( std::string line ){
 	std::string token;
 	int i = 0;
 
@@ -47,58 +48,125 @@ int webserv::parentConfig::newToken( std::string line ){
 	return --i;
 }
 
-std::vector<std::string> webserv::parentConfig::getTokens( void ){
+int webserv::parentConfig::parseIntoPieces( httpData* httpData, socketData* socketData ){
+	TokenType::iterator it = _tokens.begin();
+	int ret;
+
+	if ( (it++)->compare("server") || it->compare("{") )
+		return ERROR;
+	while ( ++it != _tokens.end() && it->compare( "}" ) ) {
+		if ( it->compare( "listen" ) )
+			ret = setSocket( &it, socketData );
+		else if ( it->compare( "index" ) )
+			ret = setIndex( &it, httpData );
+		else if ( it->compare( "location" ) )
+			ret = setLocation( &it, httpData );
+		else if ( it->compare( "server_name" ) )
+			ret = setServerName( &it, httpData );
+		else if ( it->compare( "error_page" ) )
+			ret = setErrorPage( &it, httpData );
+		else if ( it->compare( "return" ) )
+			ret = setRedirect( &it, httpData );
+		else
+			return ERROR;
+		if ( ret == ERROR )
+			return ret;
+	}
+	return SUCCES;
+}
+
+int webserv::parentConfig::setSocket( TokenType::iterator* it, socketData* socketData ){
+	TokenType::iterator tmp = ++(*it);
+
+	try {
+		socketData->addPort( stoi(*tmp) );
+	} catch ( std::exception &e ){ // TODO:: test to see if "iterator out of bounds" will be catched properly;
+		std::cerr << "parentConfig::setSocket " << e.what() << std::endl;
+		return ERROR;
+	}
+	if ( (++tmp)->compare(";") )
+		return ERROR;
+	*it = tmp;
+	return SUCCES;
+}
+
+int webserv::parentConfig::setIndex( TokenType::iterator* it, httpData* httpData ){
+	TokenType::iterator tmp = ++(*it);
+
+	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+		return ERROR;
+	for (; tmp != _tokens.end() && (tmp)->compare(";"); tmp++ )
+		httpData->index.push_back( *tmp );
+	if ( tmp == _tokens.end() )
+		return ERROR;
+	*it = tmp;
+	return SUCCES;
+}
+
+int webserv::parentConfig::setServerName( TokenType::iterator* it, httpData* httpData ){
+	TokenType::iterator tmp = ++(*it);
+
+	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+		return ERROR;
+	for (; tmp != _tokens.end() && (tmp)->compare(";"); tmp++ )
+		httpData->server_name.push_back( *tmp );
+	if ( tmp == _tokens.end() )
+		return ERROR;
+	*it = tmp;
+	return SUCCES;
+}
+
+int webserv::parentConfig::setRedirect( TokenType::iterator* it, httpData* httpData ){
+	TokenType::iterator tmp = ++(*it);
+
+	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+		return ERROR;
+	try {
+		httpData->redirect.emplace_back( std::make_pair(std::stoi( *(tmp++) ), (*tmp)));
+	} catch ( std::exception &e ){
+		std::cerr << "parentConfig::setRedirect " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
+		return ERROR;
+	}
+	if ( tmp == _tokens.end() || (++tmp)->compare(";") ) // TODO:: check different url's to see if some charachters mess up the tokenizer
+		return ERROR;
+	*it = tmp;
+	return SUCCES;
+}
+
+int webserv::parentConfig::setErrorPage( TokenType::iterator* it, httpData* httpData ){
+	TokenType::iterator tmp = ++(*it);
+
+	if ( tmp == _tokens.end() || !(++tmp)->compare(";") )
+		return ERROR;
+	for (; tmp != _tokens.end() && (tmp)->compare(";"); tmp++ ){
+		try {
+			httpData->error_page.emplace_back( std::make_pair(std::stoi( *(tmp++) ), (*tmp)));
+		} catch ( std::exception &e ){
+			std::cerr << "parentConfig::setErrorPage " << e.what() << std::endl;
+			return ERROR;
+		}
+	}
+	*it = tmp;
+	return SUCCES;
+}
+
+int webserv::parentConfig::setLocation( TokenType::iterator* it, httpData* httpData ){
+	TokenType::iterator tmp = ++(*it);
+	int ret = SUCCES;
+//
+//	if ( tmp == _tokens.end() || (++tmp) == ";" )
+//		return ERROR;
+//	if ( !(++tmp)->compare("{") || (++tmp)->compare(";") )
+	*it = tmp;
+	return ret;
+}
+
+webserv::FileType& webserv::parentConfig::getFile( void ){
+	return _configFile;
+}
+
+webserv::TokenType webserv::parentConfig::getTokens( void ){
 	return _tokens;
 }
 
-//int webserv::parentConfig::readParseConfigFile( socketData* t_socketData, httpData* t_httpData ){
-//    int server = 0;
-//
-//    while ( getline( _configFile, _line ) )
-//        if ( _line.find( "server" ) )
-//            server = parseServer(t_socketData, t_httpData);
-//    if ( !server )
-//        server = parseServer(t_socketData, t_httpData);
-//    return server;
-//}
 
-std::size_t webserv::parentConfig::checkLine( const char* str, char c ){
-    std::size_t found = _line.find_first_not_of( str );
-
-    if ( found == std::string::npos )
-        return NEXTLINE;
-    if ( str[found] != c )
-        return ERROR;
-    return found;
-}
-
-//int webserv::parentConfig::parseServer( socketData *t_socketData, httpData *t_httpData ) {
-//    std::size_t check = checkLine( "server \n\t\v\f\r", '{');
-//    int bracket = 0;
-//
-//    if ( check == ERROR )
-//        return ERROR;
-//    else if ( check == NEXTLINE ) {
-//        while ( getline( _configFile, _line ) ) {
-//            check = checkLine( " \n\t\v\f\r", '{');
-//            if ( check == ERROR )
-//                return ERROR;
-//            if ( check != NEXTLINE )
-//                break;
-//        }
-//    }
-//    while ( getline( _configFile, _line ) ) {
-//        if ( _line.find("index") != std::string::npos )
-//
-//    }
-//}
-//
-//void webserv::parentConfig::parseLine( std::string line ){
-//    static int type = NONE;
-//
-//    if( line.find("index") || type == INDEX ) {
-//
-//        parseIndex(line, &type);
-//    }
-//    if( )
-//}

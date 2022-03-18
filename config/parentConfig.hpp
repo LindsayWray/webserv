@@ -10,31 +10,36 @@
 #include <fstream>
 #include <vector>
 
-#define ERROR -1
-#define NEXTLINE 0
-
-#define NONE 0
-#define INDEX 1
-
 namespace webserv{
 
+	typedef std::vector<std::string> TokenType;
+	typedef std::ifstream FileType;
+
     class parentConfig{
+
     private:
-        std::ifstream _configFile;
+        FileType _configFile;
         std::string _line;
-        std::vector<std::string> _tokens;
+        TokenType _tokens;
 
     public:
         parentConfig( const char* config_file );
         ~parentConfig();
 
-        int readParseConfigFile( socketData* t_socketData, httpData* t_httpData );
         void tokenizer( void );
-        int newToken( std::string line );
-        std::vector<std::string> getTokens( void );
-        int parseServer( socketData* t_socketData, httpData* t_httpData );
-        std::size_t checkLine( const char* str, char c );
-//        void parseLine( std::string line );
+        int parseIntoPieces( httpData* httpData, socketData* socketData );
+        FileType& getFile( void );
+        TokenType getTokens( void );
+
+        int setSocket( TokenType::iterator* it, socketData* socketData );
+        int setIndex( TokenType::iterator* it, httpData* httpData );
+        int setLocation( TokenType::iterator* it, httpData* httpData );
+        int setServerName( TokenType::iterator* it, httpData* httpData );
+        int setErrorPage( TokenType::iterator* it, httpData* httpData );
+        int setRedirect( TokenType::iterator* it, httpData* httpData );
+
+    private:
+        int _newToken( std::string line );
 
     };
 }

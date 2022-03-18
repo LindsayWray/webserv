@@ -1,7 +1,6 @@
 server{
 	listen 80;
 
-	worker_connections		200;
 	index   index.html;
 	location / {
 		autoindex on;
@@ -17,7 +16,7 @@ server {
 
     location / {
     	root    /var/www/site2;
-    	add_header Allow "GET, POST, HEAD" always;
+    	add_header Allow "GET, POST, DELETE" always;
     }
 }
 
