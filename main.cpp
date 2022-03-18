@@ -12,14 +12,14 @@
 int main( int argc, char **argv, char **envp ) {
 
 	webserv::socketData init;
-	init.ports[0] = SERVER_PORT;
+	init.addPort( SERVER_PORT );
 	init.backlog = 32;
 	init.worker_connections = 100;
 	webserv::testServer server( init );
-    for (int i = 0; envp[i]; i++){
-        for (int j = 0; envp[i][j]; j++)
-            std::cout << envp[i][j];
-        std::cout << std::endl;
-    }
+//    for (int i = 0; envp[i]; i++){
+//        for (int j = 0; envp[i][j]; j++)
+//            std::cout << envp[i][j];
+//        std::cout << std::endl;
+//    }
 	server.launch();
 }

@@ -38,8 +38,9 @@ namespace webserv{
 			worker_connections = 0;
 		}
 
-		~socketData( void ){
-			delete ports;
+		~socketData( void ){ // this deconstructor gives sigabort when deleting ports but i dont know why
+//			if ( sizeof(ports) > 0 )
+//				delete ports;
 		}
 
 		void addPort( int newPort ){
