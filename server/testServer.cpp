@@ -41,13 +41,19 @@ void webserv::testServer::_handler( int fd, Request request ) {
 	outfile.open("resp.html");
 	while( std::getline( outfile, line ) ) {
 		send( fd, line.c_str(), line.length(), 0 );
-		send( fd, "\n", 1, 0 );
+		send( fd, "\r\n", 2, 0 );
 	}
-	send( fd, "\n", 1, 0 );
-	send( fd, "\n", 1, 0 );
+	send( fd, "\r\n", 2, 0 );
+	send( fd, "\r\n", 2, 0 );
 }
 
 void webserv::testServer::_responder() {
+}
+
+void print_all( struct pollfd*	_connections ){
+    for (int i = 0; i < 10; i++){
+        std::cout << i << " fd " << _connections[i].fd << " event " << _connections[i].events << " revent " << _connections[i].revents << std::endl;
+    }
 }
 
 void webserv::testServer::launch() {

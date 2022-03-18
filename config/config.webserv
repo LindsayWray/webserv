@@ -1,0 +1,29 @@
+server{
+	listen 80;
+
+	worker_connections		200;
+	index   index.html;
+	location / {
+		autoindex on;
+		root    /var/www/site1;
+	}
+}
+
+server {
+    listen 81;
+    server_name     webserv.com www.webserv.com;
+
+    error_page 404 /error.html;
+
+    location / {
+    	root    /var/www/site2;
+    	add_header Allow "GET, POST, HEAD" always;
+    }
+}
+
+server {
+    listen          82;
+    server_name     old.com www.old.com;
+
+    return 302 http://webserv.com$url;
+}

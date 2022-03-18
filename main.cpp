@@ -9,7 +9,7 @@
 
 #define BUFFLEN 256
 
-int main( void ) {
+int main( int argc, char **argv, char **envp ) {
 	webserv::socketData init;
 	init.domain = AF_INET;
 	init.service = SOCK_STREAM;
@@ -19,6 +19,10 @@ int main( void ) {
 	init.backlog = 32;
 	init.worker_connections = 100;
 	webserv::testServer server( init );
+//    for (int i = 0; envp[i]; i++){
+//        for (int j = 0; envp[i][j]; j++)
+//            std::cout << envp[i][j];
+//        std::cout << std::endl;
+//    }
 	server.launch();
-
 }
