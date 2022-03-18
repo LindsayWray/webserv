@@ -9,8 +9,10 @@
 #include <string>
 
 webserv::testServer::testServer( socketData input ) : parentServer( input ) {
-	_connections->fd = _socket->get_sock();
-	_connections->events = POLLIN;
+	_kq = kqueue();
+	struct	kevent listening_socket_change;
+	EV_SET(&listening_socket_change, _socket->get_sock(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+	kevent(_kq, &listening_socket_change, 1, 0, 0, 0); // listen to listening socket
 }
 
 void webserv::testServer::_accepter() {
@@ -26,8 +28,9 @@ void webserv::testServer::_accepter() {
 			return ;
 		}
 		printf( "  New incoming connection - %d\n", new_sd );
-		_connections[_nb_of_conns].fd = new_sd;
-		_connections[_nb_of_conns].events = POLLIN;
+		struct kevent new_socket_change;
+		EV_SET(&new_socket_change, new_sd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+		kevent(_kq, &new_socket_change, 1, NULL, 0, NULL); // listen for events on newly created socket
 		_nb_of_conns++;
 	}
 }
@@ -51,36 +54,37 @@ void webserv::testServer::launch() {
 	int rc, i, j;
 	int timeout = 3 * 60 * 1000;
 	_nb_of_conns = 1;
+	int nb_of_events = 32; // get good number here
+	struct kevent evList[nb_of_events]; // create space for events
+
 	int close_conn, end_server, compress_array;
-	do {
-		std::cout << "Waiting on poll()..." << std::endl;
-		rc = poll( _connections, _nb_of_conns, timeout );
+	while(true) {
+		std::cout << "Waiting on kqueue() events..." << std::endl;
+		rc = kevent(_kq, 0, 0, evList, nb_of_events, 0);
 		if ( rc < 0 ) {
-			std::cerr << "  poll() failed" << std::endl;
+			std::cerr << "  kqueue() failed" << std::endl;
 			break;
 		}
 		if ( rc == 0 ) {
-			std::cerr << "  poll() timed out.  End program." << std::endl;
+			std::cerr << "  kqueue() timed out.  End program." << std::endl;
 			break;
 		}
-		int current_size = _nb_of_conns;
-		for ( i = 0; i < current_size; i++ ) {
-			if ( _connections[i].revents == 0 )
-				continue;
-			if ( _connections[i].revents != POLLIN ) {
-				std::cerr << "  Error! revents = " << _connections[i].revents << std::endl;
-				end_server = true;
-				break;
+		for ( i = 0; i < rc; i++) {
+			int fd = (int)evList[i].ident; // each event is identified by its socket fd
+
+			if (evList[i].flags & EV_EOF) {
+				printf("Disconnect\n");
+				_nb_of_conns--;
+				close(fd);
+				// Socket is automatically removed from the kq by the kernel.
 			}
-			if ( _connections[i].fd == _socket->get_sock() ) {
+			else if ( fd == _socket->get_sock() ) {
 				_accepter();
 			} else {
-
-
 				close_conn = false;
 				while ( true ) {
 					memset( _incoming.buf, 0, _incoming.buflen);	//clean struct
-					_incoming.bytesread = recv( _connections[i].fd, _incoming.buf, _incoming.buflen, 0 );
+					_incoming.bytesread = recv( fd, _incoming.buf, _incoming.buflen, 0 );
 					if ( _incoming.bytesread < 0 ) {
 						if ( errno != EWOULDBLOCK ) {
 							std::cerr << "  recv() failed" << std::endl;
@@ -93,11 +97,11 @@ void webserv::testServer::launch() {
 						close_conn = true;
 						break;
 					}
-					_requests[_connections[i].fd] += _incoming.buf;
-					if ( _requests[_connections[i].fd].find("\r\n\r\n") != std::string::npos ){
+					_requests[fd] += _incoming.buf;
+					if ( _requests[fd].find("\r\n\r\n") != std::string::npos ){
 						try{
-							webserv::Request request( _requests[_connections[i].fd] );
-							_handler( _connections[i].fd, request);
+							webserv::Request request( _requests[fd] );
+							_handler( fd, request);
 						}
 						catch(Request::IncorrectRequestException& e){		// catches parsing errors from request 
 							std::cout << e.what() << std::endl;
@@ -109,28 +113,28 @@ void webserv::testServer::launch() {
 				} 
 				
 
-				if ( close_conn ) {
-					close( _connections[i].fd );
-					_connections[i].fd = -1;
-					compress_array = true;
-				}
+				// if ( close_conn ) {
+				// 	close( _connections[i].fd );
+				// 	_connections[i].fd = -1;
+				// 	compress_array = true;
+				// }
 			}
 		}
-		if ( compress_array ) {
-			compress_array = false;
-			for ( i = 0; i < _nb_of_conns; i++ ) {
-				if ( _connections[i].fd == -1 ) {
-					for ( j = i; j < _nb_of_conns; j++ ) {
-						_connections[j].fd = _connections[j + 1].fd;
-					}
-					i--;
-					_nb_of_conns--;
-				}
-			}
-		}
-	} while ( end_server == false );
-	for ( i = 0; i < _nb_of_conns; i++ ) {
-		if ( _connections[i].fd >= 0 )
-			close( _connections[i].fd );
+		// if ( compress_array ) {
+		// 	compress_array = false;
+		// 	for ( i = 0; i < _nb_of_conns; i++ ) {
+		// 		if ( _connections[i].fd == -1 ) {
+		// 			for ( j = i; j < _nb_of_conns; j++ ) {
+		// 				_connections[j].fd = _connections[j + 1].fd;
+		// 			}
+		// 			i--;
+		// 			_nb_of_conns--;
+		// 		}
+		// 	}
+		// }
 	}
+	// for ( i = 0; i < _nb_of_conns; i++ ) {
+	// 	if ( _connections[i].fd >= 0 )
+	// 		close( _connections[i].fd );
+	// }
 }
