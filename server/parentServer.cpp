@@ -8,6 +8,7 @@ webserv::parentServer::parentServer( socketData input ){
 	_incoming.buflen = 1024;
 	_incoming.buf = new char[_incoming.buflen];
 	_Ncon = input.worker_connections;
+
 }
 
 webserv::parentServer::~parentServer( void ){

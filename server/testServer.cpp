@@ -101,9 +101,10 @@ void webserv::testServer::launch() {
 					if ( _requests[fd].find("\r\n\r\n") != std::string::npos ){
 						try{
 							webserv::Request request( _requests[fd] );
-							_handler( fd, request);
+							std::cout << "made request object" << std::endl;
+							_handler( fd, request) ;
 						}
-						catch(Request::IncorrectRequestException& e){		// catches parsing errors from request 
+						catch( Request::IncorrectRequestException& e ){		// catches parsing errors from request 
 							std::cout << e.what() << std::endl;
 						}
 						close_conn = true;
@@ -111,30 +112,7 @@ void webserv::testServer::launch() {
 					}
 
 				} 
-				
-
-				// if ( close_conn ) {
-				// 	close( _connections[i].fd );
-				// 	_connections[i].fd = -1;
-				// 	compress_array = true;
-				// }
 			}
 		}
-		// if ( compress_array ) {
-		// 	compress_array = false;
-		// 	for ( i = 0; i < _nb_of_conns; i++ ) {
-		// 		if ( _connections[i].fd == -1 ) {
-		// 			for ( j = i; j < _nb_of_conns; j++ ) {
-		// 				_connections[j].fd = _connections[j + 1].fd;
-		// 			}
-		// 			i--;
-		// 			_nb_of_conns--;
-		// 		}
-		// 	}
-		// }
 	}
-	// for ( i = 0; i < _nb_of_conns; i++ ) {
-	// 	if ( _connections[i].fd >= 0 )
-	// 		close( _connections[i].fd );
-	// }
 }

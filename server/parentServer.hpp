@@ -3,7 +3,6 @@
 //
 #ifndef WEBSERV_PARENTSERVER_HPP
 #define WEBSERV_PARENTSERVER_HPP
-//#include <sys/poll.h>
 #include <sys/event.h>
 #include <map>
 #include "../sockets/listeningSocket.hpp"
@@ -14,8 +13,7 @@ namespace webserv{
 	protected:
 		int _kq;
 		listeningSocket* _socket;
-		//struct pollfd*	_connections;
-		// struct	kevent*		_connections;
+		//struct pollfd*	_connections;	//kqueue maakt dit overbodig
 		readData _incoming;
 		int _Ncon;
 		std::map<int,std::string> _requests;
