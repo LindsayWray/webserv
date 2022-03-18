@@ -50,12 +50,6 @@ void webserv::testServer::_handler( int fd, Request request ) {
 void webserv::testServer::_responder() {
 }
 
-void print_all( struct pollfd*	_connections ){
-    for (int i = 0; i < 10; i++){
-        std::cout << i << " fd " << _connections[i].fd << " event " << _connections[i].events << " revent " << _connections[i].revents << std::endl;
-    }
-}
-
 void webserv::testServer::launch() {
 	int rc, i, j;
 	int timeout = 3 * 60 * 1000;
