@@ -1,15 +1,11 @@
 server{
 	listen 80;
-    listen 81;
-	server_name     webserv.com www.webserv.com;
-    error_page 404 /error.html;
-    return 302 http://webserv.com$url;
+
 
 	index   index.html index.htm;
+
 	location / {
 		autoindex on;
-		root    /var/www/site2;
-
 		root    /var/www/site1;
 	}
 }

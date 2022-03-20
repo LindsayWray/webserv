@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-webserv::testServer::testServer( socketData input ) : parentServer( input ) {
+webserv::testServer::testServer( socketData d_socket, httpData d_http ) : parentServer( d_socket, d_http ) {
 	_kq = kqueue();
 	struct	kevent listening_socket_change;
 	EV_SET(&listening_socket_change, _socket->get_sock(), EVFILT_READ, EV_ADD, 0, 0, NULL);

@@ -18,7 +18,7 @@ namespace webserv{
 		void _responder();
 
 	public:
-		testServer( socketData input );
+		testServer( socketData d_socket, httpData d_http );
 		void launch();
 	};
 }

@@ -19,28 +19,32 @@ namespace webserv{
 
     private:
         FileType _configFile;
-        std::string _line;
+        TokenType::iterator _it;
         TokenType _tokens;
 
     public:
-        parentConfig( const char* config_file );
+        parentConfig( std::string config_file );
         ~parentConfig();
 
         void tokenizer( void );
-        int parseIntoPieces( httpData* httpData, socketData* socketData );
+        int parseIntoPieces( socketData* socketData, httpData* httpData );
+
+        int setSocket( socketData* socketData );
+        int setIndex( httpData* httpData );
+        int setLocation( httpData* httpData );
+        int setServerName( httpData* httpData );
+        int setErrorPage( httpData* httpData );
+        int setRedirect( httpData* httpData );
+
         FileType& getFile( void );
         TokenType getTokens( void );
 
-        int setSocket( TokenType::iterator& it, socketData* socketData );
-        int setIndex( TokenType::iterator& it, httpData* httpData );
-        int setLocation( TokenType::iterator& it, httpData* httpData );
-        int setServerName( TokenType::iterator& it, httpData* httpData );
-        int setErrorPage( TokenType::iterator& it, httpData* httpData );
-        int setRedirect( TokenType::iterator& it, httpData* httpData );
-
     private:
         int _newToken( std::string line );
-
+        int _setLocation( locationData& element );
+        int _setRoot( locationData& element );
+        int _setAllowedResponse( locationData& element );
+        int _setAutoindex( locationData& element );
     };
 }
 

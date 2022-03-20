@@ -9,9 +9,10 @@
 #include <vector>
 #include <map>
 #include <netinet/in.h>
+#include <algorithm>
 
-#define SUCCES 0
 #define ERROR 1
+#define SUCCES 0
 
 #define GET 0
 #define POST 1
@@ -23,7 +24,7 @@ namespace webserv{
 		int domain;
 		int service;
 		int protocol;
-		int* ports;
+		std::vector<int> ports;
 		u_long interface;
 		int backlog;
 		int worker_connections;
@@ -32,29 +33,15 @@ namespace webserv{
 			domain = AF_INET;
 			service = SOCK_STREAM;
 			protocol = 0;
-			ports = NULL;
+			ports.push_back( 80 );
 			interface = INADDR_ANY;
 			backlog = 32;
 			worker_connections = 0;
 		}
 
-		~socketData( void ){ // this deconstructor gives sigabort when deleting ports but i dont know why
-//			if ( sizeof(ports) > 0 )
-//				delete ports;
-		}
-
-		void addPort( int newPort ){
-			int i = 0;
-			int len = ports ? 1 : 0;
-			int* tmp = new int[len + 1];
-
-			std::cout << "len " << len << std::endl;
-			std::cout << "new " << newPort << std::endl;
-			for (; i < len; i++)
-				tmp[i] = ports[i];
-			tmp[i] = newPort;
-			delete ports;
-			ports = tmp;
+		void addPort( int newPort ){ // start on port 80, if no port 80 is defined use other
+			if ( std::find( ports.begin(), ports.end(), newPort ) == ports.end() )
+				ports.push_back( newPort );
 		}
 	};
 

@@ -3,17 +3,17 @@
 //
 
 #include "../config/parentConfig.hpp"
+#include "../utils/stringUtils.hpp"
 
-int main( void ){
-	webserv::parentConfig object( "../config/config.webserv" );
+int main( int arc, char** argv, char** env ){
+	std::string configFile = webserv::setFileLocation( env, "/config/config.webserv" );
+	webserv::parentConfig object( configFile );
 	std::vector<std::string> thing = object.getTokens();
 	webserv::httpData http;
 	webserv::socketData socket;
 
-	for ( std::vector<std::string>::iterator it = object.getTokens().begin(); it < object.getTokens().end(); it++)
-		std::cout << *it << std::endl;
-	std::cout << object.parseIntoPieces( &http, &socket) << std::endl;
-	for ( int i = 0; i < (sizeof(socket.ports) / sizeof(socket.ports[0] )); i++)
+	std::cout << object.parseIntoPieces( &socket, &http ) << std::endl;
+	for ( int i = 0; i < socket.ports.size(); i++)
 		std::cout << "port " << socket.ports[i] << std::endl;
 	for ( std::vector<std::string>::iterator it = http.server_name.begin(); it != http.server_name.end(); it++)
 		std::cout << "server_name " << *it << std::endl;

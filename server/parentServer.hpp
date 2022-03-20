@@ -13,6 +13,7 @@ namespace webserv{
 	class parentServer{
 	protected:
 		int _kq;
+		httpData _http;
 		listeningSocket* _socket;
 		//struct pollfd*	_connections;	//kqueue maakt dit overbodig
 		readData _incoming;
@@ -23,7 +24,7 @@ namespace webserv{
 		virtual void _responder() = 0;
 
 	public:
-		parentServer( socketData input );
+		parentServer( socketData d_socket, httpData d_http );
 		virtual ~parentServer();
 		virtual void launch() = 0;
 		listeningSocket* get_socket();

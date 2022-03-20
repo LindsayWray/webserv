@@ -1,25 +1,19 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/poll.h>
-#include <sys/time.h>
-#include <string.h>
-#include "server/testServer.hpp"
-#include "utils/dataStructs.hpp"
-#define SERVER_PORT 80
-
-#define BUFFLEN 256
+//#include "server/testServer.hpp"
+#include "config/parentConfig.hpp"
+//#include "utils/dataStructs.hpp"
+#include "utils/stringUtils.hpp"
 
 int main( int argc, char **argv, char **envp ) {
+	std::string configFile = webserv::setFileLocation( envp, "/config/config.webserv" );
+	std::cout << configFile << std::endl;
+	webserv::parentConfig object( configFile );
+	std::vector<std::string> thing = object.getTokens();
+	webserv::httpData http;
+	webserv::socketData socket;
 
-	webserv::socketData init;
-	init.addPort( SERVER_PORT );
-	init.backlog = 32;
-	init.worker_connections = 100;
-	webserv::testServer server( init );
-//    for (int i = 0; envp[i]; i++){
-//        for (int j = 0; envp[i][j]; j++)
-//            std::cout << envp[i][j];
-//        std::cout << std::endl;
-//    }
+	if ( object.parseIntoPieces( &socket, &http ) == ERROR )
+		return EXIT_FAILURE;
+	webserv::testServer server( socket, http );
 	server.launch();
+	return EXIT_SUCCESS;
 }
