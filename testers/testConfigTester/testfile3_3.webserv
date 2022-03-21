@@ -1,0 +1,26 @@
+server{
+	listen 3;
+
+	index   index.html index.htm;
+
+    server_name     webserv.com www.webserv.com
+
+    error_page 404 /error.html 303 /error.hh;
+
+    return 302 http://webserv.com$url;
+
+	location / {
+    		autoindex on;
+    		root    /var/www/site1;
+    	}
+
+    	location /www/ {
+        	autoindex off;
+        	root    /var/www/site4;
+        }
+
+        location / {
+        	autoindex on;
+        	root    /var/www/site1;
+        }
+}

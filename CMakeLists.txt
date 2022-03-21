@@ -9,7 +9,7 @@ add_executable(webserv main.cpp
 				server/parentServer.cpp server/testServer.cpp
 				http/Request.cpp
 				config/parentConfig.cpp)
-add_executable(catchConfig catch2/catch.hpp catch2/main.cpp catch2/configParsing.cpp config/parentConfig.cpp testers/parentConfigTester.cpp utils/stringUtils.hpp testers/fakeServer.hpp)
-add_executable(parentConfigTester testers/parentConfigTester.cpp config/parentConfig.cpp)
+add_executable(catchConfig catch2/catch.hpp catch2/main.cpp catch2/configParsing.cpp config/parentConfig.cpp testers/testConfigTester/parentConfigTester.cpp utils/stringUtils.hpp testers/testConfigTester/testConfigParser.hpp)
+add_executable(parentConfigTester testers/testConfigTester/parentConfigTester.cpp config/parentConfig.cpp)
 include_directories(config)
 add_subdirectory(catch2)

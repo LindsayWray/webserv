@@ -11,8 +11,9 @@
 #include <netinet/in.h>
 #include <algorithm>
 
-#define ERROR 1
+#define ERROR -1
 #define SUCCES 0
+#define NEOF 1
 
 #define GET 0
 #define POST 1
@@ -65,7 +66,6 @@ namespace webserv{
         std::vector<std::pair<int, std::string>> redirect; // but vector is chronological which is nice
 		std::vector<locationData> locations;
 	};
-
 
 	struct readData{
 		char* buf;
