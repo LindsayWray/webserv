@@ -4,7 +4,7 @@
 #include "utils/stringUtils.hpp"
 
 int main( int argc, char **argv, char **envp ) {
-	std::string configFile = webserv::setFileLocation( envp, "/config/config.webserv" );
+	std::string configFile = webserv::setFileLocation( envp, "/srcs/config/config.webserv" );
 	std::cout << configFile << std::endl;
 	webserv::parentConfig object( configFile );
 	std::vector<std::string> thing = object.getTokens();
