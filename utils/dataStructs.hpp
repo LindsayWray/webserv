@@ -37,7 +37,7 @@ namespace webserv{
 			ports.push_back( 80 );
 			interface = INADDR_ANY;
 			backlog = 32;
-			worker_connections = 0;
+			worker_connections = 10;
 		}
 
 		void addPort( int newPort ){ // start on port 80, if no port 80 is defined use other
@@ -62,8 +62,8 @@ namespace webserv{
 	struct httpData{
 	    std::vector<std::string> server_name;
 		std::vector<std::string> index;
-	    std::vector<std::pair<int, std::string>> error_page; // maybe map because of unique key's
-        std::vector<std::pair<int, std::string>> redirect; // but vector is chronological which is nice
+	    std::vector<std::pair<int, std::string> > error_page; // maybe map because of unique key's
+        std::vector<std::pair<int, std::string> > redirect; // but vector is chronological which is nice
 		std::vector<locationData> locations;
 	};
 

@@ -13,6 +13,7 @@ int main( int argc, char **argv, char **envp ) {
 
 	if ( object.parseIntoPieces( &socket, &http ) == ERROR )
 		return EXIT_FAILURE;
+		
 	webserv::testServer server( socket, http );
 	server.launch();
 	return EXIT_SUCCESS;

@@ -11,14 +11,11 @@ webserv::Request::Request(std::string req){
 	ss >> _version;
 	ss.ignore(2);
 	
-
-	if(ss.eof()) 	
-        ss.setstate(std::ios::failbit);
+	std::cout << _method << _path << _version << std::endl;
 
 	parse_statusline();
 	
-	std::cout << _method << _path << _version << std::endl;
-	std::cout << "Request --->" << req << "<------ " << std::endl;
+	// std::cout << "Request --->" << req << "<------ " << std::endl;
 
 	std::string header;
 	while( std::getline(ss, header) ){
@@ -29,19 +26,15 @@ webserv::Request::Request(std::string req){
 		std::string key;
 		std::getline(line, key, ':');
 		std::getline(line, _headers[key]);
-		std::cout << "key: " << key << "		value: " << _headers[key] << std::endl;
+		// std::cout << "key: " << key << "		value: " << _headers[key] << std::endl;
 		if ( key.empty() || _headers[key].empty() || _headers[key].find(':') != std::string::npos ){
 			printf("Fault in the headers\n");
 			throw(IncorrectRequestException());
 		}
 	}
 
-	while(ss.peek() != EOF){
-		std::string temp;
-		ss >> temp;
-		_body += temp;
-	}
-	std::cout << "body: " << _body << std::endl;
+	std::getline(ss, _body, (char)26);
+	// std::cout << "body: " << _body << std::endl;
 
 }
 
@@ -60,6 +53,14 @@ void webserv::Request::parse_statusline(){
 		printf("Fault in the statusline, (version)\n");
 		throw(IncorrectRequestException());
 	}
+}
+
+std::string webserv::Request::getPath() const {
+	return this->_path;
+}
+
+std::string webserv::Request::getMethod() const {
+	return this->_method;
 }
 
 
@@ -105,12 +106,4 @@ void webserv::Request::parse_statusline(){
 //    cause others to cease parsing.
 
 
-// POST /cgi-bin/process.cgi HTTP/1.1
-// User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
-// Host: www.tutorialspoint.com
-// Content-Type: application/x-www-form-urlencoded
-// Content-Length: length
 
-// licenseID=string&content=string&/paramsXML=string
-// xml version="1.0" encoding="utf-8"?>
-// string xmlns="ht//clearforest.com/">string/string

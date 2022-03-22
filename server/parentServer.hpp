@@ -8,6 +8,7 @@
 #include <map>
 #include "../sockets/listeningSocket.hpp"
 #include "../http/Request.hpp"
+#include "../http/HTTPResponseMessage.hpp"
 
 namespace webserv{
 	class parentServer{
@@ -15,13 +16,12 @@ namespace webserv{
 		int _kq;
 		httpData _http;
 		listeningSocket* _socket;
-		//struct pollfd*	_connections;	//kqueue maakt dit overbodig
 		readData _incoming;
 		int _Ncon;
 		std::map<int,std::string> _requests;
 		virtual void _accepter() = 0;
-		virtual void _handler( int, Request ) = 0;
-		virtual void _responder() = 0;
+		virtual HTTPResponseMessage _handler( Request ) = 0;
+		virtual void _responder(int fd, HTTPResponseMessage response) = 0;
 
 	public:
 		parentServer( socketData d_socket, httpData d_http );
