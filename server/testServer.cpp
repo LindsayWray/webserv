@@ -52,18 +52,18 @@ HTTPResponseMessage webserv::testServer::_handler( Request request ) {
 		while( std::getline( file, line ) ) {
 			body += (line + '\n');
 		}
-		response.addStatus(HTTPResponseMessage::SUCCESS)
-							.addTypeExt("text/html") // tells the client which datatype it can expect in the body
+		response.addStatus(HTTPResponseMessage::OK)
+							//.addTypeExt("text/html") // tells the client which datatype it can expect in the body
 							.addLength(body.length())
-							.addBody(body);
+							.addBody(&body);
 	} else {
 		std::cout << "File not found " << root + request.getPath() << std::endl;
 
 		body = "Not Found";
 		response.addStatus(HTTPResponseMessage::NOT_FOUND)
-					.addTypeExt("text/plain")
+					//.addTypeExt("text/plain")
 					.addLength(body.length())
-					.addBody(body);
+					.addBody(&body);
 	}
 	return response;
 }
