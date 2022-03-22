@@ -3,7 +3,7 @@
 //
 
 #include "catch.hpp"
-#include "../config/parentConfig.hpp"
+#include "parentConfig.hpp"
 
 
 TEST_CASE( "configParsing", "[parentConfig]" ){
