@@ -54,13 +54,6 @@ public:
 	HTTPResponseMessage() {};
 	~HTTPResponseMessage() {};
 
-	void setStatus( const e_responseStatusCode status )
-		{ this->status = status; this->message = &responseStatusMessages[status]; }
-	void setTypeCat( const e_contentTypeCategory typeCat ) { this->typeCat = typeCat; }
-	void setTypeExt( const std::string* typeExt ) { this->typeExt = typeExt; }
-	void setLength( const unsigned int contentLength ) { length = contentLength; }
-	void setBody( const std::string* body ) { this->body = body; }
-
 	/** In case you want to try out adders instead of setters:
 	 *  HTTPResponseMessage response()
 	 *								.addStatus(SUCCESS)

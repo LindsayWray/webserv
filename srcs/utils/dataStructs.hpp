@@ -15,10 +15,6 @@
 #define SUCCES 0
 #define NEOF 1
 
-#define GET 0
-#define POST 1
-#define DELETE 2
-
 namespace webserv{
 
 	struct socketData{
