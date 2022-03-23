@@ -2,7 +2,7 @@
 
 #include <string>
 #include <map>
-#include <ctime>
+#include <chrono>
 
 class HTTPResponseMessage {
 public:
@@ -46,7 +46,7 @@ private:
 	unsigned int 					length;		// Need From RequestHandler
 	e_contentTypeCategory			typeCat;	// Need From RequestHandler
 	std::string						typeExt;	// Need From RequestHandler
-	inline static const time_t 		date = std::time(NULL);
+	std::string						_getDateStr() const;
 	inline static const std::string server = "Wonderkid & Co's Webserver";
 
 	/** Body */

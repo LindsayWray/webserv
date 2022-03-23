@@ -1,7 +1,7 @@
 #include "HTTPResponseMessageTest.hpp"
 #include <iostream>
 
-// clang++ -std=c++17 HTTPResponseMessageTest.cpp ../../srcs/http/HTTPResponseMessage.cpp -I../../srcs/http -I.
+// clang++ -std=c++17 HTTPResponseMessageTest.cpp ../../srcs/http/HTTPResponseMessage.cpp -I../../srcs/http -I. -o testHTTPResponseMessage && ./testHTTPResponseMessage && rm testHTTPResponseMessage
 
 void HTTPResponseMessageTest::statusCodeMessages() {
     if (HTTPResponseMessage::responseStatusMessages.at(200) != "OK")
@@ -11,7 +11,7 @@ void HTTPResponseMessageTest::statusCodeMessages() {
 }
 
 void HTTPResponseMessageTest::format() {
-    std::string body = "<!doctype html><html><head><title>Our Funky HTML Page</title><meta name=\"description\" content=\"Our first page\"><meta name=\"keywords\" content=\"html tutorial template\"></head><body>Content goes here.</body></html>";
+    std::string body = "<!doctype html>\n<html>\n<head>\n\t<title>Our Funky HTML Page</title>\n</head></html>";
     HTTPResponseMessage sut;
     sut.addStatus(HTTPResponseMessage::OK)
         .addTypeCat(HTTPResponseMessage::TEXT)

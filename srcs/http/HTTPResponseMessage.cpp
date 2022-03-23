@@ -35,14 +35,19 @@ const std::map<int, const std::string> HTTPResponseMessage::contentTypeCategorie
 const std::string HTTPResponseMessage::format() const {
 	std::string output;
 
-	output = protocol + ' ' + std::to_string(static_cast<int>(status)) + ' ' + message + '\n'+
+	output =
+		protocol + ' ' + std::to_string(static_cast<int>(status)) + ' ' + message + '\n'+
 		"content-length: " + std::to_string(length) + '\n' +
-		"content-type: " + contentTypeCategories.at(static_cast<int>(typeCat)) + '/' + typeExt + '\n' +
-		// Wed, 23 Mar 2022 14:31:57 GMT
-		"date: " + /* std::size_t strftime( char* str, std::size_t count, const char* format, const std::tm* time ) + */ '\n' +
+		"date: " + _getDateStr() + 
 		"server: " + server + '\n' +
 		'\n' +
 		body;
 
 	return output;
+}
+
+std::string HTTPResponseMessage::_getDateStr() const {
+	auto now = std::chrono::system_clock::now();
+    std::time_t end_time = std::chrono::system_clock::to_time_t(now);
+    return std::ctime(&end_time);
 }
