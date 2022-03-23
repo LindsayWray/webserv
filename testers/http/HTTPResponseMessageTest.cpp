@@ -10,23 +10,22 @@ void HTTPResponseMessageTest::statusCodeMessages() {
         throw std::exception();
 }
 
-void HTTPResponseMessageTest::format() {
-    std::string body = "<!doctype html>\n<html>\n<head>\n\t<title>Our Funky HTML Page</title>\n</head></html>";
+void HTTPResponseMessageTest::toString() {
+    std::string body = "<!doctype html>\n<html>\n<head>\n\t<title>Our Funky HTML Page</title>\n</head>\n</html>";
     HTTPResponseMessage sut;
     sut.addStatus(HTTPResponseMessage::OK)
         .addTypeCat(HTTPResponseMessage::TEXT)
         .addTypeExt("html")
         .addLength(body.length())
-        .addBody(body);
-                        
-    std::cout << sut.format();
+        .addBody(body);    
+    std::cout << sut.toString();
 }
 
 int main() {
     HTTPResponseMessageTest test;
 
     test.statusCodeMessages();
-    test.format();
+    test.toString();
 
     return 0;
 }

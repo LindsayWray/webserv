@@ -83,5 +83,9 @@ public:
 	HTTPResponseMessage&
 	addBody( const std::string body ) { this->body = body; return *this; }
 
-	const std::string format() const;
+	const std::string toString() const;
+
+private:
+	const std::string _getStatusCodeStr() const;
+	const std::string _getTypeCatStr() const;
 };

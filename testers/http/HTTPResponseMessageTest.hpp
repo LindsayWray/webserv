@@ -5,5 +5,5 @@
 class HTTPResponseMessageTest {
 public:
     void statusCodeMessages();
-    void format();
+    void toString();
 };
