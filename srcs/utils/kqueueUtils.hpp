@@ -22,6 +22,17 @@ int init_servers( SERVER_MAP& serverMap, char* filename, char** env, webserv::kq
 
     int server = 0, ret = NEOF, sockets = 0;
 
+    /*
+     * this next block parses the config file by server{ } block
+     * all the ports are saved per server in socketData
+     * this might be obsolete in the current setup but works for now
+     * all the server specific data is saved in httpData
+     *
+     * kqData has:
+     * kq
+     * current connections (nbr_connections)
+     * max connections (worker_connections)
+     */
     do {
         http_vec.push_back( new webserv::httpData(root) );
         socket_vec.push_back( new webserv::socketData() );
@@ -39,8 +50,16 @@ int init_servers( SERVER_MAP& serverMap, char* filename, char** env, webserv::kq
         return ERROR;
     }
 
-    struct kevent in_events[sockets];
 
+    /*
+     * serverMap consists of:
+     * first type : fd of the socket we are listening to;
+     * second type: pair of listeningSocket and httpData connected to that socket
+     *
+     * in the next block are all sockets initialized and put in the serverMap
+     * also all the listening kevent elements are set with EV_SET
+     */
+    struct kevent in_events[sockets];
     webserv::listeningSocket* socket_tmp;
     int i =0;
     for ( int serv = 0; serv < socket_vec.size(); serv++ ){

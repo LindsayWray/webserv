@@ -11,8 +11,21 @@ int main( int argc, char **argv, char **env ) {
         return EXIT_FAILURE;
     int nev, serv, current_fd;
     struct kevent* event = new struct kevent[kqData.worker_connections];
-    webserv::readData _incoming;
+    kqData.nbr_connections = 1;
 
+    /*
+     * code is almost the same as the one in testServer.launch()
+     * the logic behind the first bit should work **{prays to the gods}**
+     * the accept function is now a non member function taking some parameters
+     *
+     * the while_ loop of the last else statement is practically unchanged from the one in testServer
+     * so the request, handler and responder functions should be re-engineerd so that they are stand alone
+     * you can access all the http data in serverMap
+     *
+     * serverMap[ fd ].first = listeningSocket;
+     * serverMap[ fd ].second = httpData;
+     *
+     */
     while ( true ){
         std::cout << "Waiting on kqueue() events..." << std::endl;
         nev = kevent(kqData.kq, NULL, 0, event, kqData.worker_connections, NULL);
