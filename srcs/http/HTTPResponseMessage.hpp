@@ -80,4 +80,14 @@ public:
 	addLength( const unsigned int contentLength ) { length = contentLength; return *this; }
 	HTTPResponseMessage&
 	addBody( const std::string* body ) { this->body = body; return *this; }
+
+	std::string& format() const {
+		std::string output;
+
+		output = protocol + ' ' + std::to_string((int)status);
+
+		return output;
+	}
+
+
 };
