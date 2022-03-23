@@ -4,7 +4,7 @@
 
 #include "clientSocket.hpp"
 
-webserv::clientSocket::clientSocket( socketData input ) : parentSocket( input ) {
+webserv::clientSocket::clientSocket( socketData input, int port ) : parentSocket( input, port ) {
 	connect_to_network();
 	test_connection( "Connecting", _connection );
 }

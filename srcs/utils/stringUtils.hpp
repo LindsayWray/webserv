@@ -26,16 +26,13 @@ namespace webserv{
 		return i;
 	}
 
-	std::string setFileLocation(httpData& http, char** env, std::string path, std::string file ){
+	std::string setFileLocation(char** env ){
 		int pwd = findPWD( env );
 		if ( pwd == ERROR )
 			return "PWDNOTFOUND";
 		std::string current( env[pwd] );
 		int pos = current.find("webserv");
 		std::string root = current.substr(4, pos + 3  );
-		http.abs_path = root;
-		root.append( path );
-		root.append( file );
 		return root;
 	}
 

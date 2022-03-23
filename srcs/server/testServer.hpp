@@ -14,12 +14,12 @@ namespace webserv{
 	protected:
 		char _buffer[20];
 		int	_nb_of_conns;
-		void _accepter();
+		void _accepter( int );
 		HTTPResponseMessage _handler( Request );
 		void _responder(int fd, HTTPResponseMessage response);
 
 	public:
-		testServer( socketData d_socket, httpData d_http );
+		testServer( socketData* d_socket, httpData* d_http );
 		void launch();
 	};
 }

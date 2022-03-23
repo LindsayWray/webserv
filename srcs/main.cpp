@@ -1,17 +1,65 @@
-#include "config/parentConfig.hpp"
-#include "utils/stringUtils.hpp"
+#include "utils/kqueueUtils.hpp"
+#include "../server/accept.hpp"
+#include <unistd.h>
 
-int main( int argc, char **argv, char **envp ) {
+int main( int argc, char **argv, char **env ) {
     if ( argc != 2 )
         return EXIT_FAILURE;
-	webserv::httpData http;
-	webserv::parentConfig object( webserv::setFileLocation( http, envp, "/var/sites_enabled/", argv[1] ) );
-	webserv::socketData socket;
+    SERVER_MAP serverMap;
+    webserv::kqConData kqData;
+    if ( init_servers(serverMap, argv[1], env, kqData) == ERROR )
+        return EXIT_FAILURE;
+    int nev, serv, current_fd;
+    struct kevent* event = new struct kevent[kqData.worker_connections];
+    webserv::readData _incoming;
 
-	if ( object.parseIntoPieces( &socket, &http ) == ERROR )
-		return EXIT_FAILURE;
-		
-	webserv::testServer server( socket, http );
-	server.launch();
+    while ( true ){
+        std::cout << "Waiting on kqueue() events..." << std::endl;
+        nev = kevent(kqData.kq, NULL, 0, event, kqData.worker_connections, NULL);
+        if ( nev == ERROR ) {
+            std::cerr << "  kqueue() failed" << std::endl;
+            break;
+        } else if ( nev == 0 ){
+            std::cerr << "  kqueue() timed out.  End program." << std::endl;
+            break;
+        }
+        for ( int i = 0; i < nev; i++ ){
+            current_fd = event[i].ident;
+            if ( event[i].flags & EV_EOF ){
+                std::cerr << "Disconnected" << std::endl;
+                close( current_fd );
+            } else if ( serverMap.find( current_fd ) != serverMap.end() )
+                accept( serverMap.find( current_fd )->second.first , kqData );
+            else {
+                while ( true ) {
+                    memset( _incoming.buf, 0, _incoming.buflen);	//clean struct
+                    _incoming.bytesread = recv( current_fd, _incoming.buf, _incoming.buflen, 0 );
+                    if ( _incoming.bytesread < 0 ) {
+                        if ( errno != EWOULDBLOCK )
+                            std::cerr << "  recv() failed" << std::endl;
+                        break;
+                    }
+                    if ( _incoming.bytesread == 0 ) {
+                        std::cout << "  Connection closed" << std::endl;
+                        break;
+                    }
+                    _requests[current_fd] += _incoming.buf;
+                    if ( _requests[current_fd].find("\r\n\r\n") != std::string::npos ){
+                        try{
+                            webserv::Request request( _requests[current_fd] );
+                            std::cout << "made request object" << std::endl;
+                            HTTPResponseMessage response = _handler( request);
+                            _responder(current_fd, response);
+                        }
+                        catch( Request::IncorrectRequestException& e ){		// catches parsing errors from request
+                            std::cout << e.what() << std::endl;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
 	return EXIT_SUCCESS;
 }
+

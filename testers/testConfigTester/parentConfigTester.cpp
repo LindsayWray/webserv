@@ -2,7 +2,7 @@
 // Created by Kas on 17/03/2022.
 //
 
-#include "parentConfig.hpp"
+#include "configParser.hpp"
 #include "../../srcs/utils/stringUtils.hpp"
 #include "testConfigParser.hpp"
 
@@ -53,13 +53,19 @@ void clearAll( webserv::httpData* http, webserv::socketData* socket ){
 }
 
 int main( int argc, char** argv, char** env ){
-	webserv::httpData http1, http2, http3, http4, http5;
-	std::string configFile1 = webserv::setFileLocation( http1, env, "/testers/testConfigTester/", "testfile1.webserv" );
-	std::string configFile2 = webserv::setFileLocation( http2, env, "/testers/testConfigTester/", "testfile2.webserv" );
-    http3.abs_path = http2.abs_path;
-    http4.abs_path = http2.abs_path;
-	webserv::parentConfig test1( configFile1 );
-	webserv::parentConfig test2( configFile2 );
+    std::string root = webserv::setFileLocation( env );
+	webserv::httpData http1( root );
+    webserv::httpData http2( root );
+    webserv::httpData http3( root );
+    webserv::httpData http4( root );
+    webserv::httpData http5( root );
+    root.append("/testers/testConfigTester/");
+	std::string configFile1 = root;
+	std::string configFile2 = root;
+	configFile1.append( "testfile1.webserv" );
+    configFile2.append( "testfile2.webserv" );
+	webserv::configParser test1(configFile1 );
+	webserv::configParser test2(configFile2 );
 	webserv::socketData socket1, socket2, socket3, socket4, socket5;
 	int ret;
 
@@ -83,85 +89,101 @@ int main( int argc, char** argv, char** env ){
 
 	std::cout << CYAN << "\n---- check every variable without ; ----" << RESET << std::endl;
 
-	std::string configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_1.webserv" );
-	webserv::parentConfig test3_1 ( configFile3 );
+    std::string configFile3 = root;
+    configFile3.append( "testfile3_1.webserv" );
+	webserv::configParser test3_1 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 1 parsing: " << test3_1.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_2.webserv" );
-	webserv::parentConfig test3_2 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_2.webserv" );
+	webserv::configParser test3_2 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 2 parsing: " << test3_2.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_3.webserv" );
-	webserv::parentConfig test3_3 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_3.webserv" );
+	webserv::configParser test3_3 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 3 parsing: " << test3_3.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_4.webserv" );
-	webserv::parentConfig test3_4 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_4.webserv" );
+	webserv::configParser test3_4 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 4 parsing: " << test3_4.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_5.webserv" );
-	webserv::parentConfig test3_5 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_5.webserv" );
+	webserv::configParser test3_5 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 5 parsing: " << test3_5.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_6.webserv" );
-	webserv::parentConfig test3_6 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_6.webserv" );
+	webserv::configParser test3_6 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 6 parsing: " << test3_6.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_7.webserv" );
-	webserv::parentConfig test3_7 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_7.webserv" );
+	webserv::configParser test3_7 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 7 parsing: " << test3_7.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile3_8.webserv" );
-	webserv::parentConfig test3_8 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_8.webserv" );
+	webserv::configParser test3_8 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 8 parsing: " << test3_8.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile3 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile1.webserv" );
-	webserv::parentConfig test3_9 ( configFile3 );
+    configFile3 = root;
+    configFile3.append( "testfile3_9.webserv" );
+	webserv::configParser test3_9 (configFile3 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: reference parsing: " << test3_9.parseIntoPieces( &socket5, &http5 ) << " expected: " << SUCCES << RESET << std::endl;
 
 	std::cout << CYAN << "\n---- check every variable without ; ----" << RESET << std::endl;
 
-	std::string configFile4 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile4_1.webserv" );
-	webserv::parentConfig test4_1 ( configFile4 );
+	std::string configFile4 = root;
+    configFile4.append( "testfile4_1.webserv" );
+	webserv::configParser test4_1 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 1 parsing: " << test4_1.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile4 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile4_2.webserv" );
-	webserv::parentConfig test4_2 ( configFile4 );
+    configFile4 = root;
+    configFile4.append( "testfile4_2.webserv" );
+	webserv::configParser test4_2 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 2 parsing: " << test4_2.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile4 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile4_3.webserv" );
-	webserv::parentConfig test4_3 ( configFile4 );
+    configFile4 = root;
+    configFile4.append( "testfile4_3.webserv" );
+	webserv::configParser test4_3 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 3 parsing: " << test4_3.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile4 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile4_4.webserv" );
-	webserv::parentConfig test4_4 ( configFile4 );
+    configFile4 = root;
+    configFile4.append( "testfile4_4.webserv" );
+	webserv::configParser test4_4 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 4 parsing: " << test4_4.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile4 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile4_5.webserv" );
-	webserv::parentConfig test4_5 ( configFile4 );
+    configFile4 = root;
+    configFile4.append( "testfile4_5.webserv" );
+	webserv::configParser test4_5 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 5 parsing: " << test4_5.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile4 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile4_6.webserv" );
-	webserv::parentConfig test4_6 ( configFile4 );
+    configFile4 = root;
+    configFile4.append( "testfile4_6.webserv" );
+	webserv::configParser test4_6 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 6 parsing: " << test4_6.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	configFile4 = webserv::setFileLocation( http5, env, "/testers/testConfigTester/", "testfile4_7.webserv" );
-	webserv::parentConfig test4_7 ( configFile4 );
+    configFile4 = root;
+    configFile4.append( "testfile4_7.webserv" );
+	webserv::configParser test4_7 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 7 parsing: " << test4_7.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 }

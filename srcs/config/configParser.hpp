@@ -2,8 +2,8 @@
 // Created by Kester kas De rooij on 3/16/22.
 //
 
-#ifndef WEBSERV_PARENTCONFIG_HPP
-#define WEBSERV_PARENTCONFIG_HPP
+#ifndef WEBSERV_CONFIGPARSER_HPP
+#define WEBSERV_CONFIGPARSER_HPP
 
 #include "../utils/dataStructs.hpp"
 #include "../server/testServer.hpp"
@@ -15,7 +15,7 @@ namespace webserv{
 	typedef std::vector<std::string> TokenType;
 	typedef std::ifstream FileType;
 
-    class parentConfig{
+    class configParser{
 
     private:
         FileType _configFile;
@@ -23,8 +23,8 @@ namespace webserv{
         TokenType::iterator _it;
 
     public:
-        parentConfig( std::string config_file );
-        ~parentConfig();
+        configParser(std::string config_file );
+        ~configParser();
 
         void tokenizer( void );
         int parseIntoPieces( socketData* socketData, httpData* httpData );
@@ -50,4 +50,4 @@ namespace webserv{
     };
 }
 
-#endif //WEBSERV_PARENTCONFIG_HPP
+#endif //WEBSERV_CONFIGPARSER_HPP

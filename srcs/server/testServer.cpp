@@ -8,15 +8,14 @@
 #include <iostream>
 #include <string>
 
-webserv::testServer::testServer( socketData d_socket, httpData d_http ) : parentServer( d_socket, d_http ) {
-	_kq = kqueue();
-	struct	kevent listening_socket_change;
+webserv::testServer::testServer( int kq, socketData* d_socket, httpData* d_http ) : parentServer( d_socket, d_http ) {
+	struct kevent listening_socket_change;
 	EV_SET(&listening_socket_change, _socket->get_sock(), EVFILT_READ, EV_ADD, 0, 0, NULL);
 	kevent(_kq, &listening_socket_change, 1, 0, 0, 0); // listen to listening socket
 
 }
 
-void webserv::testServer::_accepter() {
+void webserv::testServer::_accepter( int kq, struct kevent& new_socket_change ) {
 	struct sockaddr_in address = _socket->get_address();
 	int new_sd = 0;
 	// std::cout << "trying to accept: SD " << new_sd << " nbconn " << _nb_of_conns << " Ncon " << _Ncon << std::endl;
@@ -30,9 +29,9 @@ void webserv::testServer::_accepter() {
 			return ;
 		}
 		printf( "  New incoming connection - %d\n", new_sd );
-		struct kevent new_socket_change;
-		EV_SET(&new_socket_change, new_sd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-		kevent(_kq, &new_socket_change, 1, NULL, 0, NULL); // listen for events on newly created socket
+//		struct kevent new_socket_change;
+//		EV_SET(&new_socket_change, new_sd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+		kevent( kq, &new_socket_change, 1, NULL, 0, NULL); // listen for events on newly created socket
 		_nb_of_conns++;
 	}
 }

@@ -4,10 +4,10 @@
 
 #include "parentSocket.hpp"
 
-webserv::parentSocket::parentSocket( socketData input ){
+webserv::parentSocket::parentSocket( socketData input, int port ){
 	_address.sin_addr.s_addr = input.interface;
 	_address.sin_family = input.domain;
-	_address.sin_port = htons( input.ports[0]);
+	_address.sin_port = htons( port );
 	_socket = socket( input.domain, input.service, input.protocol );
 	test_connection( "Socket", _socket );
 }

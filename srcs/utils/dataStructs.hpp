@@ -64,12 +64,19 @@ namespace webserv{
         std::vector<std::pair<int, std::string> > error_page; // maybe map because of unique key's
         std::vector<std::pair<int, std::string> > redirect; // but vector is chronological which is nice
         std::vector<locationData> locations;
+        httpData( std::string root ) : abs_path( root ){};
     };
 
     struct readData{
         char* buf;
         int buflen;
         int bytesread;
+    };
+
+    struct kqConData {
+        int kq;
+        int nbr_connections;
+        int worker_connections;
     };
 }
 

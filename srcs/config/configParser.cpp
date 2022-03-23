@@ -2,9 +2,9 @@
 // Created by Kester kas De rooij on 3/16/22.
 //
 
-#include "parentConfig.hpp"
+#include "configParser.hpp"
 
-webserv::parentConfig::parentConfig( std::string config_file ) {
+webserv::configParser::configParser(std::string config_file ) {
 	_configFile.open( config_file, std::fstream::in );
 	if ( _configFile.fail() )
 		std::cerr << "opening file failed" << std::endl;
@@ -17,12 +17,12 @@ webserv::parentConfig::parentConfig( std::string config_file ) {
     return;
 }
 
-webserv::parentConfig::~parentConfig( void ) {
+webserv::configParser::~configParser(void ) {
     _configFile.close();
     return;
 }
 
-void webserv::parentConfig::tokenizer( void ){
+void webserv::configParser::tokenizer(void ){
 	std::string line;
 
 	while ( getline( _configFile, line ) ){
@@ -33,7 +33,7 @@ void webserv::parentConfig::tokenizer( void ){
 	}
 }
 
-int webserv::parentConfig::_newToken( std::string line ){
+int webserv::configParser::_newToken(std::string line ){
 	std::string token;
 	int i = 0;
 
@@ -49,7 +49,7 @@ int webserv::parentConfig::_newToken( std::string line ){
 	return --i;
 }
 
-int webserv::parentConfig::parseIntoPieces( socketData* socketData, httpData* httpData ){
+int webserv::configParser::parseIntoPieces(socketData* socketData, httpData* httpData ){
 	TokenType::iterator it = _tokens.begin();
 	int ret;
 
@@ -73,18 +73,18 @@ int webserv::parentConfig::parseIntoPieces( socketData* socketData, httpData* ht
 		else if ( *_it == "}" )
 			return SUCCES;
 		if ( ret == ERROR )
-			return ret;
+            return ret;
 	}
 	if ( *(_it++) == "}" && _it != _tokens.end() )
 		return NEOF;
 	return SUCCES;
 }
 
-int webserv::parentConfig::setSocket( socketData* socketData ){
+int webserv::configParser::setSocket(socketData* socketData ){
 	try {
 		socketData->addPort( stoi(*(++_it) ) );
 	} catch ( std::exception &e ){ // TODO:: test to see if "iterator out of bounds" will be catched properly;
-		std::cerr << "parentConfig::setSocket " << *_it << " " << e.what() << std::endl;
+		std::cerr << "configParser::setSocket " << *_it << " " << e.what() << std::endl;
 		return ERROR;
 	}
 	if ( _it == _tokens.end() || *(++_it) != ";" )
@@ -93,11 +93,11 @@ int webserv::parentConfig::setSocket( socketData* socketData ){
 	return SUCCES;
 }
 
-int webserv::parentConfig::setWorkerConnections( socketData* socketData ){
+int webserv::configParser::setWorkerConnections(socketData* socketData ){
     try {
         socketData->worker_connections = stoi(*(++_it) );
     } catch ( std::exception &e ){
-        std::cerr << "parentConfig::setWorkerConnections " << *_it << " " << e.what() << std::endl;
+        std::cerr << "configParser::setWorkerConnections " << *_it << " " << e.what() << std::endl;
         return ERROR;
     }
     if ( _it == _tokens.end() || *(++_it) != ";" )
@@ -106,7 +106,7 @@ int webserv::parentConfig::setWorkerConnections( socketData* socketData ){
     return SUCCES;
 }
 
-int webserv::parentConfig::setIndex( httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
+int webserv::configParser::setIndex(httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
 	if (  _isWrongInput( NULL ) )
 		return ERROR;
 	for (; _it != _tokens.end() && *_it != ";"; _it++ )
@@ -117,7 +117,7 @@ int webserv::parentConfig::setIndex( httpData* httpData ){ // TODO:: iterating u
 	return SUCCES;
 }
 
-int webserv::parentConfig::setServerName( httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
+int webserv::configParser::setServerName(httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
 	if (  _isWrongInput( NULL ) )
 		return ERROR;
 	for (; _it != _tokens.end() && *_it != ";"; _it++ )
@@ -128,13 +128,13 @@ int webserv::parentConfig::setServerName( httpData* httpData ){ // TODO:: iterat
 	return SUCCES;
 }
 
-int webserv::parentConfig::setRedirect( httpData* httpData ){
+int webserv::configParser::setRedirect(httpData* httpData ){
 	if (  _isWrongInput( NULL ) )
 		return ERROR;
 	try {
 		httpData->redirect.emplace_back( std::make_pair(std::stoi( *(_it++) ), (*_it)));
 	} catch ( std::exception &e ){
-		std::cerr << "parentConfig::setRedirect " << *_it << " " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
+		std::cerr << "configParser::setRedirect " << *_it << " " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
 		return ERROR;
 	}
 	if ( _it == _tokens.end() || *(++_it) != ";" ) // TODO:: check different url's to see if some charachters mess up the tokenizer
@@ -143,14 +143,14 @@ int webserv::parentConfig::setRedirect( httpData* httpData ){
 	return SUCCES;
 }
 
-int webserv::parentConfig::setErrorPage( httpData* httpData ){
+int webserv::configParser::setErrorPage(httpData* httpData ){
 	if (  _isWrongInput( NULL ) )
 		return ERROR;
 	for (; _it != _tokens.end() && *_it != ";"; _it++ ){
 		try {
 			httpData->error_page.emplace_back( std::make_pair(std::stoi( *(_it++) ), (*_it)));
 		} catch ( std::exception &e ){
-			std::cerr << "parentConfig::setErrorPage " << *_it << " " << e.what() << std::endl;
+			std::cerr << "configParser::setErrorPage " << *_it << " " << e.what() << std::endl;
 			return ERROR;
 		}
 	}
@@ -158,7 +158,7 @@ int webserv::parentConfig::setErrorPage( httpData* httpData ){
 	return SUCCES;
 }
 
-int webserv::parentConfig::setLocation( httpData* httpData ){
+int webserv::configParser::setLocation(httpData* httpData ){
 	int ret = SUCCES;
 	webserv::locationData element;
 	ret = _setLocation( element );
@@ -181,22 +181,22 @@ int webserv::parentConfig::setLocation( httpData* httpData ){
 	return ret;
 }
 
-webserv::FileType& webserv::parentConfig::getFile( void ){
+webserv::FileType& webserv::configParser::getFile(void ){
 	return _configFile;
 }
 
-webserv::TokenType webserv::parentConfig::getTokens( void ){
+webserv::TokenType webserv::configParser::getTokens(void ){
 	return _tokens;
 }
 
-int webserv::parentConfig::_setLocation( locationData& element ){
+int webserv::configParser::_setLocation(locationData& element ){
 	if ( _isWrongInput( "{" ) )
 		return ERROR;
 	element.location = *_it++;
 	return SUCCES;
 }
 
-int webserv::parentConfig::_setRoot( locationData& element, std::string abs_path ){
+int webserv::configParser::_setRoot(locationData& element, std::string abs_path ){
 	if ( _isWrongInput( ";" ) )
 		return ERROR;
 	if ( element.root != "NONE" )
@@ -207,7 +207,7 @@ int webserv::parentConfig::_setRoot( locationData& element, std::string abs_path
 	return SUCCES;
 }
 
-int webserv::parentConfig::_setAllowedResponse( locationData& element ){
+int webserv::configParser::_setAllowedResponse(locationData& element ){
 	if ( _isWrongInput( ";" ) )
 		return ERROR;
 
@@ -218,7 +218,7 @@ int webserv::parentConfig::_setAllowedResponse( locationData& element ){
 	return SUCCES;
 }
 
-int webserv::parentConfig::_setAutoindex( locationData& element ){
+int webserv::configParser::_setAutoindex(locationData& element ){
 	if ( _isWrongInput( ";" ) )
 		return ERROR;
 	if ( *_it == "on" )
@@ -231,7 +231,7 @@ int webserv::parentConfig::_setAutoindex( locationData& element ){
 	return SUCCES;
 }
 
-bool webserv::parentConfig::_isWrongInput( char* str ){
+bool webserv::configParser::_isWrongInput(char* str ){
 	if ( ++_it == _tokens.end() )
 		return true;
 	if ( *_it == "{"  )

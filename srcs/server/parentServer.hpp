@@ -19,12 +19,12 @@ namespace webserv{
 		readData _incoming;
 		int _Ncon;
 		std::map<int,std::string> _requests;
-		virtual void _accepter() = 0;
+		virtual void _accepter( int ) = 0;
 		virtual HTTPResponseMessage _handler( Request ) = 0;
 		virtual void _responder(int fd, HTTPResponseMessage response) = 0;
 
 	public:
-		parentServer( socketData d_socket, httpData d_http );
+		parentServer( socketData* d_socket, httpData* d_http );
 		virtual ~parentServer();
 		virtual void launch() = 0;
 		listeningSocket* get_socket();

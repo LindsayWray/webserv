@@ -17,7 +17,6 @@ server {
 
     location / {
     	root    /var/www/site2;
-    	add_header Allow "GET, POST, DELETE" always;
     }
 }
 
