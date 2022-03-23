@@ -9,6 +9,17 @@
 # include <sys/socket.h>
 # include <sstream> 
 
+
+// POST /cgi-bin/process.cgi HTTP/1.1
+// User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+// Host: www.tutorialspoint.com
+// Content-Type: application/x-www-form-urlencoded
+// Content-Length: length
+
+// licenseID=string&content=string&/paramsXML=string
+// xml version="1.0" encoding="utf-8"?>
+// string xmlns="ht//clearforest.com/">string/string
+
 namespace webserv {
 	class Request {
 	private:
@@ -26,6 +37,8 @@ namespace webserv {
 
 	public:
 		Request(std::string);
+		std::string getPath() const;
+		std::string getMethod() const;
 
 		class IncorrectRequestException : public std::exception{
 		public:

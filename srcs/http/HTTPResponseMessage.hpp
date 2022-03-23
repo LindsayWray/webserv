@@ -29,12 +29,7 @@ public:
 		// ...
 	};
 	// Not sure if responseStatusMessages compiles. Otherwise data initialization should be outside the class scope inside a cpp file
-	static const std::vector<const std::string> responseStatusMessages = { "OK", "Created", "No Content",
-													  "Moved Permanently", "Found", "See Other", "Temporary Redirect",
-													  "Bad Request", "Forbidden", "Not Found", "Request Timeout", "Gone", "I'm a teapot", "Too Many Requests",
-													  "Not Implemented", "HTTP Version Not Supported"
-													  // ...
-													  };
+	static const std::vector<const std::string> responseStatusMessages;
 
 	// content-type examples constitute text/html, image/png, image/jpeg, application/json and more.
 	enum e_contentTypeCategory { APPLICATION, AUDIO, IMAGE, TEXT /* , ETC... */ };

@@ -7,6 +7,7 @@
 
 #include "parentServer.hpp"
 #include "../http/Request.hpp"
+#include "../http/HTTPResponseMessage.hpp"
 
 namespace webserv{
 	class testServer : public parentServer{
@@ -14,8 +15,8 @@ namespace webserv{
 		char _buffer[20];
 		int	_nb_of_conns;
 		void _accepter();
-		void _handler( int, Request );
-		void _responder();
+		HTTPResponseMessage _handler( Request );
+		void _responder(int fd, HTTPResponseMessage response);
 
 	public:
 		testServer( socketData d_socket, httpData d_http );

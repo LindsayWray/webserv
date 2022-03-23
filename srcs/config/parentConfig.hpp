@@ -45,6 +45,7 @@ namespace webserv{
         int _setRoot( locationData& element );
         int _setAllowedResponse( locationData& element );
         int _setAutoindex( locationData& element );
+        bool _isWrongInput( char* );
     };
 }
 

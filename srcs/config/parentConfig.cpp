@@ -53,26 +53,28 @@ int webserv::parentConfig::parseIntoPieces( socketData* socketData, httpData* ht
 	TokenType::iterator it = _tokens.begin();
 	int ret;
 
-	if ( (_it++)->compare("server") || _it->compare("{") )
+	if ( (_it++)->compare("server") || *_it !="{" )
 		return ERROR;
-	while ( ++_it != _tokens.end() && _it->compare( "}" ) ) {
-		if ( !_it->compare( "listen" ) )
+	while ( ++_it != _tokens.end() && *_it != "}" ) {
+		if ( *_it == "listen" )
 			ret = setSocket( socketData );
-		else if ( !_it->compare( "index" ) )
+		else if ( *_it == "index" )
 			ret = setIndex( httpData );
-		else if ( !_it->compare( "location" ) )
+		else if ( *_it == "location" )
 			ret = setLocation( httpData );
-		else if ( !_it->compare( "server_name" ) )
+		else if ( *_it == "server_name" )
 			ret = setServerName( httpData );
-		else if ( !_it->compare( "error_page" ) )
+		else if ( *_it == "error_page" )
 			ret = setErrorPage( httpData );
-		else if ( !_it->compare( "return" ) )
+		else if ( *_it == "return" )
 			ret = setRedirect( httpData );
-		else if ( !_it->compare("}") )
+		else if ( *_it =="}" )
 			return SUCCES;
 		if ( ret == ERROR )
 			return ret;
 	}
+	if ( *(_it++) == "}" && _it != _tokens.end() )
+		return NEOF;
 	return SUCCES;
 }
 
@@ -83,33 +85,36 @@ int webserv::parentConfig::setSocket( socketData* socketData ){
 		std::cerr << "parentConfig::setSocket " << *_it << " " << e.what() << std::endl;
 		return ERROR;
 	}
-	if ( (++_it)->compare(";") )
+	if ( _it == _tokens.end() || *(++_it) != ";" )
 		return ERROR;
+	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
 }
 
-int webserv::parentConfig::setIndex( httpData* httpData ){
-	if ( ++_it == _tokens.end() || !(_it)->compare(";") || !(_it + 1)->compare(";") )
+int webserv::parentConfig::setIndex( httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
+	if (  _isWrongInput( NULL ) )
 		return ERROR;
-	for (; _it != _tokens.end() && (_it)->compare(";"); _it++ )
+	for (; _it != _tokens.end() && *_it != ";"; _it++ )
 		httpData->index.push_back( *_it );
-	if ( _it == _tokens.end() )
+	if ( _it == _tokens.end() || *(_it) != ";" )
 		return ERROR;
+	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
 }
 
-int webserv::parentConfig::setServerName( httpData* httpData ){
-	if ( ++_it == _tokens.end() || !(_it)->compare(";") || !(_it + 1)->compare(";") )
+int webserv::parentConfig::setServerName( httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
+	if (  _isWrongInput( NULL ) )
 		return ERROR;
-	for (; _it != _tokens.end() && (_it)->compare(";"); _it++ )
+	for (; _it != _tokens.end() && *_it != ";"; _it++ )
 		httpData->server_name.push_back( *_it );
-	if ( _it == _tokens.end() )
+	if ( _it == _tokens.end() || *(_it) != ";" )
 		return ERROR;
+	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
 }
 
 int webserv::parentConfig::setRedirect( httpData* httpData ){
-	if ( ++_it == _tokens.end() || !(_it)->compare(";") || !(_it + 1)->compare(";") )
+	if (  _isWrongInput( NULL ) )
 		return ERROR;
 	try {
 		httpData->redirect.emplace_back( std::make_pair(std::stoi( *(_it++) ), (*_it)));
@@ -117,15 +122,16 @@ int webserv::parentConfig::setRedirect( httpData* httpData ){
 		std::cerr << "parentConfig::setRedirect " << *_it << " " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
 		return ERROR;
 	}
-	if ( _it == _tokens.end() || (++_it)->compare(";") ) // TODO:: check different url's to see if some charachters mess up the tokenizer
+	if ( _it == _tokens.end() || *(++_it) != ";" ) // TODO:: check different url's to see if some charachters mess up the tokenizer
 		return ERROR;
+	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
 }
 
 int webserv::parentConfig::setErrorPage( httpData* httpData ){
-	if ( ++_it == _tokens.end() || !(_it)->compare(";") || !(_it + 1)->compare(";") )
+	if (  _isWrongInput( NULL ) )
 		return ERROR;
-	for (; _it != _tokens.end() && (_it)->compare(";"); _it++ ){
+	for (; _it != _tokens.end() && *_it != ";"; _it++ ){
 		try {
 			httpData->error_page.emplace_back( std::make_pair(std::stoi( *(_it++) ), (*_it)));
 		} catch ( std::exception &e ){
@@ -133,22 +139,21 @@ int webserv::parentConfig::setErrorPage( httpData* httpData ){
 			return ERROR;
 		}
 	}
+	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
 }
 
 int webserv::parentConfig::setLocation( httpData* httpData ){
 	int ret = SUCCES;
 	webserv::locationData element;
-	if ( ++_it == _tokens.end() )
-		return ERROR;
 	ret = _setLocation( element );
-	if ( ret == SUCCES && !_it->compare("{")) {
-		while ( ++_it != _tokens.end() && _it->compare( "}" ) ){
-			if ( !_it->compare( "root" ))
+	if ( ret == SUCCES && *_it =="{") {
+		while ( ++_it != _tokens.end() && *_it != "}"  ){
+			if ( *_it == "root" )
 				ret = _setRoot( element );
-			else if ( !_it->compare( "add_header" ))
-				ret = _setAllowedResponse( element );
-			else if ( !_it->compare( "autoindex" ))
+//			else if ( *_it == "add_header" )
+//				ret = _setAllowedResponse( element );
+			else if ( *_it == "autoindex" )
 				ret = _setAutoindex( element );
 			else
 				ret = ERROR;
@@ -170,40 +175,59 @@ webserv::TokenType webserv::parentConfig::getTokens( void ){
 }
 
 int webserv::parentConfig::_setLocation( locationData& element ){
-	if ( _it == _tokens.end() || !_it->compare( "{" ) || !_it->compare( "}" ) || !_it->compare( ";" ) )
+	if ( _isWrongInput( "{" ) )
 		return ERROR;
 	element.location = *_it++;
 	return SUCCES;
 }
 
 int webserv::parentConfig::_setRoot( locationData& element ){
-	if ( ++_it == _tokens.end() || !_it->compare( "{" ) || !_it->compare( "}" ) || !_it->compare( ";" ) )
+	if ( _isWrongInput( ";" ) )
 		return ERROR;
-	if ( element.root.compare( "NONE" ) )
+	if ( element.root != "NONE" )
 		return ERROR;
-	element.root = *_it++;
+	element.root = *_it;
+	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
 }
 
 int webserv::parentConfig::_setAllowedResponse( locationData& element ){
-	if ( ++_it == _tokens.end() || !_it->compare( "{" ) || !_it->compare( "}" ) || !_it->compare( ";" ) )
+	if ( _isWrongInput( ";" ) )
 		return ERROR;
 
 	// TODO:: figure right wy to format this
+//	if ( *_it != "GET" ) )
+//		element.allowed_response[GET] = true;
 
 	return SUCCES;
 }
 
 int webserv::parentConfig::_setAutoindex( locationData& element ){
-	if ( ++_it == _tokens.end() || !_it->compare( "{" ) || !_it->compare( "}" ) || !_it->compare( ";" ) )
+	if ( _isWrongInput( ";" ) )
 		return ERROR;
-	if ( !_it->compare( "on" ) )
+	if ( *_it == "on" )
 		element.autoindex = true;
-	else if ( !_it->compare( "off" ) )
+	else if ( *_it == "off" )
 		element.autoindex = false;
 	else
 		return ERROR;
-	_it++;
+	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
 }
+
+bool webserv::parentConfig::_isWrongInput( char* str ){
+	if ( ++_it == _tokens.end() )
+		return true;
+	if ( *_it == "{"  )
+		return true;
+	if ( *_it == "}" )
+		return true;
+	if ( *_it == ";" )
+		return true;
+	if ( str && *(_it + 1 ) != str )
+		return true;
+	return false;
+}
+
+
 

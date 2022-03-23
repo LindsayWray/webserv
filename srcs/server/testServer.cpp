@@ -13,11 +13,13 @@ webserv::testServer::testServer( socketData d_socket, httpData d_http ) : parent
 	struct	kevent listening_socket_change;
 	EV_SET(&listening_socket_change, _socket->get_sock(), EVFILT_READ, EV_ADD, 0, 0, NULL);
 	kevent(_kq, &listening_socket_change, 1, 0, 0, 0); // listen to listening socket
+
 }
 
 void webserv::testServer::_accepter() {
 	struct sockaddr_in address = _socket->get_address();
 	int new_sd = 0;
+	// std::cout << "trying to accept: SD " << new_sd << " nbconn " << _nb_of_conns << " Ncon " << _Ncon << std::endl;
 	while ( new_sd != -1 && _nb_of_conns < _Ncon ) {
 		new_sd = accept( _socket->get_sock(), (struct sockaddr *) &address, (socklen_t *) &address.sin_len);
 		if ( new_sd < 0 ) {
@@ -35,19 +37,50 @@ void webserv::testServer::_accepter() {
 	}
 }
 
-void webserv::testServer::_handler( int fd, Request request ) {
+HTTPResponseMessage webserv::testServer::_handler( Request request ) {
+	std::ifstream file;
+	std::string line;
+	std::string body("");
+	HTTPResponseMessage response;
+
+	std::string root = "./html";
+
+	file.open(root + request.getPath());
+	// file.seekg(0, std::ios::end); // This will set the fail bit if fileName is a directory (or do nothing if it is already set  
+	if (file.good()) {
+		std::cout << "File found " << root + request.getPath() << std::endl;
+		while( std::getline( file, line ) ) {
+			body += (line + '\n');
+		}
+		response.addStatus(HTTPResponseMessage::OK)
+							//.addTypeExt("text/html") // tells the client which datatype it can expect in the body
+							.addLength(body.length())
+							.addBody(&body);
+	} else {
+		std::cout << "File not found " << root + request.getPath() << std::endl;
+
+		body = "Not Found";
+		response.addStatus(HTTPResponseMessage::NOT_FOUND)
+					//.addTypeExt("text/plain")
+					.addLength(body.length())
+					.addBody(&body);
+	}
+	return response;
+}
+
+void webserv::testServer::_responder(int fd, HTTPResponseMessage response) {
 	std::ifstream outfile;
 	std::string line;
+
+	std::cout << "sending response" << std::endl;
+
 	outfile.open("resp.html");
 	while( std::getline( outfile, line ) ) {
 		send( fd, line.c_str(), line.length(), 0 );
-		send( fd, "\r\n", 2, 0 );
+		send( fd, "\n", 1, 0 );
 	}
-	send( fd, "\r\n", 2, 0 );
-	send( fd, "\r\n", 2, 0 );
-}
-
-void webserv::testServer::_responder() {
+	send( fd, "\n", 1, 0 );
+	send( fd, "\n", 1, 0 );
 }
 
 void webserv::testServer::launch() {
@@ -102,7 +135,8 @@ void webserv::testServer::launch() {
 						try{
 							webserv::Request request( _requests[fd] );
 							std::cout << "made request object" << std::endl;
-							_handler( fd, request) ;
+							HTTPResponseMessage response = _handler( request);
+							_responder(fd, response);
 						}
 						catch( Request::IncorrectRequestException& e ){		// catches parsing errors from request 
 							std::cout << e.what() << std::endl;

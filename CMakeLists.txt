@@ -4,12 +4,12 @@ project(webserv)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(webserv main.cpp
-				sockets/parentSocket.cpp sockets/serverSocket.cpp sockets/listeningSocket.cpp sockets/clientSocket.cpp
-				server/parentServer.cpp server/testServer.cpp
-				http/Request.cpp
-				config/parentConfig.cpp)
-add_executable(catchConfig catch2/catch.hpp catch2/main.cpp catch2/configParsing.cpp config/parentConfig.cpp testers/parentConfigTester.cpp utils/stringUtils.hpp testers/fakeServer.hpp)
-add_executable(parentConfigTester testers/parentConfigTester.cpp config/parentConfig.cpp)
-include_directories(config)
-add_subdirectory(catch2)
+add_executable(webserv srcs/main.cpp
+        srcs/sockets/parentSocket.cpp srcs/sockets/serverSocket.cpp srcs/sockets/listeningSocket.cpp srcs/sockets/clientSocket.cpp
+        srcs/server/parentServer.cpp srcs/server/testServer.cpp
+        srcs/http/Request.cpp srcs/http/HTTPResponseMessage.cpp
+        srcs/config/parentConfig.cpp)
+add_executable(catchConfig testers/catch2/catch.hpp testers/catch2/main.cpp testers/catch2/configParsing.cpp srcs/config/parentConfig.cpp testers/testConfigTester/parentConfigTester.cpp srcs/utils/stringUtils.hpp testers/testConfigTester/testConfigParser.hpp)
+add_executable(parentConfigTester testers/testConfigTester/parentConfigTester.cpp srcs/config/parentConfig.cpp)
+include_directories(srcs/config)
+add_subdirectory(testers/catch2)
