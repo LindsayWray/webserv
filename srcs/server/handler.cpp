@@ -27,38 +27,57 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 	std::string path = root + request.getPath();
 	std::string extension = file_extension(request.getPath());
 
-	if(!fs::exists(path)) {
+	// if(!fs::exists(path)) {
+	// 	std::cout << "File not found " << path << std::endl;
+	// 	body = "Not Found";
+	// 	response.addStatus(HTTPResponseMessage::NOT_FOUND)
+	// 				.addTypeExt("plain");
+	// }
+	// else if (fs::is_directory(path)) {
+	// 	std::cout << "Is a directory " << path << std::endl;
+	// 	defaultFile.open(root + "default.html");
+	// 	while( std::getline( file, line ) )
+	// 		body += (line + '\n');
+	// 	response.addStatus(HTTPResponseMessage::OK)
+	// 						.addTypeExt("html");
+	// }
+	// else if (fs::is_regular_file(path)) {
+	// 	file.open(path);
+	// 	if(!file.good()){
+	// 		std::cout << "No Access to file " << path << std::endl;
+	// 		body = "No Access";
+	// 		response.addStatus(HTTPResponseMessage::FORBIDDEN)
+	// 				.addTypeExt("plain");
+	// 	}
+	// 	else {
+	// 		std::cout << "File found " << path << std::endl;
+	// 		while( std::getline( file, line ) )
+	// 			body += (line + '\n');
+	// 		response.addStatus(HTTPResponseMessage::OK)
+	// 			.addTypeExt("html");
+	// 	}
+	// }
+	// response.addLength(body.length());
+	// response.addBody(body);
+
+	file.open(path);
+	if (file.good()) {
+		std::cout << "File found " << path << std::endl;
+		while( std::getline( file, line ) ) {
+			body += (line + '\n');
+		}
+		response.addStatus(HTTPResponseMessage::OK)
+							.addTypeExt("html")
+							.addLength(body.length())
+							.addBody(body);
+	} else {
 		std::cout << "File not found " << path << std::endl;
 		body = "Not Found";
 		response.addStatus(HTTPResponseMessage::NOT_FOUND)
-					.addTypeExt("plain");
+					.addTypeExt("plain")
+					.addLength(body.length())
+					.addBody(body);
 	}
-	else if (fs::is_directory(path)) {
-		std::cout << "Is a directory " << path << std::endl;
-		defaultFile.open(root + "default.html");
-		while( std::getline( file, line ) )
-			body += (line + '\n');
-		response.addStatus(HTTPResponseMessage::OK)
-							.addTypeExt("html");
-	}
-	else if (fs::is_regular_file(path)) {
-		file.open(path);
-		if(!file.good()){
-			std::cout << "No Access to file " << path << std::endl;
-			body = "No Access";
-			response.addStatus(HTTPResponseMessage::FORBIDDEN)
-					.addTypeExt("plain");
-		}
-		else {
-			std::cout << "File found " << path << std::endl;
-			while( std::getline( file, line ) )
-				body += (line + '\n');
-			response.addStatus(HTTPResponseMessage::OK)
-				.addTypeExt("html");
-		}
-	}
-	response.addLength(body.length());
-	response.addBody(body);
 }
 
 
