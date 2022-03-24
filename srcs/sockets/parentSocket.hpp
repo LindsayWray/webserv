@@ -23,7 +23,7 @@ namespace webserv {
 
 	public:
 
-		parentSocket( socketData input );
+		parentSocket( socketData input, int port );
 
 		virtual void connect_to_network( void ) = 0;
 

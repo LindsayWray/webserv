@@ -4,7 +4,7 @@
 
 #include "listeningSocket.hpp"
 
-webserv::listeningSocket::listeningSocket( socketData input ) : serverSocket( input ) {
+webserv::listeningSocket::listeningSocket( socketData input, int port ) : serverSocket( input, port ) {
 	_backlog = input.backlog;
 	start_listening();
 	test_connection( "Listening", _listening );
