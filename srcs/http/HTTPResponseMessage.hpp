@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
 #include <map>
 #include <chrono>
 
@@ -31,7 +30,7 @@ public:
 	};
 	
 	static const std::map<int, const std::string> responseStatusMessages;
-	static const std::unordered_map<const std::string, const std::string> contentTypes;
+	static const std::map<std::string, const std::string> contentTypes;
 
 private:
 	/** Status line */

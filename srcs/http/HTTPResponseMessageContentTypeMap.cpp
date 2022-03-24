@@ -5,7 +5,7 @@
 
 #include "HTTPResponseMessage.hpp"
 
-const std::unordered_map<const std::string, const std::string> HTTPResponseMessage::contentTypes =
+const std::map<std::string, const std::string> HTTPResponseMessage::contentTypes =
 {
 	{ "ez", "application/andrew-inset" },
 	{ "aw", "application/applixware" },

@@ -5,7 +5,7 @@ with open(file, 'w') as f:
 
 f = open(file, 'a')
 f.write("#include \"HTTPResponseMessage.hpp\"\n\n")
-f.write("const std::unordered_map<const std::string, const std::string> HTTPResponseMessage::contentTypes =\n{\n")
+f.write("const std::map<std::string, const std::string> HTTPResponseMessage::contentTypes =\n{\n")
 
 s = ""
 
