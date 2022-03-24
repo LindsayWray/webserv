@@ -3,11 +3,11 @@
 //
 
 #include "catch.hpp"
-#include "parentConfig.hpp"
+#include "configParser.hpp"
 
 
-TEST_CASE( "configParsing", "[parentConfig]" ){
-	webserv::parentConfig object( "config.webserv" );
+TEST_CASE( "configParsing", "[configParser]" ){
+	webserv::configParser object("config.webserv" );
 	std::vector<std::string> thing = object.getTokens();
     SECTION( "index" ){
 		REQUIRE( thing[0] == "server{" );

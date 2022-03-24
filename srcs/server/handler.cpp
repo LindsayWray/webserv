@@ -1,4 +1,4 @@
-#include "testServer.hpp"
+#include "server.hpp"
 #include <stdio.h>
 #include <unistd.h>
 #include <fstream>
@@ -69,14 +69,16 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 		response.addStatus(HTTPResponseMessage::OK)
 							.addTypeExt("html")
 							.addLength(body.length())
-							.addBody(body);
+							.addBody(body)
+							.addTypeCat(HTTPResponseMessage::TEXT);
 	} else {
 		std::cout << "File not found " << path << std::endl;
 		body = "Not Found";
 		response.addStatus(HTTPResponseMessage::NOT_FOUND)
 					.addTypeExt("plain")
 					.addLength(body.length())
-					.addBody(body);
+					.addBody(body)
+					.addTypeCat(HTTPResponseMessage::TEXT);
 	}
 }
 
@@ -86,11 +88,11 @@ void POST_handler( Request request, HTTPResponseMessage& response, std::string& 
 
 void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& root ) {}
 
-HTTPResponseMessage webserv::testServer::_handler( Request request ) {
+HTTPResponseMessage handler( Request request ) {
 	HTTPResponseMessage response;
 	std::string root;
 
-	root = this->_http.locations[0].root;
+	//root = this->_http.locations[0].root;
 
 	if ( request.getMethod() == Request::GET )
 		GET_handler( request, response, root );

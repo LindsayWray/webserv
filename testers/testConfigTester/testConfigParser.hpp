@@ -5,7 +5,7 @@
 #ifndef WEBSERV_TESTCONFIGPARSER_HPP
 #define WEBSERV_TESTCONFIGPARSER_HPP
 
-#include "../../server/parentServer.hpp"
+#include "../../srcs/server/parentServer.hpp"
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */

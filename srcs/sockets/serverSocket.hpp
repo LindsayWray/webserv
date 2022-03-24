@@ -12,7 +12,7 @@ namespace webserv {
 	class serverSocket : public parentSocket {
 
 	public:
-		serverSocket( socketData input );
+		serverSocket( socketData input, int port );
 
 		void connect_to_network( void );
 

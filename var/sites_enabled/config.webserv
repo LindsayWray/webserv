@@ -1,0 +1,28 @@
+server{
+	listen 8080;
+
+	index   index.html index.htm;
+
+	location / {
+		autoindex on;
+		root    /var/www/html;
+	}
+}
+
+server {
+    listen 8100;
+    server_name     webserv.com www.webserv.com;
+
+    error_page 404 /error.html;
+
+    location / {
+    	root    /var/www/site2;
+    }
+}
+
+server {
+    listen          8200;
+    server_name     old.com www.old.com;
+
+    return 302 http://webserv.com$url;
+}

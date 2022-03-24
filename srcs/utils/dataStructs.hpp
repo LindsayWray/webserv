@@ -17,57 +17,63 @@
 
 namespace webserv{
 
-	struct socketData{
-		int domain;
-		int service;
-		int protocol;
-		std::vector<int> ports;
-		u_long interface;
-		int backlog;
-		int worker_connections;
+    struct socketData{
+        int domain;
+        int service;
+        int protocol;
+        std::vector<int> ports;
+        u_long interface;
+        int backlog;
+        int worker_connections;
 
-		socketData( void ){
-			domain = AF_INET;
-			service = SOCK_STREAM;
-			protocol = 0;
-			ports.push_back( 80 );
-			interface = INADDR_ANY;
-			backlog = 32;
-			worker_connections = 10;
-		}
+        socketData( void ){
+            domain = AF_INET;
+            service = SOCK_STREAM;
+            protocol = 0;
+            //ports.push_back( 80 );
+            interface = INADDR_ANY;
+            backlog = 32;
+            worker_connections = 10;
+        }
+        void addPort( int newPort ){ // start on port 80, if no port 80 is defined use other
+            if ( std::find( ports.begin(), ports.end(), newPort ) == ports.end() )
+                ports.push_back( newPort );
+        }
+    };
 
-		void addPort( int newPort ){ // start on port 80, if no port 80 is defined use other
-			if ( std::find( ports.begin(), ports.end(), newPort ) == ports.end() )
-				ports.push_back( newPort );
-		}
-	};
+    struct locationData{
+        std::string location;
+        std::string root;
+        int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
+        bool autoindex;
+        locationData( void ){
+            root = "NONE";
+            memset( allowed_response, 1, 3);
+            autoindex = false;
+        }
+    };
 
-	struct locationData{
-		std::string location;
-		std::string root;
-		int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
-		bool autoindex;
-
-		locationData( void ){
-			root = "NONE";
-			memset( allowed_response, 1, 3);
-			autoindex = false;
-		}
-	};
-
-	struct httpData{
-	    std::vector<std::string> server_name;
-		std::vector<std::string> index;
-	    std::vector<std::pair<int, std::string> > error_page; // maybe map because of unique key's
+    struct httpData{
+        std::string abs_path;
+        std::vector<std::string> server_name;
+        std::vector<std::string> index;
+        std::vector<std::pair<int, std::string> > error_page; // maybe map because of unique key's
         std::vector<std::pair<int, std::string> > redirect; // but vector is chronological which is nice
-		std::vector<locationData> locations;
-	};
+        std::vector<locationData> locations;
+        httpData( std::string root ) : abs_path( root ){};
+    };
 
-	struct readData{
-		char* buf;
-		int buflen;
-		int bytesread;
-	};
+   	struct readData{
+        char* buf;
+        int buflen;
+        int bytesread;
+    };
+
+    struct kqConData {
+        int kq;
+        int nbr_connections;
+        int worker_connections;
+    };
 }
 
 #endif //WEBSERV_DATASTRUCTS_HPP

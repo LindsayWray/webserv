@@ -5,7 +5,6 @@ webserv::Request::Request(std::string req){
 
 	std::stringstream ss(req);
 	std::string method;
-//	std::string		crlf;
 
 	ss >> method;
 	ss >> _path;
@@ -15,7 +14,7 @@ webserv::Request::Request(std::string req){
 	std::cout << method << _path << _version << std::endl;
 	parse_statusline(method);
 	
-	// std::cout << "Request --->" << req << "<------ " << std::endl;
+	std::cout << "Request --->" << req << "<------ " << std::endl;
 
 	std::string header;
 	while( std::getline(ss, header) ){
@@ -27,7 +26,7 @@ webserv::Request::Request(std::string req){
 		std::getline(line, key, ':');
 		std::getline(line, _headers[key]);
 		// std::cout << "key: " << key << "		value: " << _headers[key] << std::endl;
-		if ( key.empty() || _headers[key].empty() || _headers[key].find(':') != std::string::npos ){
+		if ( key.empty() || _headers[key].empty()){
 			printf("Fault in the headers\n");
 			throw(IncorrectRequestException());
 		}
