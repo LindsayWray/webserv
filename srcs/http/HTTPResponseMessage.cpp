@@ -54,7 +54,7 @@ std::string HTTPResponseMessage::_getDateStr() const {
     std::time_t end_time = std::chrono::system_clock::to_time_t(now);
 	
 	std::string output = std::ctime(&end_time);
-	output.pop_back();
+	output.pop_back();	/* removes terminating newline */
 
     return output;
 }
