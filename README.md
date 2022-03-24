@@ -4,7 +4,7 @@
 ```bash
 cmake .
 make webserv
-./webserv
+./webserv [configuration file]
 ```
 
 open your browser and head to localhost:80
