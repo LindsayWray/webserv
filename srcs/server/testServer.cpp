@@ -40,18 +40,23 @@ void webserv::testServer::_accepter() {
 
 
 void webserv::testServer::_responder(int fd, HTTPResponseMessage response) {
-	std::ifstream outfile;
-	std::string line;
+	// std::ifstream outfile;
+	// std::string line;
+
+	// std::cout << "sending response" << std::endl;
+
+	// outfile.open("var/www/html/resp.html");
+	// while( std::getline( outfile, line ) ) {
+	// 	send( fd, line.c_str(), line.length(), 0 );
+	// 	send( fd, "\n", 1, 0 );
+	// }
+	// send( fd, "\n", 1, 0 );
+	// send( fd, "\n", 1, 0 );
 
 	std::cout << "sending response" << std::endl;
 
-	outfile.open("var/www/html/resp.html");
-	while( std::getline( outfile, line ) ) {
-		send( fd, line.c_str(), line.length(), 0 );
-		send( fd, "\n", 1, 0 );
-	}
-	send( fd, "\n", 1, 0 );
-	send( fd, "\n", 1, 0 );
+	const std::string& responseStr = response.toString();
+	send( fd, responseStr.c_str(), responseStr.length(), 0 );
 }
 
 void webserv::testServer::launch() {
