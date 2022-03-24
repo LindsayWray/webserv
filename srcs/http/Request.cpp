@@ -14,7 +14,7 @@ webserv::Request::Request(std::string req){
 	std::cout << method << _path << _version << std::endl;
 	parse_statusline(method);
 	
-	std::cout << "Request --->" << req << "<------ " << std::endl;
+	//std::cout << "Request --->" << req << "<------ " << std::endl;
 
 	std::string header;
 	while( std::getline(ss, header) ){

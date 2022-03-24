@@ -12,7 +12,7 @@ void responder(int fd, HTTPResponseMessage response) {
 
 		std::cout << "sending response" << std::endl;
 
-		outfile.open("var/www/html/resp.html");
+		outfile.open("var/www/html/test.html");
 		while( std::getline( outfile, line ) ) {
 			send( fd, line.c_str(), line.length(), 0 );
 			send( fd, "\n", 1, 0 );
