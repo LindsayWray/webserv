@@ -24,14 +24,6 @@ const std::map<int, const std::string> HTTPResponseMessage::responseStatusMessag
 	// ...
 };
 
-const std::map<int, const std::string> HTTPResponseMessage::contentTypeCategories = 
-{
-	{ 0, "application" },
-	{ 1, "audio" },
-	{ 2, "image" },
-	{ 3, "text" }
-};
-
 const std::string HTTPResponseMessage::toString() const {
 	std::string output;
 
@@ -39,7 +31,7 @@ const std::string HTTPResponseMessage::toString() const {
 		protocol + ' ' + _getStatusCodeStr() + ' ' + message + "\r\n" +
 
 		"content-length: " + std::to_string(length) + "\r\n" +
-		"content-type: " + _getTypeCatStr() + '/' + typeExt + "\r\n" +
+		"content-type: " + type + "\r\n" +
 		"date: " + _getDateStr() + "\r\n" +
 		"server: " + server + "\r\n" +
 		"\r\n" +
@@ -61,8 +53,4 @@ std::string HTTPResponseMessage::_getDateStr() const {
 
 const std::string HTTPResponseMessage::_getStatusCodeStr() const {
 	return std::to_string(static_cast<int>(status));
-}
-
-const std::string HTTPResponseMessage::_getTypeCatStr() const {
-	return HTTPResponseMessage::contentTypeCategories.at(static_cast<int>(typeCat));
 }

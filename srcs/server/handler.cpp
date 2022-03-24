@@ -67,18 +67,18 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 			body += (line + '\n');
 		}
 		response.addStatus(HTTPResponseMessage::OK)
-							.addTypeExt("html")
+							//.addTypeExt("html")
 							.addLength(body.length())
-							.addBody(body)
-							.addTypeCat(HTTPResponseMessage::TEXT);
+							.addBody(body);
+							//.addTypeCat(HTTPResponseMessage::TEXT);
 	} else {
 		std::cout << "File not found " << path << std::endl;
 		body = "Not Found";
 		response.addStatus(HTTPResponseMessage::NOT_FOUND)
-					.addTypeExt("plain")
+					//.addTypeExt("plain")
 					.addLength(body.length())
-					.addBody(body)
-					.addTypeCat(HTTPResponseMessage::TEXT);
+					.addBody(body);
+					//.addTypeCat(HTTPResponseMessage::TEXT);
 	}
 }
 
