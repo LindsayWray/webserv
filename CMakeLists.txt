@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 add_executable(webserv srcs/main.cpp
         srcs/sockets/parentSocket.cpp srcs/sockets/serverSocket.cpp srcs/sockets/listeningSocket.cpp srcs/sockets/clientSocket.cpp
         srcs/server/parentServer.cpp srcs/server/testServer.cpp
+		srcs/server/handler.cpp
         srcs/http/Request.cpp srcs/http/HTTPResponseMessage.cpp
         srcs/config/parentConfig.cpp)
 add_executable(catchConfig testers/catch2/catch.hpp testers/catch2/main.cpp testers/catch2/configParsing.cpp srcs/config/parentConfig.cpp testers/testConfigTester/parentConfigTester.cpp srcs/utils/stringUtils.hpp testers/testConfigTester/testConfigParser.hpp)

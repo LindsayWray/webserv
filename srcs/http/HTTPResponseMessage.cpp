@@ -24,25 +24,17 @@ const std::map<int, const std::string> HTTPResponseMessage::responseStatusMessag
 	// ...
 };
 
-const std::map<int, const std::string> HTTPResponseMessage::contentTypeCategories = 
-{
-	{ 0, "application" },
-	{ 1, "audio" },
-	{ 2, "image" },
-	{ 3, "text" }
-};
-
 const std::string HTTPResponseMessage::toString() const {
 	std::string output;
 
 	output =
-		protocol + ' ' + _getStatusCodeStr() + ' ' + message + '\n'+
+		protocol + ' ' + _getStatusCodeStr() + ' ' + message + "\r\n" +
 
-		"content-length: " + std::to_string(length) + '\n' +
-		"content-type: " + _getTypeCatStr() + '/' + typeExt + '\n' +
-		"date: " + _getDateStr() + 
-		"server: " + server + '\n' +
-		'\n' +
+		"content-length: " + std::to_string(length) + "\r\n" +
+		"content-type: " + type + "\r\n" +
+		"date: " + _getDateStr() + "\r\n" +
+		"server: " + server + "\r\n" +
+		"\r\n" +
 
 		body;
 
@@ -52,13 +44,13 @@ const std::string HTTPResponseMessage::toString() const {
 std::string HTTPResponseMessage::_getDateStr() const {
 	auto now = std::chrono::system_clock::now();
     std::time_t end_time = std::chrono::system_clock::to_time_t(now);
-    return std::ctime(&end_time);
+	
+	std::string output = std::ctime(&end_time);
+	output.pop_back();	/* removes terminating newline */
+
+    return output;
 }
 
 const std::string HTTPResponseMessage::_getStatusCodeStr() const {
 	return std::to_string(static_cast<int>(status));
-}
-
-const std::string HTTPResponseMessage::_getTypeCatStr() const {
-	return HTTPResponseMessage::contentTypeCategories.at(static_cast<int>(typeCat));
 }
