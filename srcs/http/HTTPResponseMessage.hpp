@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include <ctime>
+#include <map>
+#include <chrono>
 
 class HTTPResponseMessage {
 public:
@@ -28,38 +28,40 @@ public:
 		HTTP_VERSION_NOT_SUPPORTED = 505
 		// ...
 	};
-	// Not sure if responseStatusMessages compiles. Otherwise data initialization should be outside the class scope inside a cpp file
-	static const std::vector<const std::string> responseStatusMessages;
+	
+	static const std::map<int, const std::string> responseStatusMessages;
 
 	// content-type examples constitute text/html, image/png, image/jpeg, application/json and more.
-	enum e_contentTypeCategory { APPLICATION, AUDIO, IMAGE, TEXT /* , ETC... */ };
+	enum e_contentTypeCategory { APPLICATION = 0, AUDIO, IMAGE, TEXT /* , ETC... */ };
+
+	static const std::map<int, const std::string> contentTypeCategories;
 
 private:
 	/** Status line */
 	inline static const std::string	protocol = "HTTP/1.1";
 	e_responseStatusCode			status;		// Need From RequestHandler
-	const std::string*				message;
+	std::string						message;
 
 	/** Headers*/
-	inline static const time_t 		date = std::time(NULL);
-	e_contentTypeCategory			typeCat;	// Need From RequestHandler
-	const std::string*				typeExt;	// Need From RequestHandler
 	unsigned int 					length;		// Need From RequestHandler
+	e_contentTypeCategory			typeCat;	// Need From RequestHandler
+	std::string						typeExt;	// Need From RequestHandler
+	std::string						_getDateStr() const;
 	inline static const std::string server = "Wonderkid & Co's Webserver";
 
 	/** Body */
-	const std::string*				body;		// Need From RequestHandler (string? stream? file*?)
+	std::string						body;		// Need From RequestHandler (string? stream? file*?)
 
 public:
 	HTTPResponseMessage() {};
 	~HTTPResponseMessage() {};
 
 	void setStatus( const e_responseStatusCode status )
-		{ this->status = status; this->message = &responseStatusMessages[status]; }
+		{ this->status = status; this->message = responseStatusMessages.at(static_cast<int>(status)); }
 	void setTypeCat( const e_contentTypeCategory typeCat ) { this->typeCat = typeCat; }
-	void setTypeExt( const std::string* typeExt ) { this->typeExt = typeExt; }
+	void setTypeExt( const std::string typeExt ) { this->typeExt = typeExt; }
 	void setLength( const unsigned int contentLength ) { length = contentLength; }
-	void setBody( const std::string* body ) { this->body = body; }
+	void setBody( const std::string body ) { this->body = body; }
 
 	/** In case you want to try out adders instead of setters:
 	 *  HTTPResponseMessage response()
@@ -71,23 +73,19 @@ public:
 	 **/
 	HTTPResponseMessage&
 	addStatus( const e_responseStatusCode status )
-		{ this->status = status; this->message = &responseStatusMessages[status]; return *this; }
+		{ this->status = status; this->message = responseStatusMessages.at(static_cast<int>(status)); return *this; }
 	HTTPResponseMessage&
 	addTypeCat( const e_contentTypeCategory typeCat ) { this->typeCat = typeCat; return *this; }
 	HTTPResponseMessage&
-	addTypeExt( const std::string* typeExt ) { this->typeExt = typeExt; return *this; }
+	addTypeExt( const std::string typeExt ) { this->typeExt = typeExt; return *this; }
 	HTTPResponseMessage&
 	addLength( const unsigned int contentLength ) { length = contentLength; return *this; }
 	HTTPResponseMessage&
-	addBody( const std::string* body ) { this->body = body; return *this; }
+	addBody( const std::string body ) { this->body = body; return *this; }
 
-	std::string& format() const {
-		std::string output;
+	const std::string toString() const;
 
-		output = protocol + ' ' + std::to_string((int)status);
-
-		return output;
-	}
-
-
+private:
+	const std::string _getStatusCodeStr() const;
+	const std::string _getTypeCatStr() const;
 };
