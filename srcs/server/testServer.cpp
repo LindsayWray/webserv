@@ -54,11 +54,14 @@ void webserv::testServer::_responder(int fd, HTTPResponseMessage response) {
 		// send( fd, "\n", 1, 0 );
 		// send( fd, "\n", 1, 0 );
 
-	/* FIRST ATTEMPT AT RESPONSE IMPL */
-		std::cout << "sending response" << std::endl;
+	/* RESPONSE LOGGER */
+		std::cout << response.toString();
 
-		const std::string& responseStr = response.toString();
-		send( fd, responseStr.c_str(), responseStr.length(), 0 );
+	/* FIRST ATTEMPT AT RESPONSE IMPL */
+		// std::cout << "sending response" << std::endl;
+
+		// const std::string& responseStr = response.toString();
+		// send( fd, responseStr.c_str(), responseStr.length(), 0 );
 
 	/* TEST WITH CONSTRUCTED RESPONSE */
 		// std::ifstream outfile;
