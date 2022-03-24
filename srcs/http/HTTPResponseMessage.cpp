@@ -36,13 +36,13 @@ const std::string HTTPResponseMessage::toString() const {
 	std::string output;
 
 	output =
-		protocol + ' ' + _getStatusCodeStr() + ' ' + message + '\n'+
+		protocol + ' ' + _getStatusCodeStr() + ' ' + message + "\r\n" +
 
-		"content-length: " + std::to_string(length) + '\n' +
-		"content-type: " + _getTypeCatStr() + '/' + typeExt + '\n' +
-		"date: " + _getDateStr() + 
-		"server: " + server + '\n' +
-		'\n' +
+		"content-length: " + std::to_string(length) + "\r\n" +
+		"content-type: " + _getTypeCatStr() + '/' + typeExt + "\r\n" +
+		"date: " + _getDateStr() + "\r\n" +
+		"server: " + server + "\r\n" +
+		"\r\n" +
 
 		body;
 
@@ -52,7 +52,11 @@ const std::string HTTPResponseMessage::toString() const {
 std::string HTTPResponseMessage::_getDateStr() const {
 	auto now = std::chrono::system_clock::now();
     std::time_t end_time = std::chrono::system_clock::to_time_t(now);
-    return std::ctime(&end_time);
+	
+	std::string output = std::ctime(&end_time);
+	output.pop_back();
+
+    return output;
 }
 
 const std::string HTTPResponseMessage::_getStatusCodeStr() const {

@@ -47,7 +47,7 @@ private:
 	e_contentTypeCategory			typeCat;	// Need From RequestHandler
 	std::string						typeExt;	// Need From RequestHandler
 	std::string						_getDateStr() const;
-	inline static const std::string server = "Wonderkid & Co's Webserver";
+	inline static const std::string server = "Wonderkind & Co's Webserver";
 
 	/** Body */
 	std::string						body;		// Need From RequestHandler (string? stream? file*?)
@@ -56,16 +56,9 @@ public:
 	HTTPResponseMessage() {};
 	~HTTPResponseMessage() {};
 
-	void setStatus( const e_responseStatusCode status )
-		{ this->status = status; this->message = responseStatusMessages.at(static_cast<int>(status)); }
-	void setTypeCat( const e_contentTypeCategory typeCat ) { this->typeCat = typeCat; }
-	void setTypeExt( const std::string typeExt ) { this->typeExt = typeExt; }
-	void setLength( const unsigned int contentLength ) { length = contentLength; }
-	void setBody( const std::string body ) { this->body = body; }
-
-	/** In case you want to try out adders instead of setters:
-	 *  HTTPResponseMessage response()
-	 *								.addStatus(SUCCESS)
+	/** How to use these adders:
+	 *  HTTPResponseMessage response;
+	 *						response.addStatus(SUCCESS)
 	 *	 							.addTypeCat(TEXT)
 	 * 								.addTypeExt("plain")
 	 * 								.addLength(body.length())
