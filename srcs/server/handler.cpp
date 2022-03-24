@@ -92,7 +92,8 @@ HTTPResponseMessage handler( Request request ) {
 	HTTPResponseMessage response;
 	std::string root;
 
-	//root = this->_http.locations[0].root;
+	//temporary hardcoded root
+	root = "./var/www/html";
 
 	if ( request.getMethod() == Request::GET )
 		GET_handler( request, response, root );
