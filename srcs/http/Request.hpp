@@ -21,10 +21,13 @@
 // string xmlns="ht//clearforest.com/">string/string
 
 namespace webserv {
+
 	class Request {
+	public:
+		enum method {GET, POST, DELETE};
 	private:
 	//status line
-		std::string		_method;
+		method			_method;
 		std::string		_path;
 		std::string		_version;
 	//headers
@@ -33,12 +36,12 @@ namespace webserv {
 	//body
 		std::string _body;
 
-		void	parse_statusline();
+		void	parse_statusline(std::string& method);
 
 	public:
 		Request(std::string);
 		std::string getPath() const;
-		std::string getMethod() const;
+		method getMethod() const;
 
 		class IncorrectRequestException : public std::exception{
 		public:

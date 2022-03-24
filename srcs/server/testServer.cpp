@@ -37,36 +37,7 @@ void webserv::testServer::_accepter() {
 	}
 }
 
-HTTPResponseMessage webserv::testServer::_handler( Request request ) {
-	std::ifstream file;
-	std::string line;
-	std::string body("");
-	HTTPResponseMessage response;
 
-	std::string root = "./html";
-
-	file.open(root + request.getPath());
-	// file.seekg(0, std::ios::end); // This will set the fail bit if fileName is a directory (or do nothing if it is already set  
-	if (file.good()) {
-		std::cout << "File found " << root + request.getPath() << std::endl;
-		while( std::getline( file, line ) ) {
-			body += (line + '\n');
-		}
-		response.addStatus(HTTPResponseMessage::OK)
-							//.addTypeExt("text/html") // tells the client which datatype it can expect in the body
-							.addLength(body.length())
-							.addBody(&body);
-	} else {
-		std::cout << "File not found " << root + request.getPath() << std::endl;
-
-		body = "Not Found";
-		response.addStatus(HTTPResponseMessage::NOT_FOUND)
-					//.addTypeExt("text/plain")
-					.addLength(body.length())
-					.addBody(&body);
-	}
-	return response;
-}
 
 void webserv::testServer::_responder(int fd, HTTPResponseMessage response) {
 	std::ifstream outfile;
@@ -74,7 +45,7 @@ void webserv::testServer::_responder(int fd, HTTPResponseMessage response) {
 
 	std::cout << "sending response" << std::endl;
 
-	outfile.open("resp.html");
+	outfile.open("var/www/html/resp.html");
 	while( std::getline( outfile, line ) ) {
 		send( fd, line.c_str(), line.length(), 0 );
 		send( fd, "\n", 1, 0 );
@@ -135,10 +106,13 @@ void webserv::testServer::launch() {
 						try{
 							webserv::Request request( _requests[fd] );
 							std::cout << "made request object" << std::endl;
-							HTTPResponseMessage response = _handler( request);
+							HTTPResponseMessage response = _handler( request); // , this->_http);
 							_responder(fd, response);
 						}
 						catch( Request::IncorrectRequestException& e ){		// catches parsing errors from request 
+							HTTPResponseMessage response;
+							response.addStatus(HTTPResponseMessage::BAD_REQUEST);
+							_responder(fd, response);
 							std::cout << e.what() << std::endl;
 						}
 						close_conn = true;

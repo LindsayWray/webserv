@@ -6,7 +6,7 @@ server{
 
 	location / {
 		autoindex on;
-		root    /var/www/site1;
+		root    ./var/www/html;
 	}
 }
 

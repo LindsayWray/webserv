@@ -56,9 +56,15 @@ public:
 	HTTPResponseMessage() {};
 	~HTTPResponseMessage() {};
 
+<<<<<<< HEAD
 	/** How to use these adders:
 	 *  HTTPResponseMessage response;
 	 *						response.addStatus(SUCCESS)
+=======
+	/** In case you want to try out adders instead of setters:
+	 *  HTTPResponseMessage response()
+	 *								.addStatus(SUCCESS)
+>>>>>>> lindsay
 	 *	 							.addTypeCat(TEXT)
 	 * 								.addTypeExt("plain")
 	 * 								.addLength(body.length())
