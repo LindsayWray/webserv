@@ -38,19 +38,20 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 	if (*path.rbegin() == '/') {
 		std::cout << "Is a directory " << path << std::endl;
 		defaultFile.open(path + "index.html");
-		std::cout << "defaultFile: "  << path + "index.html" << std::endl;
 		if(defaultFile.is_open()){
 			while( std::getline( defaultFile, line ) )
 				body += (line + '\n');
-			response.addStatus(HTTPResponseMessage::OK);
-			response.addType("text/html");
-			response.addBody(body);
+			defaultFile.close();
+			response.addStatus(HTTPResponseMessage::OK)
+					.addType("text/html")
+					.addLength(body.length())
+					.addBody(body);
 		}
 		else {
 			std::cout << "File not found " << path << std::endl;
 			fileNotFound(response);
 		}
-		return ;
+		return;
 	}
 
 	// if(!fs::exists(path)) {
@@ -93,6 +94,7 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 		while( std::getline( file, line ) ) {
 			body += (line + '\n');
 		}
+		file.close();
 		response.addStatus(HTTPResponseMessage::OK)
 							.addLength(body.length())
 							.addBody(body);
@@ -102,7 +104,6 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 							catch (...) {
 								response.addType("text/plain");   //temporary fix until directory handling 
 							}
-							
 	} else {
 		std::cout << "File not found " << path << std::endl;
 		fileNotFound(response);
