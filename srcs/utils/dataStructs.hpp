@@ -53,7 +53,7 @@ namespace webserv{
         }
     };
 
-    struct httpData{
+    typedef struct httpData{
         std::string abs_path;
         std::vector<std::string> server_name;
         std::vector<std::string> index;
@@ -61,7 +61,7 @@ namespace webserv{
         std::vector<std::pair<int, std::string> > redirect; // but vector is chronological which is nice
         std::vector<locationData> locations;
         httpData( std::string root ) : abs_path( root ){};
-    };
+    } config_data;
 
    	struct readData{
         char* buf;

@@ -54,40 +54,6 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 		return;
 	}
 
-	// if(!fs::exists(path)) {
-	// 	std::cout << "File not found " << path << std::endl;
-	// 	body = "Not Found";
-	// 	response.addStatus(HTTPResponseMessage::NOT_FOUND)
-	// 				.addTypeExt("plain");
-	// }
-	// else if (fs::is_directory(path)) {
-	// 	std::cout << "Is a directory " << path << std::endl;
-	// 	defaultFile.open(root + "default.html");
-	// 	while( std::getline( file, line ) )
-	// 		body += (line + '\n');
-	// 	response.addStatus(HTTPResponseMessage::OK)
-	// 						.addTypeExt("html");
-	// }
-	// else if (fs::is_regular_file(path)) {
-	// 	file.open(path);
-	// 	if(!file.good()){
-	// 		std::cout << "No Access to file " << path << std::endl;
-	// 		body = "No Access";
-	// 		response.addStatus(HTTPResponseMessage::FORBIDDEN)
-	// 				.addTypeExt("plain");
-	// 	}
-	// 	else {
-	// 		std::cout << "File found " << path << std::endl;
-	// 		while( std::getline( file, line ) )
-	// 			body += (line + '\n');
-	// 		response.addStatus(HTTPResponseMessage::OK)
-	// 			.addTypeExt("html");
-	// 	}
-	// }
-	// response.addLength(body.length());
-	// response.addBody(body);
-
-
 	file.open(path);
 	if (file.good()) {
 		std::cout << "File found " << path << std::endl;
@@ -116,12 +82,17 @@ void POST_handler( Request request, HTTPResponseMessage& response, std::string& 
 
 void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& root ) {}
 
-HTTPResponseMessage handler( Request request ) {
+HTTPResponseMessage handler( Request request, webserv::config_data* config ) {
 	HTTPResponseMessage response;
 	std::string root;
 
 	//temporary hardcoded root
-	root = "./var/www/html";
+	//root = "./var/www/html";
+
+	//root = config->abs_path;
+	root = config->locations[0].root;
+
+	std::cout << "ROOT: " << root << std::endl;
 
 	if ( request.getMethod() == Request::GET )
 		GET_handler( request, response, root );

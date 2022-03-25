@@ -21,6 +21,7 @@ int main( int argc, char **argv, char **env ) {
 	incoming.buf = new char[incoming.buflen];
 
 	std::map<int,std::string> requests;
+	std::map<int,webserv::config_data*> clientSockets;
 
     /*
      * code is almost the same as the one in testServer.launch()
@@ -52,7 +53,7 @@ int main( int argc, char **argv, char **env ) {
                 close( current_fd );
 				kqData.nbr_connections--;
             } else if ( serverMap.find( current_fd ) != serverMap.end() )
-                accept( serverMap[current_fd].first , kqData );
+				accepter( serverMap[current_fd] , kqData, clientSockets );
             else {
                 while ( true ) {
                     memset( incoming.buf, 0, incoming.buflen);	//clean struct
@@ -71,7 +72,7 @@ int main( int argc, char **argv, char **env ) {
                         try{
                             webserv::Request request( requests[current_fd] );
                             std::cout << "made request object" << std::endl;
-                            HTTPResponseMessage response = handler( request );
+                            HTTPResponseMessage response = handler( request, clientSockets[current_fd] );
                             responder(current_fd, response);
 							requests.erase(current_fd);
                         }
