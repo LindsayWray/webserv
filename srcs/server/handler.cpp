@@ -86,10 +86,6 @@ HTTPResponseMessage handler( Request request, webserv::config_data* config ) {
 	HTTPResponseMessage response;
 	std::string root;
 
-	//temporary hardcoded root
-	//root = "./var/www/html";
-
-	//root = config->abs_path;
 	root = config->locations[0].root;
 
 	std::cout << "ROOT: " << root << std::endl;
