@@ -73,6 +73,7 @@ int main( int argc, char **argv, char **env ) {
                             std::cout << "made request object" << std::endl;
                             HTTPResponseMessage response = handler( request );
                             responder(current_fd, response);
+							requests.erase(current_fd);
                         }
                         catch( webserv::Request::IncorrectRequestException& e ){		// catches parsing errors from request
                             std::cout << e.what() << std::endl;
