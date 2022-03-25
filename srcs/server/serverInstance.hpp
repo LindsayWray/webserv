@@ -29,10 +29,6 @@ namespace webserv{
         int checkIncoming( struct kevent incoming );
 
         void accept( int kq, struct kevent event, int** connections );
-//        void _accepter( int );
-//        HTTPResponseMessage _handler( Request );
-//        void _responder(int fd, HTTPResponseMessage response);
-
     };
 }
 

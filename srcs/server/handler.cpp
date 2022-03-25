@@ -10,12 +10,20 @@ using webserv::Request;
 
 namespace fs = std::__fs::filesystem;
 
-std::string file_extension(std::string path) {
+static std::string file_extension(std::string path) {
 	int pos = path.find('.');
 	if (pos == std::string::npos) 
 		return "";
 	return path.substr(pos + 1); // +1 to skip the .
 }
+
+static void fileNotFound(HTTPResponseMessage& response){
+	std::string body = "Not Found";
+	response.addStatus(HTTPResponseMessage::NOT_FOUND)
+				.addLength(body.length())
+				.addBody(body)
+				.addType("text/html");
+};
 
 void GET_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
 	std::ifstream file;
@@ -25,7 +33,25 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 
 	std::string path = root + request.getPath();
 	std::string extension = file_extension(request.getPath());
-	std::cout << "EXTENSION: "  << extension << "end" << std::endl;
+	std::cout << "EXTENSION: "  << extension << std::endl;
+
+	if (*path.rbegin() == '/') {
+		std::cout << "Is a directory " << path << std::endl;
+		defaultFile.open(path + "index.html");
+		std::cout << "defaultFile: "  << path + "index.html" << std::endl;
+		if(defaultFile.is_open()){
+			while( std::getline( defaultFile, line ) )
+				body += (line + '\n');
+			response.addStatus(HTTPResponseMessage::OK);
+			response.addType("text/html");
+			response.addBody(body);
+		}
+		else {
+			std::cout << "File not found " << path << std::endl;
+			fileNotFound(response);
+		}
+		return ;
+	}
 
 	// if(!fs::exists(path)) {
 	// 	std::cout << "File not found " << path << std::endl;
@@ -79,11 +105,7 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 							
 	} else {
 		std::cout << "File not found " << path << std::endl;
-		body = "Not Found";
-		response.addStatus(HTTPResponseMessage::NOT_FOUND)
-					.addLength(body.length())
-					.addBody(body)
-					.addType("text/html");;
+		fileNotFound(response);
 	}
 }
 
