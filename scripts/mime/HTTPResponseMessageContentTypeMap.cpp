@@ -7,6 +7,7 @@
 
 const std::unordered_map<const std::string, const std::string> HTTPResponseMessage::contentTypes =
 {
+	{ "", "text/plain"}
 	{ "ez", "application/andrew-inset" },
 	{ "aw", "application/applixware" },
 	{ "atom", "application/atom+xml" },

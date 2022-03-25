@@ -26,6 +26,7 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 
 	std::string path = root + request.getPath();
 	std::string extension = file_extension(request.getPath());
+	std::cout << "EXTENSION: "  << extension << "end" << std::endl;
 
 	// if(!fs::exists(path)) {
 	// 	std::cout << "File not found " << path << std::endl;
@@ -67,18 +68,16 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 			body += (line + '\n');
 		}
 		response.addStatus(HTTPResponseMessage::OK)
-							//.addTypeExt("html")
 							.addLength(body.length())
-							.addBody(body);
-							//.addTypeCat(HTTPResponseMessage::TEXT);
+							.addBody(body)
+							.addType(HTTPResponseMessage::contentTypes.at(extension));
 	} else {
 		std::cout << "File not found " << path << std::endl;
 		body = "Not Found";
 		response.addStatus(HTTPResponseMessage::NOT_FOUND)
-					//.addTypeExt("plain")
 					.addLength(body.length())
-					.addBody(body);
-					//.addTypeCat(HTTPResponseMessage::TEXT);
+					.addBody(body)
+					.addType(HTTPResponseMessage::contentTypes.at(extension));
 	}
 }
 
