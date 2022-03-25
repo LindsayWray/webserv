@@ -14,7 +14,6 @@ std::string file_extension(std::string path) {
 	int pos = path.find('.');
 	if (pos == std::string::npos) 
 		return "";
-	printf("file extension: %s\n", path.substr(pos + 1).c_str());
 	return path.substr(pos + 1); // +1 to skip the .
 }
 
@@ -61,6 +60,7 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 	// response.addLength(body.length());
 	// response.addBody(body);
 
+
 	file.open(path);
 	if (file.good()) {
 		std::cout << "File found " << path << std::endl;
@@ -69,15 +69,21 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string& r
 		}
 		response.addStatus(HTTPResponseMessage::OK)
 							.addLength(body.length())
-							.addBody(body)
-							.addType(HTTPResponseMessage::contentTypes.at(extension));
+							.addBody(body);
+							try {
+								response.addType(HTTPResponseMessage::contentTypes.at(extension));
+							}
+							catch (...) {
+								response.addType("text/plain");   //temporary fix until directory handling 
+							}
+							
 	} else {
 		std::cout << "File not found " << path << std::endl;
 		body = "Not Found";
 		response.addStatus(HTTPResponseMessage::NOT_FOUND)
 					.addLength(body.length())
 					.addBody(body)
-					.addType(HTTPResponseMessage::contentTypes.at(extension));
+					.addType("text/html");;
 	}
 }
 
