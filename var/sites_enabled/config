@@ -1,0 +1,10 @@
+server {
+    listen 9000;
+    server_name     webserv.com www.webserv.com;
+
+    error_page 404 /error.html;
+
+    location / {
+    	root    /var/www/site2;
+    }
+}

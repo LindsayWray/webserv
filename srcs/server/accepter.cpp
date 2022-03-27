@@ -6,7 +6,7 @@ void accepter( std::pair<webserv::listeningSocket*,webserv::httpData*>& serverPa
     int new_sd = 0;
     // std::cout << "trying to accept: SD " << new_sd << " nbconn " << _nb_of_conns << " Ncon " << _Ncon << std::endl;
     while ( new_sd != -1 && kqData.nbr_connections < kqData.worker_connections ) {
-        new_sd = accept( serverPair.first->get_sock(), (struct sockaddr *) &address, (socklen_t *) &address.sin_len);
+        new_sd = accept( serverPair.first->get_sock(), (struct sockaddr *)&address, (socklen_t *)&address.sin_len);
         if ( new_sd < 0 ) {
             if (errno != EWOULDBLOCK) {
                 std::cerr << errno << " " << strerror(errno) << std::endl;

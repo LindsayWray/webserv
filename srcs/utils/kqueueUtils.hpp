@@ -12,7 +12,7 @@
 #define MAX_EVENTS 32
 #define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*>>
 
-int init_servers( SERVER_MAP& serverMap, char* filename, char** env, webserv::kqConData& kqData ){
+int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webserv::kqConData& kqData ){
     std::string root = webserv::setFileLocation( env );
     std::string configFile = root;
     configFile.append("/var/sites_enabled/");

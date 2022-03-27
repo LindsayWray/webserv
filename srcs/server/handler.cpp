@@ -87,7 +87,6 @@ HTTPResponseMessage handler( Request request, webserv::config_data* config ) {
 	std::string root;
 
 	root = config->locations[0].root;
-
 	std::cout << "ROOT: " << root << std::endl;
 
 	if ( request.getMethod() == Request::GET )

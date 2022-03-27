@@ -2,6 +2,8 @@ server{
 	listen 8080;
 
 	index   index.html index.htm;
+	
+	error_page 404 /error.html;
 
 	location / {
 		autoindex on;
@@ -14,6 +16,7 @@ server {
     server_name     webserv.com www.webserv.com;
 
     error_page 404 /error.html;
+    error_page 403 /noaccess.html;
 
     location / {
     	root    /var/www/site2;
