@@ -63,12 +63,6 @@ namespace webserv{
         httpData( std::string root ) : abs_path( root ){};
     } config_data;
 
-   	struct readData{
-        char* buf;
-        int buflen;
-        int bytesread;
-    };
-
     struct kqConData {
         int kq;
         int nbr_connections;

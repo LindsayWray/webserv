@@ -67,7 +67,7 @@ int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webse
         for ( int sock = 0; sock < socket_vec[serv]->ports.size(); sock++ ) {
             socket_tmp = new webserv::listeningSocket( *socket_vec[serv], socket_vec[serv]->ports[sock] );
             serverMap[socket_tmp->get_sock()] = std::make_pair(socket_tmp, http_vec[serv]);
-            EV_SET(&in_events[i++], socket_tmp->get_sock(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+            EV_SET(&in_events[i++], socket_tmp->get_sock(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
         }
     }
     return kevent( kqData.kq, in_events, sockets, NULL, 0, NULL);  //  register all listening sockets at once
