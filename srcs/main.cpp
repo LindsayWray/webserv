@@ -20,25 +20,20 @@ typedef struct serverData {
 } serverData;
 
 
-void	disconnect( int fd, int* nbr_connections ) {
-		std::cerr << "Disconnected" << std::endl;
-		close( fd );
-		printf("nbr of conns: %d\n", nbr_connections);
-		(*nbr_connections)--;
-		printf("nbr of conns: %d\n", nbr_connections);
-}
-
-
 void	function(serverData& serverData, struct kevent& event){
 	int current_fd = event.ident;
 	if ( event.flags & EV_EOF ){		// check if it's an eof event, client disconnected
-		disconnect(current_fd, &serverData.kqData.nbr_connections);
+		std::cerr << "Disconnected" << std::endl;
+		close( current_fd );
+		serverData.kqData.nbr_connections--;
 	} else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end() )
 		accepter( serverData.serverMap[current_fd] , serverData.kqData, serverData.clientSockets );
 	else if ( serverData.responses.find( current_fd ) != serverData.responses.end() ){
 		responder(current_fd, serverData.responses[current_fd]);
 		serverData.responses.erase(current_fd);
-		disconnect(current_fd, &serverData.kqData.nbr_connections);
+		std::cerr << "Disconnected" << std::endl;
+		close( current_fd );
+		serverData.kqData.nbr_connections--;
 	} else {
 		memset( serverData.buf, 0, serverData.buflen );	//clean struct
 		int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );

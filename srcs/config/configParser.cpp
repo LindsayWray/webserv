@@ -5,7 +5,7 @@
 #include "configParser.hpp"
 
 webserv::configParser::configParser(std::string config_file ) {
-	// system("pwd");
+	system("pwd");
 	// std::cout << config_file << std::endl;
 	// _configFile.open( "var/sites_enabled/config.webserv", std::fstream::in );
 	// if ( _configFile.fail() )
