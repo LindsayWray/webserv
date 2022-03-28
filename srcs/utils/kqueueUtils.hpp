@@ -15,11 +15,8 @@
 int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webserv::kqConData& kqData ){
     std::string root = webserv::setFileLocation( env );
     std::string configFile = root;
-    std::cout << configFile << std::endl;
     configFile.append("/var/sites_enabled/");
-    std::cout << configFile << std::endl;
     configFile.append(filename);
-    std::cout << configFile << std::endl;
     webserv::configParser object( configFile );
     std::vector<webserv::httpData*> http_vec;
     std::vector<webserv::socketData*> socket_vec;

@@ -19,21 +19,24 @@ typedef struct serverData {
 	int buflen;
 } serverData;
 
+void	disconnected(int fd, int *nbr_conn){
+	std::cerr << "Disconnected" << std::endl;
+	close( fd );
+	(*nbr_conn)--;
+}
+
 
 void	function(serverData& serverData, struct kevent& event){
 	int current_fd = event.ident;
 	if ( event.flags & EV_EOF ){		// check if it's an eof event, client disconnected
 		std::cerr << "Disconnected" << std::endl;
-		close( current_fd );
-		serverData.kqData.nbr_connections--;
+		disconnected( current_fd, &serverData.kqData.nbr_connections);
 	} else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end() )
 		accepter( serverData.serverMap[current_fd] , serverData.kqData, serverData.clientSockets );
 	else if ( serverData.responses.find( current_fd ) != serverData.responses.end() ){
 		responder(current_fd, serverData.responses[current_fd]);
 		serverData.responses.erase(current_fd);
-		std::cerr << "Disconnected" << std::endl;
-		close( current_fd );
-		serverData.kqData.nbr_connections--;
+		disconnected( current_fd, &serverData.kqData.nbr_connections);
 	} else {
 		memset( serverData.buf, 0, serverData.buflen );	//clean struct
 		int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );
