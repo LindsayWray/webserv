@@ -17,7 +17,12 @@ void accepter( std::pair<webserv::listeningSocket*,webserv::httpData*>& serverPa
         printf( "  New incoming connection - %d\n", new_sd );
         struct kevent new_socket_change;
         EV_SET(&new_socket_change, new_sd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-        kevent( kqData.kq, &new_socket_change, 1, NULL, 0, NULL); // listen for events on newly created socket
+        int fd = kevent( kqData.kq, &new_socket_change, 1, NULL, 0, NULL); // listen for events on newly created socket
+		if ( fd == ERROR ) {
+			std::cerr << errno << " " << strerror(errno) << std::endl;
+            perror( "  kqueue() failed" );
+            exit( EXIT_FAILURE );
+		}
 		clientSockets[new_sd] = serverPair.second;
         kqData.nbr_connections++;
     }

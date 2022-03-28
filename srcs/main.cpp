@@ -25,8 +25,32 @@ void	disconnected(int fd, int *nbr_conn){
 	(*nbr_conn)--;
 }
 
+void	takeRequest(serverData& serverData, int current_fd ) {
+	serverData.requests[current_fd] += serverData.buf;
+	if ( serverData.requests[current_fd].find("\r\n\r\n") != std::string::npos ){
+		try{
+			webserv::Request request( serverData.requests[current_fd] );
+			std::cout << "made request object" << std::endl;
+			HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd] );
+			serverData.responses[current_fd] = response;
+			serverData.requests.erase(current_fd);
+			printf( "  register respond event - %d\n", current_fd );
+			struct kevent new_socket_change;
+			EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE | EV_ONESHOT, 0, 0, NULL );
+			int fd = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
+			if ( fd == ERROR ) {
+            	std::cerr << errno << " " << strerror(errno) << std::endl;
+            	perror( "  kqueue() failed" );
+            	exit( EXIT_FAILURE );
+        	}
+		}
+		catch( webserv::Request::IncorrectRequestException& e ){		// catches parsing errors from request
+			std::cout << e.what() << std::endl;
+		}
+	}
+}
 
-void	function(serverData& serverData, struct kevent& event){
+void	eventLoop(serverData& serverData, struct kevent& event){
 	int current_fd = event.ident;
 	if ( event.flags & EV_EOF ){		// check if it's an eof event, client disconnected
 		std::cerr << "Disconnected" << std::endl;
@@ -46,25 +70,8 @@ void	function(serverData& serverData, struct kevent& event){
 		}
 		else if ( bytesread == 0 )
 			std::cout << "  Connection closed" << std::endl; 
-		else {					
-			serverData.requests[current_fd] += serverData.buf;
-			if ( serverData.requests[current_fd].find("\r\n\r\n") != std::string::npos ){
-				try{
-					webserv::Request request( serverData.requests[current_fd] );
-					std::cout << "made request object" << std::endl;
-					HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd] );
-					serverData.responses[current_fd] = response;
-					serverData.requests.erase(current_fd);
-					printf( "  register respond event - %d\n", current_fd );
-					struct kevent new_socket_change;
-					EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE | EV_ONESHOT, 0, 0, NULL );
-					kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
-				}
-				catch( webserv::Request::IncorrectRequestException& e ){		// catches parsing errors from request
-					std::cout << e.what() << std::endl;
-				}
-			}
-		}
+		else			
+			takeRequest( serverData, current_fd);
 	}
 }
 
@@ -77,7 +84,6 @@ int main( int argc, char **argv, char **env ) {
 	std::string config = argc == 1 ? "config.webserv" : argv[1];
 	serverData serverData;
 
-	printf("debug1\n");
     if ( init_servers(serverData.serverMap, config, env, serverData.kqData) == ERROR )
 		return EXIT_FAILURE;
         
@@ -90,7 +96,6 @@ int main( int argc, char **argv, char **env ) {
 	serverData.buf = new char[serverData.buflen + 1];
 	serverData.buf[serverData.buflen] = '\0';
 
-
 	while ( true ){
 		std::cout << "Waiting on kqueue() events..." << std::endl;
 		nev = kevent(serverData.kqData.kq, NULL, 0, eventList, MAX_EVENTS, NULL);
@@ -102,7 +107,7 @@ int main( int argc, char **argv, char **env ) {
 			break;
 		}
 		for ( int i = 0; i < nev; i++ ){
-			function(serverData, eventList[i]);
+			eventLoop(serverData, eventList[i]);
 		}
 	}
 	return EXIT_SUCCESS;
