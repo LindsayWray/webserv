@@ -5,6 +5,12 @@
 #include "configParser.hpp"
 
 webserv::configParser::configParser(std::string config_file ) {
+	// system("pwd");
+	// std::cout << config_file << std::endl;
+	// _configFile.open( "var/sites_enabled/config.webserv", std::fstream::in );
+	// if ( _configFile.fail() )
+	// 	std::cerr << "opening file failed" << std::endl;
+
 	_configFile.open( config_file, std::fstream::in );
 	if ( _configFile.fail() )
 		std::cerr << "opening file failed" << std::endl;
