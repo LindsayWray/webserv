@@ -8,8 +8,8 @@
 #include "../http/HTTPResponseMessage.hpp"
 
 	void accepter( std::pair<webserv::listeningSocket*,webserv::httpData*>& serverPair, 
-		webserv::kqConData& kqData,std::map<int,webserv::config_data*>& clientSockets);
-	HTTPResponseMessage handler( webserv::Request request, webserv::config_data* config );
+		webserv::kqConData& kqData,std::map<int,webserv::httpData*>& clientSockets);
+	HTTPResponseMessage handler( webserv::Request request, webserv::httpData* config );
 	void 				responder(int fd, HTTPResponseMessage response);
 
 #endif

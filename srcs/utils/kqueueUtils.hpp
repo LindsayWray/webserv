@@ -8,9 +8,9 @@
 #include "../config/configParser.hpp"
 #include "../utils/stringUtils.hpp"
 #include "../server/serverInstance.hpp"
+#include "webserv.hpp"
 
 #define MAX_EVENTS 32
-#define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*>>
 
 int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webserv::kqConData& kqData ){
     std::string root = webserv::setFileLocation( env );

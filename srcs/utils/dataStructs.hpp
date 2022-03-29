@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
 #include <netinet/in.h>
 #include <algorithm>
 
@@ -41,7 +42,7 @@ namespace webserv{
         }
     };
 
-    struct locationData{
+    struct locationData {
         std::string location;
         std::string root;
         int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
@@ -53,21 +54,110 @@ namespace webserv{
         }
     };
 
-    typedef struct httpData{
+    class httpData{
+    public:
         std::string abs_path;
         std::vector<std::string> server_name;
         std::vector<std::string> index;
-        std::vector<std::pair<int, std::string> > error_page; // maybe map because of unique key's
+        std::map<int, std::string> error_page; // maybe map because of unique key's
         std::vector<std::pair<int, std::string> > redirect; // but vector is chronological which is nice
         std::vector<locationData> locations;
-        httpData( std::string root ) : abs_path( root ){};
-    } config_data;
+        
+        httpData( std::string root ) : abs_path( root ) {}
+        ~httpData() {}
+
+        /* EXAMPLE **
+         * GET /images/2022/03/04/1400x1800.jpeg HTTP/1.1
+         *  pathFromHTTPRequest = /images/2022/03/04/1400x1800.jpeg
+         * 
+         * if /images/ or /images is defined as a location inside
+         * the appropriate server block in the config.webserv:
+         *  reqPath = "/images/"
+         *  reqPathInfo = "2022/03/04/1400x1800.jpeg"
+         * else:
+         *  reqPath = "/"
+         *  reqPathInfo = "images/2022/03/04/1400x1800.jpeg"
+         * 
+         * getRequestedFilePath() then returns
+         *  filePath = root + reqPathInfo
+         *  where root is defined in the appropriate location block
+         *      (locationData.root)
+         *  If no root is defined inside the location block in the config.webserv,
+         *  the parser should assign it to be:
+         *      locationData.root = httpData.absPath + reqPath;
+         */
+
+        std::string getRequestedFilePath(std::string pathFromHTTPRequest) {
+			return this->locations[0].root + pathFromHTTPRequest;
+		}
+            // std::string reqPath = _getReqPath(pathFromHTTPRequest);
+
+    //         std::string root;
+    //         locationData location = findLocationBlock(reqPath);
+    //         if (location)
+    //             root = locationData.root;
+    //         else if (location == NULL && reqPath != "/")
+    //             location = findLocationBlock("/");
+    //             if (location == NULL)
+    //                 root = location.root + reqPath
+    //             else
+    //                 root = httpData.abs_Path + reqPath;
+
+    //         std::string reqPathInfo;
+            
+
+    //         std::size_t found = pathFromHTTPRequest.find(reqPath);
+
+
+    //         if (found == std::string::npos) { // /pathWithNoTrailingSlash (path is a directory)
+    //             location = findLocationBlock(reqPath);
+    //             if (location == NULL && location = findLocationBlock("/")) {
+    //                 reqPathInfo = pathFromHTTPRequest.
+    //             }
+    //             else if (location == NULL) {
+                    
+    //             }
+    //         }
+    //         else {
+    //             location = findLocationBlock(reqPath);
+    //             if (location == NULL && location = )
+    //         }
+
+    //         std::string reqPathInfo = pathFromHTTPRequest.substr(pathFromHTTPRequest.find(reqPath) + reqPath.length());
+
+    //         if 
+
+    //     }
+
+    // private:
+    //     std::string _getReqPath(std::string pathFromHTTPRequest) {
+    //         std::string reqPath;
+
+    //         std::size_t firstSlash = pathFromHTTPRequest.find_first_of('/');
+    //         std::size_t secondSlash = pathFromHTTPRequest.find_first_of('/', firstSlash + 1);
+
+    //         bool pathContainsSingleSlash = (secondSlash == std::string::npos)
+    //         if (pathContainsSingleSlash)    // /pathWithoutSecondSlashMustBeEitherFileOrDirectory(.jpg)
+    //         {
+    //             bool isFile = (pathFromHTTPRequest.find('.') != std::string::npos); 
+    //             if (isFile)
+    //                 reqPath = "/";
+    //             else
+    //                 reqPath = pathFromHTTPRequest + "/";
+    //         }
+    //         else                            // /path/contains/multiple/directories(.jpg) or /path/, either way /path/ is a directory for sure
+    //             reqPath = pathFromHTTPRequest.substr(0, secondSlash - firstSlash + 1);
+            
+    //         return reqPath;
+    //     }
+    };
 
     struct kqConData {
         int kq;
         int nbr_connections;
         int worker_connections;
     };
-}
+
+};
 
 #endif //WEBSERV_DATASTRUCTS_HPP

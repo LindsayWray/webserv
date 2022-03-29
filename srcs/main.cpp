@@ -3,21 +3,10 @@
 #include "server/server.hpp"
 #include "http/HTTPResponseMessage.hpp"
 #include <unistd.h>
+#include "utils/webserv.hpp"
 
     //  * serverMap[ fd ].first = listeningSocket;
     //  * serverMap[ fd ].second = httpData;
-
-typedef struct serverData {
-	webserv::kqConData kqData;
-	SERVER_MAP serverMap;
-	
-	std::map<int,std::string> requests;
-	std::map<int,HTTPResponseMessage> responses;
-	std::map<int,webserv::config_data*> clientSockets;
-
-	char* buf;
-	int buflen;
-} serverData;
 
 void	disconnected(int fd, int *nbr_conn){
 	std::cerr << "Disconnected" << std::endl;
@@ -25,7 +14,7 @@ void	disconnected(int fd, int *nbr_conn){
 	(*nbr_conn)--;
 }
 
-void	takeRequest(serverData& serverData, int current_fd ) {
+void	takeRequest(webserv::serverData& serverData, int current_fd ) {
 	serverData.requests[current_fd] += serverData.buf;
 	if ( serverData.requests[current_fd].find("\r\n\r\n") != std::string::npos ){
 		try{
@@ -37,9 +26,8 @@ void	takeRequest(serverData& serverData, int current_fd ) {
 			printf( "  register respond event - %d\n", current_fd );
 			struct kevent new_socket_change;
 			EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE | EV_ONESHOT, 0, 0, NULL );
-			int fd = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
-			if ( fd == ERROR ) {
-            	std::cerr << errno << " " << strerror(errno) << std::endl;
+			int ret = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
+			if ( ret == ERROR ) {
             	perror( "  kqueue() failed" );
             	exit( EXIT_FAILURE );
         	}
@@ -50,10 +38,9 @@ void	takeRequest(serverData& serverData, int current_fd ) {
 	}
 }
 
-void	eventLoop(serverData& serverData, struct kevent& event){
+void	processEvent(webserv::serverData& serverData, struct kevent& event){
 	int current_fd = event.ident;
 	if ( event.flags & EV_EOF ){		// check if it's an eof event, client disconnected
-		std::cerr << "Disconnected" << std::endl;
 		disconnected( current_fd, &serverData.kqData.nbr_connections);
 	} else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end() )
 		accepter( serverData.serverMap[current_fd] , serverData.kqData, serverData.clientSockets );
@@ -82,7 +69,7 @@ int main( int argc, char **argv, char **env ) {
 		return EXIT_FAILURE;
 	}
 	std::string config = argc == 1 ? "config.webserv" : argv[1];
-	serverData serverData;
+	webserv::serverData serverData;
 
     if ( init_servers(serverData.serverMap, config, env, serverData.kqData) == ERROR )
 		return EXIT_FAILURE;
@@ -107,10 +94,8 @@ int main( int argc, char **argv, char **env ) {
 			break;
 		}
 		for ( int i = 0; i < nev; i++ ){
-			eventLoop(serverData, eventList[i]);
+			processEvent(serverData, eventList[i]);
 		}
 	}
 	return EXIT_SUCCESS;
 }
-
-						

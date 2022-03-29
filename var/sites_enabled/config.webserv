@@ -19,7 +19,7 @@ server {
     error_page 403 /noaccess.html;
 
     location / {
-    	root    /var/www/site2;
+    	root    /var/www/html;
     }
 }
 
