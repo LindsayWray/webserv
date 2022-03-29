@@ -5,7 +5,6 @@
 
 // clang++ -std=c++17 httpDataTest.cpp -I../../srcs/utils -I. -o testHTTPData && ./testHTTPData && rm testHTTPData
 
-
 void httpDataTest::findLocationBlock() {
     webserv::httpData http("/var/www/html");
     std::vector<webserv::locationData> locations;
@@ -69,7 +68,7 @@ void httpDataTest::getReqPath() {
     if (http._getReqPath(request) != "/images/")
         throw std::exception();
 
-    std::cout << "getRequestedFilePath: TEST SUCCESS\n";
+    std::cout << "getReqPath: TEST SUCCESS\n";
 }
 
 void httpDataTest::getRequestedFilePath() {
@@ -82,6 +81,7 @@ void httpDataTest::getRequestedFilePath() {
 
     loc.location = "/images/";
     loc.root = http.abs_path + "/resources/";
+    loc.autoindex = false;
     locations.push_back(loc);
 
     loc.location = "/imagesWithAutoIndex/";
@@ -104,7 +104,6 @@ void httpDataTest::getRequestedFilePath() {
     if (response != "/var/www/html/troep/index.html")
         throw std::exception();
 
-
     request = "/images/";
     response = http.getRequestedFilePath(request);
     if (response != "/var/www/html/resources/index.html")
@@ -118,6 +117,7 @@ void httpDataTest::getRequestedFilePath() {
     /** ADDING '/' TO LOCATIONS */
     loc.location = "/";
     loc.root = http.abs_path;
+    loc.autoindex = false;
     locations.push_back(loc);
 
     http.locations = locations;
@@ -128,57 +128,67 @@ void httpDataTest::getRequestedFilePath() {
     if (response != "/var/www/html/resources/index.html")
         throw std::exception();
 
-    // request = "/images";
-    // response = http.getRequestedFilePath(request);
-    // if (response != "/var/www/html/resources/index.html")
-    //     throw std::exception();
+    request = "/images";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/index.html")
+        throw std::exception();
 
     request = "/images/2022/03/04/1400x1800.jpeg";
     response = http.getRequestedFilePath(request);
     if (response != "/var/www/html/resources/2022/03/04/1400x1800.jpeg")
         throw std::exception();
 
-    // request = "/image.jpeg";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response + "\n";
+    request = "/image.jpeg";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/image.jpeg")
+        throw std::exception();
 
-    // request = "/troep/";
-    // response = http.getRequestedFilePath(request);
-    // if (response != "/var/www/html/troep/index.html")
-    //     throw std::exception();
+    request = "/troep/";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/troep/index.html")
+        throw std::exception();
 
-    // request = "/troep";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response;
+    request = "/troep";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/troep/index.html")
+        throw std::exception();
 
-    // request = "/";
-    // response = http.getRequestedFilePath(request);
-    // if (response != "/var/www/html/index.html")
-    //     throw std::exception();
+    request = "/";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/index.html")
+        throw std::exception();
 
-    // request = "/imagesWithAutoIndex";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response + "\n";
+    request = "/imagesWithAutoIndex";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/AUTOINDEX.HTML")
+        throw std::exception();
 
-    // request = "/imagesWithAutoIndex/";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response + "\n";
+    request = "/imagesWithAutoIndex/";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/AUTOINDEX.HTML")
+        throw std::exception();
+    
+    request = "/imagesWithAutoIndex/file.txt";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/file.txt")
+        throw std::exception();
 
-    // request = "/imagesWithAutoIndex/file.txt";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response;
+    request = "/imagesWithAutoIndex/dir";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/dir/AUTOINDEX.HTML")
+        throw std::exception();
 
-    // request = "/imagesWithAutoIndex/dir";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response;
+    request = "/imagesWithAutoIndex/dir/";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/dir/AUTOINDEX.HTML")
+        throw std::exception();
 
-    // request = "/imagesWithAutoIndex/dir/";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response;
+    request = "/file.txt";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/file.txt")
+        throw std::exception();
 
-    // request = "/file.txt";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response;
+    std::cout << "getRequestedFilePath: TEST SUCCESS\n";
 }
 
 int main() {

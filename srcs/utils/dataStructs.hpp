@@ -100,7 +100,7 @@ namespace webserv{
             locationData *location = _findLocationBlock(reqPath);
             if (location && reqPath != "/") // if /resources/
                 root = location->root;
-            else {                            // if / or /troep/
+            else {                          // if / or /troep/
                 location = _findLocationBlock("/");
                 if (location)               // if '/' listed as location in config
                     root = location->root + reqPath;
@@ -108,7 +108,10 @@ namespace webserv{
                     root = this->abs_path + reqPath;
             }
 
-            reqPathInfo = pathFromHTTPRequest.substr(reqPath.length());
+            if (reqPath.length() >= pathFromHTTPRequest.length())
+                reqPathInfo = "";
+            else
+                reqPathInfo = pathFromHTTPRequest.substr(reqPath.length());
 
             bool pathIsDirectory = (reqPathInfo.length() == 0 || reqPathInfo.back() == '/');         
             if (pathIsDirectory == false && reqPathInfo.find_last_of('.') == std::string::npos) {
@@ -126,6 +129,7 @@ namespace webserv{
             return filePath;
         }
 
+    // Helper functions, unprivated for testing purposes
     // private:
         std::string _getReqPath(std::string pathFromHTTPRequest) {
             std::string reqPath;
