@@ -89,15 +89,18 @@ namespace webserv{
             std::string reqPath = _getReqPath(pathFromHTTPRequest);
 
             std::string root;
-            locationData location = findLocationBlock(reqPath);
-            if (location)
-                root = locationData.root;
-            else if (location == NULL && reqPath != "/")
-                location = findLocationBlock("/");
-                if (location == NULL)
-                    root = location.root + reqPath
+            locationData *location = _findLocationBlock(reqPath);
+            if (location) //  /resources/ or /
+                root = location->root;
+            else if (location == NULL && reqPath != "/")    // /troep/ or /cool.html
+                location = _findLocationBlock("/");
+                if (location)                               // '/' in /troep/ or /cool.html
+                    root = location->root + reqPath;
+                if (location == NULL)                       // '/' not a location, take root from httpData
+                    root = this->abs_path + reqPath;
                 else
-                    root = httpData.abs_Path + reqPath;
+                    root = location->root + reqPath;
+            root.pop_back();
 
             std::string reqPathInfo;
             
@@ -132,7 +135,7 @@ namespace webserv{
             std::size_t firstSlash = pathFromHTTPRequest.find_first_of('/');
             std::size_t secondSlash = pathFromHTTPRequest.find_first_of('/', firstSlash + 1);
 
-            bool pathContainsSingleSlash = (secondSlash == std::string::npos)
+            bool pathContainsSingleSlash = (secondSlash == std::string::npos);
             if (pathContainsSingleSlash)    // /pathWithoutSecondSlashMustBeEitherFileOrDirectory(.jpg)
             {
                 bool isFile = (pathFromHTTPRequest.find('.') != std::string::npos); 
@@ -146,6 +149,15 @@ namespace webserv{
             
             return reqPath;
         }
+
+        locationData*   _findLocationBlock(std::string locationStr) {
+            for (locationData locationBlock : this->locations) {
+                if (locationStr == locationBlock.location)
+                    return &locationBlock;
+            }
+            return NULL;
+        }
+
     };
 
    	struct readData{
