@@ -89,6 +89,8 @@ void httpDataTest::getRequestedFilePath() {
     loc.autoindex = true;
     locations.push_back(loc);
 
+    http.locations = locations;
+
     std::string request;
     std::string response;
 
@@ -102,15 +104,11 @@ void httpDataTest::getRequestedFilePath() {
     if (response != "/var/www/html/troep/index.html")
         throw std::exception();
 
-    // request = "/troep";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response;
 
     request = "/images/";
     response = http.getRequestedFilePath(request);
-    std::cout << response;
-    // if (response != "/var/www/html/resources/index.html")
-    //     throw std::exception();
+    if (response != "/var/www/html/resources/index.html")
+        throw std::exception();
 
     request = "/page.html";
     response = http.getRequestedFilePath(request);
@@ -121,40 +119,42 @@ void httpDataTest::getRequestedFilePath() {
     loc.location = "/";
     loc.root = http.abs_path;
     locations.push_back(loc);
+
+    http.locations = locations;
     /** *********************** */
 
-    // request = "/images/";
+    request = "/images/";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/index.html")
+        throw std::exception();
+
+    // request = "/images";
     // response = http.getRequestedFilePath(request);
     // if (response != "/var/www/html/resources/index.html")
     //     throw std::exception();
 
-    // request = "/images";
-    // response = http.getRequestedFilePath(request);
-    // std::cout << response + "\n";
-
-    // request = "/images/2022/03/04/1400x1800.jpeg";
-    // response = http.getRequestedFilePath(request);
-    // if (response != "/var/www/html/resources/2022/03/04/1400x1800.jpeg")
-    //     throw std::exception();
-
+    request = "/images/2022/03/04/1400x1800.jpeg";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/2022/03/04/1400x1800.jpeg")
+        throw std::exception();
 
     // request = "/image.jpeg";
     // response = http.getRequestedFilePath(request);
     // std::cout << response + "\n";
 
-    request = "/troep/";
-    response = http.getRequestedFilePath(request);
-    if (response != "/var/www/html/troep/index.html")
-        throw std::exception();
+    // request = "/troep/";
+    // response = http.getRequestedFilePath(request);
+    // if (response != "/var/www/html/troep/index.html")
+    //     throw std::exception();
 
     // request = "/troep";
     // response = http.getRequestedFilePath(request);
     // std::cout << response;
 
-    request = "/";
-    response = http.getRequestedFilePath(request);
-    if (response != "/var/www/html/index.html")
-        throw std::exception();
+    // request = "/";
+    // response = http.getRequestedFilePath(request);
+    // if (response != "/var/www/html/index.html")
+    //     throw std::exception();
 
     // request = "/imagesWithAutoIndex";
     // response = http.getRequestedFilePath(request);

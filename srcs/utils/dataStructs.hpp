@@ -98,12 +98,6 @@ namespace webserv{
             std::string reqPathInfo;
 
             locationData *location = _findLocationBlock(reqPath);
-            // UNCOMMENT FOR DEBUG
-            // std::cout << reqPath + ' ';
-            // if (location != NULL)
-            //     std::cout << location->root + '\n';
-            // else
-            //     std::cout << "nah\n";
             if (location && reqPath != "/") // if /resources/
                 root = location->root;
             else {                            // if / or /troep/
