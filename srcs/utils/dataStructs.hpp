@@ -69,6 +69,7 @@ namespace webserv{
          * GET /images/2022/03/04/1400x1800.jpeg HTTP/1.1
          *  pathFromHTTPRequest = /images/2022/03/04/1400x1800.jpeg
          *  Returns the filepath to the appropriate file in the internal filesystem
+         *  Returns [...]/AUTOINDEX.html or [...]/index.html if path leads to directory
          * 
          * if /images/ or /images is defined as a location inside
          * the appropriate server block in the config.webserv:
@@ -88,6 +89,7 @@ namespace webserv{
          * 
          * ASSUMPTIONS:
          * - locationData.root and abs_path are both directory paths not ending with a slash
+         * - everything with a '.' in the filepath is a file and not a directory
          */
         std::string getRequestedFilePath(std::string pathFromHTTPRequest) {
             std::string filePath;
@@ -96,34 +98,41 @@ namespace webserv{
             std::string reqPathInfo;
 
             locationData *location = _findLocationBlock(reqPath);
+            // UNCOMMENT FOR DEBUG
+            // std::cout << reqPath + ' ';
+            // if (location != NULL)
+            //     std::cout << location->root + '\n';
+            // else
+            //     std::cout << "nah\n";
             if (location && reqPath != "/") // if /resources/
                 root = location->root;
-            else                            // if / or /troep/
+            else {                            // if / or /troep/
                 location = _findLocationBlock("/");
                 if (location)               // if '/' listed as location in config
                     root = location->root + reqPath;
                 else                        // if '/' not listed as location in config
                     root = this->abs_path + reqPath;
+            }
 
-            reqPathInfo = pathFromHTTPRequest.substr(pathFromHTTPRequest.begin() + reqPath.length());
+            reqPathInfo = pathFromHTTPRequest.substr(reqPath.length());
 
-            bool pathIsDirectory = (reqPathInfo.length() == 0 || reqPathInfo.back() == '/')         
-            if (pathIsDirectory == false && reqPathInfo.find_last_of('.') != std::string::npos) {
+            bool pathIsDirectory = (reqPathInfo.length() == 0 || reqPathInfo.back() == '/');         
+            if (pathIsDirectory == false && reqPathInfo.find_last_of('.') == std::string::npos) {
                 pathIsDirectory = true;
                 reqPathInfo += '/';
             }
             
             filePath = root + reqPathInfo;
 
-            if (pathIsDirectory && location && location.autoindex)
-                filePath += AUTOINDEX.HTML;
+            if (pathIsDirectory && location && location->autoindex)
+                filePath += "AUTOINDEX.HTML";
             else if (pathIsDirectory)
-                filePath += index.html;
+                filePath += "index.html";
 
             return filePath;
         }
 
-    private:
+    // private:
         std::string _getReqPath(std::string pathFromHTTPRequest) {
             std::string reqPath;
 
@@ -142,17 +151,20 @@ namespace webserv{
             else                            // /path/contains/multiple/directories(.jpg) or /path/, either way /path/ is a directory for sure
                 reqPath = pathFromHTTPRequest.substr(0, secondSlash - firstSlash + 1);
             
+            if (reqPath.length() == 2 && reqPath.back() == '/')
+                reqPath.pop_back();
+
             return reqPath;
         }
 
         locationData*   _findLocationBlock(std::string locationStr) {
-            for (locationData locationBlock : this->locations) {
-                if (locationStr == locationBlock.location)
-                    return &locationBlock;
+            std::vector<locationData>::iterator it = this->locations.begin();
+            for ( ; it != this->locations.end(); it++) {
+                if (locationStr == it->location)
+                    return &(*it);
             }
             return NULL;
         }
-
     };
 
    	struct readData{
