@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
 #include <netinet/in.h>
 #include <algorithm>
 
@@ -41,7 +42,7 @@ namespace webserv{
         }
     };
 
-    struct locationData{
+    struct locationData {
         std::string location;
         std::string root;
         int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
@@ -58,7 +59,7 @@ namespace webserv{
         std::string abs_path;
         std::vector<std::string> server_name;
         std::vector<std::string> index;
-        std::vector<std::pair<int, std::string> > error_page; // maybe map because of unique key's
+        std::map<int, std::string> error_page; // maybe map because of unique key's
         std::vector<std::pair<int, std::string> > redirect; // but vector is chronological which is nice
         std::vector<locationData> locations;
         
@@ -91,6 +92,10 @@ namespace webserv{
          * - locationData.root and abs_path are both directory paths not ending with a slash
          * - everything with a '.' in the filepath is a file and not a directory
          */
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
         std::string getRequestedFilePath(std::string pathFromHTTPRequest) {
             std::string filePath;
             std::string root;
@@ -100,7 +105,11 @@ namespace webserv{
             locationData *location = _findLocationBlock(reqPath);
             if (location && reqPath != "/") // if /resources/
                 root = location->root;
+<<<<<<< HEAD
             else {                            // if / or /troep/
+=======
+            else {                          // if / or /troep/
+>>>>>>> master
                 location = _findLocationBlock("/");
                 if (location)               // if '/' listed as location in config
                     root = location->root + reqPath;
@@ -108,9 +117,18 @@ namespace webserv{
                     root = this->abs_path + reqPath;
             }
 
+<<<<<<< HEAD
             reqPathInfo = pathFromHTTPRequest.substr(reqPath.length());
 
             bool pathIsDirectory = (reqPathInfo.length() == 0 || reqPathInfo.back() == '/');         
+=======
+            if (reqPath.length() >= pathFromHTTPRequest.length())
+                reqPathInfo = "";
+            else
+                reqPathInfo = pathFromHTTPRequest.substr(reqPath.length());
+
+            bool pathIsDirectory = (reqPathInfo.length() == 0 || reqPathInfo.back() == '/');
+>>>>>>> master
             if (pathIsDirectory == false && reqPathInfo.find_last_of('.') == std::string::npos) {
                 pathIsDirectory = true;
                 reqPathInfo += '/';
@@ -126,6 +144,10 @@ namespace webserv{
             return filePath;
         }
 
+<<<<<<< HEAD
+=======
+    // Helper functions, unprivated for testing purposes
+>>>>>>> master
     // private:
         std::string _getReqPath(std::string pathFromHTTPRequest) {
             std::string reqPath;
@@ -172,6 +194,7 @@ namespace webserv{
         int nbr_connections;
         int worker_connections;
     };
-}
+
+};
 
 #endif //WEBSERV_DATASTRUCTS_HPP

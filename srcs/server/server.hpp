@@ -7,8 +7,9 @@
 #include "../http/Request.hpp"
 #include "../http/HTTPResponseMessage.hpp"
 
-	void accept( webserv::listeningSocket* var, webserv::kqConData& kqData);
-	HTTPResponseMessage handler( webserv::Request );
+	void accepter( std::pair<webserv::listeningSocket*,webserv::httpData*>& serverPair, 
+		webserv::kqConData& kqData,std::map<int,webserv::httpData*>& clientSockets);
+	HTTPResponseMessage handler( webserv::Request request, webserv::httpData* config );
 	void 				responder(int fd, HTTPResponseMessage response);
 
 #endif

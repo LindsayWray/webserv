@@ -40,6 +40,7 @@ namespace webserv {
 
 	public:
 		Request(std::string);
+		
 		std::string getPath() const;
 		method getMethod() const;
 

@@ -8,11 +8,11 @@
 #include "../config/configParser.hpp"
 #include "../utils/stringUtils.hpp"
 #include "../server/serverInstance.hpp"
+#include "webserv.hpp"
 
 #define MAX_EVENTS 32
-#define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*>>
 
-int init_servers( SERVER_MAP& serverMap, char* filename, char** env, webserv::kqConData& kqData ){
+int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webserv::kqConData& kqData ){
     std::string root = webserv::setFileLocation( env );
     std::string configFile = root;
     configFile.append("/var/sites_enabled/");
@@ -67,7 +67,7 @@ int init_servers( SERVER_MAP& serverMap, char* filename, char** env, webserv::kq
         for ( int sock = 0; sock < socket_vec[serv]->ports.size(); sock++ ) {
             socket_tmp = new webserv::listeningSocket( *socket_vec[serv], socket_vec[serv]->ports[sock] );
             serverMap[socket_tmp->get_sock()] = std::make_pair(socket_tmp, http_vec[serv]);
-            EV_SET(&in_events[i++], socket_tmp->get_sock(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+            EV_SET(&in_events[i++], socket_tmp->get_sock(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
         }
     }
     return kevent( kqData.kq, in_events, sockets, NULL, 0, NULL);  //  register all listening sockets at once

@@ -5,101 +5,107 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <string> 
+
+
+#include <experimental/filesystem> // C++14
+namespace fs = std::experimental::filesystem;
 
 using webserv::Request;
 
-namespace fs = std::__fs::filesystem;
+// namespace fs = std::__fs::filesystem;
 
-std::string file_extension(std::string path) {
+static std::string file_extension(std::string path) {
 	int pos = path.find('.');
 	if (pos == std::string::npos) 
 		return "";
-	printf("file extension: %s\n", path.substr(pos + 1).c_str());
 	return path.substr(pos + 1); // +1 to skip the .
 }
 
-void GET_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
-	std::ifstream file;
-	std::ifstream defaultFile;
+static void fileNotFound(HTTPResponseMessage& response){
+	std::string body = "Not Found";
+	response.addStatus(HTTPResponseMessage::NOT_FOUND)
+				.addLength(body.length())
+				.addBody(body)
+				.addType("text/html");
+};
+
+static void responseFromFile(std::ifstream& file, std::string extension, HTTPResponseMessage& response, HTTPResponseMessage::e_responseStatusCode statusCode) {
 	std::string line;
 	std::string body("");
 
-	std::string path = root + request.getPath();
-	std::string extension = file_extension(request.getPath());
+	while( std::getline( file, line ) ) {
+		body += (line + '\n');
+	}
+	file.close();
+	response.addStatus(statusCode)
+			.addLength(body.length())
+			.addBody(body);
+	try {
+		response.addType(HTTPResponseMessage::contentTypes.at(extension));
+	}
+	catch (...) {
+		response.addType("text/plain");   //temporary fix until directory handling 
+	}
+}
 
-	// if(!fs::exists(path)) {
-	// 	std::cout << "File not found " << path << std::endl;
-	// 	body = "Not Found";
-	// 	response.addStatus(HTTPResponseMessage::NOT_FOUND)
-	// 				.addTypeExt("plain");
-	// }
-	// else if (fs::is_directory(path)) {
-	// 	std::cout << "Is a directory " << path << std::endl;
-	// 	defaultFile.open(root + "default.html");
-	// 	while( std::getline( file, line ) )
-	// 		body += (line + '\n');
-	// 	response.addStatus(HTTPResponseMessage::OK)
-	// 						.addTypeExt("html");
-	// }
-	// else if (fs::is_regular_file(path)) {
-	// 	file.open(path);
-	// 	if(!file.good()){
-	// 		std::cout << "No Access to file " << path << std::endl;
-	// 		body = "No Access";
-	// 		response.addStatus(HTTPResponseMessage::FORBIDDEN)
-	// 				.addTypeExt("plain");
-	// 	}
-	// 	else {
-	// 		std::cout << "File found " << path << std::endl;
-	// 		while( std::getline( file, line ) )
-	// 			body += (line + '\n');
-	// 		response.addStatus(HTTPResponseMessage::OK)
-	// 			.addTypeExt("html");
-	// 	}
-	// }
-	// response.addLength(body.length());
-	// response.addBody(body);
+void GET_handler( Request request, HTTPResponseMessage& response, std::string path, webserv::httpData* config ) {
+	std::ifstream file;
+
+	std::string extension = file_extension(path);
+	std::cout << "EXTENSION: "  << extension << std::endl;
+
+	if (fs::is_directory(path)) {
+	// if (*path.rbegin() == '/') {
+		std::cout << "Is a directory " << path << std::endl;
+
+		// insert autoindexing here?...
+
+		return GET_handler(request, response, path + "index.html", config);
+	}
 
 	file.open(path);
 	if (file.good()) {
 		std::cout << "File found " << path << std::endl;
-		while( std::getline( file, line ) ) {
-			body += (line + '\n');
+		responseFromFile(file, extension, response, HTTPResponseMessage::OK);
+	} else { //404
+		if (config->error_page.find(404) != config->error_page.end()){
+			path = config->getRequestedFilePath(config->error_page[404]);
+			std::cout << "Get error page " << path << std::endl;
+			file.open(path);
+			if (file.good()) {
+				std::cout << "Error file found " << path << std::endl;
+				return responseFromFile(file, file_extension(path), response, HTTPResponseMessage::NOT_FOUND);
+			}
 		}
-		response.addStatus(HTTPResponseMessage::OK)
-							//.addTypeExt("html")
-							.addLength(body.length())
-							.addBody(body);
-							//.addTypeCat(HTTPResponseMessage::TEXT);
-	} else {
-		std::cout << "File not found " << path << std::endl;
-		body = "Not Found";
-		response.addStatus(HTTPResponseMessage::NOT_FOUND)
-					//.addTypeExt("plain")
-					.addLength(body.length())
-					.addBody(body);
-					//.addTypeCat(HTTPResponseMessage::TEXT);
+		std::cout << "FILE not found " << path << std::endl;
+		fileNotFound(response);
 	}
 }
 
 
-void POST_handler( Request request, HTTPResponseMessage& response, std::string& root ) {}
+void POST_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
+	response.addStatus(HTTPResponseMessage::NOT_IMPLEMENTED);
+}
 
 
-void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& root ) {}
+void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
+	response.addStatus(HTTPResponseMessage::NOT_IMPLEMENTED);
+}
 
-HTTPResponseMessage handler( Request request ) {
+HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	HTTPResponseMessage response;
-	std::string root;
+	std::string fullPath;
 
-	//temporary hardcoded root
-	root = "./var/www/html";
+	fullPath = config->getRequestedFilePath(request.getPath());
+
+	std::cout << "PATH: " << fullPath << std::endl;
 
 	if ( request.getMethod() == Request::GET )
-		GET_handler( request, response, root );
+		GET_handler( request, response, fullPath, config);
 	else if ( request.getMethod() == Request::POST )
-		POST_handler( request, response, root );
+		POST_handler( request, response, fullPath );
 	else
-		DELETE_handler( request, response, root);
+		DELETE_handler( request, response, fullPath);
 	return response;
 }

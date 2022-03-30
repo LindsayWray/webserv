@@ -5,6 +5,12 @@
 #include "configParser.hpp"
 
 webserv::configParser::configParser(std::string config_file ) {
+	// system("pwd");
+	// std::cout << config_file << std::endl;
+	// _configFile.open( "var/sites_enabled/config.webserv", std::fstream::in );
+	// if ( _configFile.fail() )
+	// 	std::cerr << "opening file failed" << std::endl;
+
 	_configFile.open( config_file, std::fstream::in );
 	if ( _configFile.fail() )
 		std::cerr << "opening file failed" << std::endl;
@@ -148,7 +154,7 @@ int webserv::configParser::setErrorPage(httpData* httpData ){
 		return ERROR;
 	for (; _it != _tokens.end() && *_it != ";"; _it++ ){
 		try {
-			httpData->error_page.emplace_back( std::make_pair(std::stoi( *(_it++) ), (*_it)));
+			httpData->error_page.insert( std::make_pair(std::stoi( *(_it++) ), (*_it)));
 		} catch ( std::exception &e ){
 			std::cerr << "configParser::setErrorPage " << *_it << " " << e.what() << std::endl;
 			return ERROR;
