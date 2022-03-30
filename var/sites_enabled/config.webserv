@@ -6,7 +6,7 @@ server{
 	error_page 404 /error.html;
 
 	location / {
-		autoindex on;
+		autoindex off;
 		root    /var/www/html;
 	}
 }
@@ -19,6 +19,7 @@ server {
     error_page 403 /noaccess.html;
 
     location / {
+		autoindex off;
     	root    /var/www/html;
     }
 }
