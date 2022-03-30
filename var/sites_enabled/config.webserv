@@ -6,7 +6,7 @@ server{
 	error_page 404 /error.html;
 
 	location / {
-		autoindex off;
+		autoindex on;
 		root    /var/www/html;
 	}
 }
