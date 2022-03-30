@@ -55,8 +55,8 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 	std::string extension = file_extension(path);
 	std::cout << "EXTENSION: "  << extension << std::endl;
 
-	if (fs::is_directory(path)) {
-	// if (*path.rbegin() == '/') {
+	//if (fs::is_directory(path)) {
+	if (*path.rbegin() == '/') {
 		std::cout << "Is a directory " << path << std::endl;
 
 		// insert autoindexing here?...

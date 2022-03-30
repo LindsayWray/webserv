@@ -54,8 +54,7 @@ public:
 	/** How to use these adders:
 	 *  HTTPResponseMessage response;
 	 *						response.addStatus(SUCCESS)
-	 *	 							.addTypeCat(TEXT)
-	 * 								.addTypeExt("plain")
+	 *	 							.addType("text/html")
 	 * 								.addLength(body.length())
 	 *	 							.addBody(body);
 	 **/
