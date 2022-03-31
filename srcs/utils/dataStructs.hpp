@@ -66,6 +66,8 @@ namespace webserv{
         httpData( std::string root ) : abs_path( root ) {}
         ~httpData() {}
 
+
+        std::map<std::string, std::string> created_files;
         /* EXAMPLE **
          * GET /images/2022/03/04/1400x1800.jpeg HTTP/1.1
          *  pathFromHTTPRequest = /images/2022/03/04/1400x1800.jpeg

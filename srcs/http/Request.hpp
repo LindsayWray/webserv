@@ -41,6 +41,7 @@ namespace webserv {
 	public:
 		Request(std::string);
 		
+		std::string getBody() const;
 		std::string getPath() const;
 		method getMethod() const;
 

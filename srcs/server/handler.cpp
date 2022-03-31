@@ -65,24 +65,24 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 	}
 
 	if (path.find("AUTOINDEX.HTML") == path.size() - strlen("AUTOINDEX.HTML")) {
-		std::string directory = path.substr(0, path.find("AUTOINDEX.HTML"));
+		// std::string directory = path.substr(0, path.find("AUTOINDEX.HTML"));
 
-		std::cout << "going autoindexing " << directory << std::endl;
+		// std::cout << "going autoindexing " << directory << std::endl;
 
-		std::string body;
-		fs::directory_iterator it(directory);
-		for (const auto & entry : fs::directory_iterator(directory)) {
-			body += entry.path().filename().string() + "\t\t";
-			if (entry.is_directory())
-				body += "-  \n";
-			else
-			 	body += std::to_string((int)(entry.file_size())) + "\n" ;
-		}
-		response.addStatus(HTTPResponseMessage::OK)
-			.addBody(body)
-			.addLength(body.length())
-			.addType("text/plain");
-		return;
+		// std::string body;
+		// fs::directory_iterator it(directory);
+		// for (const auto & entry : fs::directory_iterator(directory)) {
+		// 	body += entry.path().filename().string() + "\t\t";
+		// 	if (entry.is_directory())
+		// 		body += "-  \n";
+		// 	else
+		// 	 	body += std::to_string((int)(entry.file_size())) + "\n" ;
+		// }
+		// response.addStatus(HTTPResponseMessage::OK)
+		// 	.addBody(body)
+		// 	.addLength(body.length())
+		// 	.addType("text/plain");
+		// return;
 	}
 
 
@@ -106,13 +106,34 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 }
 
 
-void POST_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
-	response.addStatus(HTTPResponseMessage::NOT_IMPLEMENTED);
+void POST_handler( Request request, HTTPResponseMessage& response, std::string& path, webserv::httpData* config ) {
+	std::string extension = file_extension(path);
+	if (extension != "txt")
+		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
+	else if (bool fileAlreadyExists = false)
+		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
+	else {
+		response.addStatus(HTTPResponseMessage::ACCEPTED);
+		std::ofstream file;
+		file.open(path, std::ios::out);
+		if (file.good()) {
+			file << request.getBody();
+			config->created_files[request.getPath()] = path;
+		}
+		file.close();
+	}
 }
 
-
-void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
-	response.addStatus(HTTPResponseMessage::NOT_IMPLEMENTED);
+void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& path, webserv::httpData* config ) {
+	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
+	if (fileToBeDeleted != config->created_files.end()) {
+		if (std::remove(fileToBeDeleted->second.c_str()) == 0)
+			config->created_files.erase(fileToBeDeleted);
+		else
+			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	} else {
+		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	}
 }
 
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
@@ -126,8 +147,8 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	if ( request.getMethod() == Request::GET )
 		GET_handler( request, response, fullPath, config);
 	else if ( request.getMethod() == Request::POST )
-		POST_handler( request, response, fullPath );
+		POST_handler( request, response, fullPath, config);
 	else
-		DELETE_handler( request, response, fullPath);
+		DELETE_handler( request, response, fullPath, config);
 	return response;
 }

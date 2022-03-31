@@ -60,6 +60,10 @@ void webserv::Request::parse_statusline(std::string& method){
 	}
 }
 
+std::string webserv::Request::getBody() const {
+	return this->_body;
+}
+
 std::string webserv::Request::getPath() const {
 	return this->_path;
 }
