@@ -7,7 +7,6 @@
 #include <string> 
 #include <dirent.h>
 
-
 using webserv::Request;
 
 static std::string file_extension(std::string path) {
@@ -21,9 +20,8 @@ static void responseFromFile(std::ifstream& file, std::string extension, HTTPRes
 	std::string line;
 	std::string body("");
 
-	while( std::getline( file, line ) ) {
+	while( std::getline( file, line ) )
 		body += (line + '\n');
-	}
 	file.close();
 	response.addStatus(statusCode)
 			.addLength(body.length())
@@ -36,7 +34,7 @@ static void responseFromFile(std::ifstream& file, std::string extension, HTTPRes
 	}
 }
 
-static void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
+void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
 	std::string body = "Not Found";
 	std::string path;
 	std::ifstream file;
@@ -78,20 +76,13 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 
 		std::string body;
 
-		DIR *dir;
-		struct dirent *entry;
-		if ((dir = opendir(directory.c_str())) != NULL) { //print all the files and directories within directory
-			readdir(dir);	// skip the first folder
-			while ((entry = readdir(dir)) != NULL) {
-				body += "<a href=\"" + request.getPath() + entry->d_name + "\">";
-				body += entry->d_name;
-				if (entry->d_type == DT_DIR)
-					body += "/\n";
-				body += "</a><br>";
-			}
-			closedir (dir);
-		} else //could not open directory
+		try {
+			autoIndexing(request.getPath(), directory, body);
+		}
+		catch ( DirectoryNotFoundException& e){
+			std::cout << e.what() << std::endl;
 			return fileNotFound(response, config);
+		}	
 		response.addStatus(HTTPResponseMessage::OK)
 			.addBody(body)
 			.addLength(body.length())
