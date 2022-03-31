@@ -9,7 +9,7 @@
     //  * serverMap[ fd ].second = httpData;
 
 void	disconnected(int fd, int *nbr_conn){
-	std::cerr << "Disconnected" << std::endl;
+	std::cerr << "client disconnected" << std::endl;
 	close( fd );
 	(*nbr_conn)--;
 }
@@ -47,7 +47,6 @@ void	processEvent(webserv::serverData& serverData, struct kevent& event){
 	else if ( serverData.responses.find( current_fd ) != serverData.responses.end() ){
 		responder(current_fd, serverData.responses[current_fd]);
 		serverData.responses.erase(current_fd);
-		disconnected( current_fd, &serverData.kqData.nbr_connections);
 	} else {
 		memset( serverData.buf, 0, serverData.buflen );	//clean struct
 		int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );

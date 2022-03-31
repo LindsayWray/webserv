@@ -20,19 +20,20 @@ void	autoIndexing( std::string path, std::string directory, std::string& body ) 
 		throw (DirectoryNotFoundException());
 	}
 	readdir(dir);	// skip the first folder
-	std::cout << "passing by \n" << std::endl;
 	while ((entry = readdir(dir)) != NULL) {
-		std::string line = "<a href=\"" + path + entry->d_name + "\">";
-		line += entry->d_name;
 		if ( entry->d_type == DT_DIR ){
-			line += "/\n";
-			line += "</a><br>";
+			std::string line = "<a href=\"" + path + entry->d_name + "/\">"
+				+ entry->d_name + "/"
+				+ "</a><br>";
 			dirs.push_back(line);
 		} else {
-			line += "</a><br>";
+			std::string line = "<a href=\"" + path + entry->d_name + "\">"
+				+ entry->d_name
+				+ "</a><br>";
 			files.push_back(line);
 		}
 	}
+	body += "<h2> Index of " + path +  "</h2>";
 	closedir (dir);
 	sorting(dirs, body);
 	sorting(files, body);

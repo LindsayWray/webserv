@@ -72,8 +72,6 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 	if (path.find("AUTOINDEX.HTML") == path.size() - strlen("AUTOINDEX.HTML")) {
 		std::string directory = path.substr(0, path.find("AUTOINDEX.HTML"));
 
-		std::cout << "going autoindexing " << directory << std::endl;
-
 		std::string body;
 
 		try {
