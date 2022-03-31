@@ -4,16 +4,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <filesystem>
 #include <string> 
+#include <dirent.h>
 
-
-#include <experimental/filesystem> // C++14
-namespace fs = std::experimental::filesystem;
 
 using webserv::Request;
-
-// namespace fs = std::__fs::filesystem;
 
 static std::string file_extension(std::string path) {
 	int pos = path.find('.');
@@ -21,14 +16,6 @@ static std::string file_extension(std::string path) {
 		return "";
 	return path.substr(pos + 1); // +1 to skip the .
 }
-
-static void fileNotFound(HTTPResponseMessage& response){
-	std::string body = "Not Found";
-	response.addStatus(HTTPResponseMessage::NOT_FOUND)
-				.addLength(body.length())
-				.addBody(body)
-				.addType("text/html");
-};
 
 static void responseFromFile(std::ifstream& file, std::string extension, HTTPResponseMessage& response, HTTPResponseMessage::e_responseStatusCode statusCode) {
 	std::string line;
@@ -49,14 +36,34 @@ static void responseFromFile(std::ifstream& file, std::string extension, HTTPRes
 	}
 }
 
+static void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
+	std::string body = "Not Found";
+	std::string path;
+	std::ifstream file;
+
+	if (config->error_page.find(404) != config->error_page.end()){
+		path = config->getRequestedFilePath(config->error_page[404]);
+		std::cout << "Get error page " << path << std::endl;
+		file.open(path);
+		if (file.good()) {
+			std::cout << "Error file found " << path << std::endl;
+			return responseFromFile(file, file_extension(path), response, HTTPResponseMessage::NOT_FOUND);
+		}
+	}
+	std::cout << "FILE not found " << path << std::endl;
+	response.addStatus(HTTPResponseMessage::NOT_FOUND)
+				.addLength(body.length())
+				.addBody(body)
+				.addType("text/html");
+};
+
 void GET_handler( Request request, HTTPResponseMessage& response, std::string path, webserv::httpData* config ) {
 	std::ifstream file;
 
 	std::string extension = file_extension(path);
 	std::cout << "EXTENSION: "  << extension << std::endl;
 
-	//if (fs::is_directory(path)) {
-	if (*path.rbegin() == '/') {
+	if (path.back() == '/') {
 		std::cout << "Is a directory " << path << std::endl;
 
 		// insert autoindexing here?...
@@ -70,39 +77,34 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 		std::cout << "going autoindexing " << directory << std::endl;
 
 		std::string body;
-		fs::directory_iterator it(directory);
-		for (const auto & entry : fs::directory_iterator(directory)) {
-			body += entry.path().filename().string() + "\t\t";
-			if (entry.is_directory())
-				body += "-  \n";
-			else
-			 	body += std::to_string((int)(entry.file_size())) + "\n" ;
-		}
+
+		DIR *dir;
+		struct dirent *entry;
+		if ((dir = opendir(directory.c_str())) != NULL) { //print all the files and directories within directory
+			readdir(dir);	// skip the first folder
+			while ((entry = readdir(dir)) != NULL) {
+				body += "<a href=\"" + request.getPath() + entry->d_name + "\">";
+				body += entry->d_name;
+				if (entry->d_type == DT_DIR)
+					body += "/\n";
+				body += "</a><br>";
+			}
+			closedir (dir);
+		} else //could not open directory
+			return fileNotFound(response, config);
 		response.addStatus(HTTPResponseMessage::OK)
 			.addBody(body)
 			.addLength(body.length())
-			.addType("text/plain");
+			.addType("text/html");
 		return;
 	}
-
 
 	file.open(path);
 	if (file.good()) {
 		std::cout << "File found " << path << std::endl;
 		responseFromFile(file, extension, response, HTTPResponseMessage::OK);
-	} else { //404
-		if (config->error_page.find(404) != config->error_page.end()){
-			path = config->getRequestedFilePath(config->error_page[404]);
-			std::cout << "Get error page " << path << std::endl;
-			file.open(path);
-			if (file.good()) {
-				std::cout << "Error file found " << path << std::endl;
-				return responseFromFile(file, file_extension(path), response, HTTPResponseMessage::NOT_FOUND);
-			}
-		}
-		std::cout << "FILE not found " << path << std::endl;
-		fileNotFound(response);
-	}
+	} else
+		fileNotFound(response, config);
 }
 
 
