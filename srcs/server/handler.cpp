@@ -65,24 +65,24 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 	}
 
 	if (path.find("AUTOINDEX.HTML") == path.size() - strlen("AUTOINDEX.HTML")) {
-		// std::string directory = path.substr(0, path.find("AUTOINDEX.HTML"));
+		std::string directory = path.substr(0, path.find("AUTOINDEX.HTML"));
 
-		// std::cout << "going autoindexing " << directory << std::endl;
+		std::cout << "going autoindexing " << directory << std::endl;
 
-		// std::string body;
-		// fs::directory_iterator it(directory);
-		// for (const auto & entry : fs::directory_iterator(directory)) {
-		// 	body += entry.path().filename().string() + "\t\t";
-		// 	if (entry.is_directory())
-		// 		body += "-  \n";
-		// 	else
-		// 	 	body += std::to_string((int)(entry.file_size())) + "\n" ;
-		// }
-		// response.addStatus(HTTPResponseMessage::OK)
-		// 	.addBody(body)
-		// 	.addLength(body.length())
-		// 	.addType("text/plain");
-		// return;
+		std::string body;
+		fs::directory_iterator it(directory);
+		for (const auto & entry : fs::directory_iterator(directory)) {
+			body += entry.path().filename().string() + "\t\t";
+			if (entry.is_directory())
+				body += "-  \n";
+			else
+			 	body += std::to_string((int)(entry.file_size())) + "\n" ;
+		}
+		response.addStatus(HTTPResponseMessage::OK)
+			.addBody(body)
+			.addLength(body.length())
+			.addType("text/plain");
+		return;
 	}
 
 
@@ -110,7 +110,7 @@ void POST_handler( Request request, HTTPResponseMessage& response, std::string& 
 	std::string extension = file_extension(path);
 	if (extension != "txt")
 		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
-	else if (bool fileAlreadyExists = false)
+	else if (bool fileAlreadyExists = false)	// add fileExists check
 		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
 	else {
 		response.addStatus(HTTPResponseMessage::ACCEPTED);
