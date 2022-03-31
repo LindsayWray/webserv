@@ -12,12 +12,12 @@ server{
 
 	location / {
     		autoindex on;
-    		root    /var/www/site1;
+    		root;
     	}
 
     	location /www/ {
         	autoindex off;
-        	root    /var/www/site4
+        	root    /var/www/site4;
         }
 
         location / {
@@ -26,6 +26,6 @@ server{
         }
         location /time {
                 		 root	/var/cgi-bin;
-                		 cgi_param /ret_time.py;
+                		 cgi_param;
                 	}
 }

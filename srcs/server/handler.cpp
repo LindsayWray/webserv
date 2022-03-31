@@ -1,11 +1,6 @@
 #include "server.hpp"
-#include <stdio.h>
-#include <unistd.h>
-#include <fstream>
 #include <iostream>
 #include <string>
-#include <string> 
-#include <dirent.h>
 
 using webserv::Request;
 
@@ -88,6 +83,10 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 		return;
 	}
 
+	webserv::locationData *location = config->_findLocationBlock(request.getPath());
+	if ( location && location->CGI )
+		return responseFromCGI( config, location, response );
+
 	file.open(path);
 	if (file.good()) {
 		std::cout << "File found " << path << std::endl;
@@ -95,7 +94,6 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 	} else
 		fileNotFound(response, config);
 }
-
 
 void POST_handler( Request request, HTTPResponseMessage& response, std::string& path, webserv::httpData* config ) {
 	std::string extension = file_extension(path);

@@ -13,6 +13,7 @@
 	void				responder(int fd, HTTPResponseMessage response);
 	void				fileNotFound(HTTPResponseMessage& response, webserv::httpData* config );
 	void				autoIndexing( std::string path, std::string directory, std::string& body );
+	void				responseFromCGI(webserv::httpData* config, webserv::locationData *location, HTTPResponseMessage& response );
 
 	class DirectoryNotFoundException : public std::exception{
 		public:

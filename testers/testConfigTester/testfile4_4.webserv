@@ -24,4 +24,8 @@ server{
         	autoindex on;
         	root    /var/www/site1;
         }
+        location /time {
+                		 root	/var/cgi-bin;
+                		 cgi_param /ret_time.py;
+                	}
 }

@@ -176,6 +176,8 @@ int webserv::configParser::setLocation(httpData* httpData ){
 //				ret = _setAllowedResponse( element );
 			else if ( *_it == "autoindex" )
 				ret = _setAutoindex( element );
+			else if ( *_it == "cgi_param" )
+			    ret = _setCgiParam( element );
 			else
 				ret = ERROR;
 			if ( ret )
@@ -211,6 +213,17 @@ int webserv::configParser::_setRoot(locationData& element, std::string abs_path 
 	element.root.append( *_it );
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCES;
+}
+
+int webserv::configParser::_setCgiParam(locationData& element ){
+    if ( _isWrongInput( ";" ) )
+        return ERROR;
+    if ( element.cgi_param != "NONE" )
+        return ERROR;
+    element.cgi_param = *_it;
+    for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
+    element.CGI = true;
+    return SUCCES;
 }
 
 int webserv::configParser::_setAllowedResponse(locationData& element ){

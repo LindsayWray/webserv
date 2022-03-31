@@ -9,6 +9,11 @@ server{
 		autoindex on;
 		root    /var/www/html;
 	}
+
+	location /time {
+		 root	/var/cgi-bin;
+		 cgi_param /ret_time.py;
+	}
 }
 
 server {

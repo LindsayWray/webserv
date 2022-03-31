@@ -18,7 +18,8 @@ std::vector<T>& operator,(std::vector<T>& v, const T & item){
 void testOneServer( int ret, webserv::httpData http, webserv::socketData socket, char** env ){
 	std::vector<int> ports;
 	std::vector<std::string> names;
-	std::vector<std::pair<int,std::string>> pairs;
+	std::map<int,std::string> maps;
+	std::vector<std::pair<int, std::string>> pairs;
 
 	ports << 80, 3000, 20;
 	webserv::vec_test( ports, socket.ports, "Ports" );
@@ -29,18 +30,19 @@ void testOneServer( int ret, webserv::httpData http, webserv::socketData socket,
 	names << (std::string) "index.html",  (std::string)"index.htm";
 	names << (std::string) "index.hh",  (std::string)"index";
 	webserv::vec_test( names, http.index, "Index" );
-	pairs << std::make_pair(404, (std::string)"/error.html");
-	pairs << std::make_pair(303, (std::string)"/error.hh");
-	webserv::vec_test_pair( pairs, http.error_page, "error_page" );
-	pairs.clear();
-	pairs << std::make_pair(302, (std::string)"http://webserv.com$url");
-	pairs << std::make_pair(303, (std::string)"http://webserv.com$url");
-	webserv::vec_test_pair( pairs, http.redirect, "redirect" );
+    maps[404] = (std::string)"/error.html";
+    maps[303] = (std::string)"/error.hh";
+	webserv::vec_test_map(maps, http.error_page, "error_page" );
+	maps.clear();
+    pairs << std::make_pair( 302, (std::string)"http://webserv.com$url");
+    pairs << std::make_pair( 303, (std::string)"http://webserv.com$url");
+	webserv::vec_test_pair(pairs, http.redirect, "redirect" );
 	if ( ret < 0 )
 		return;
-	webserv::testLocation(http.locations[0], "/", "/var/www/site1", true );
-	webserv::testLocation(http.locations[1], "/www/", "/var/www/site4", false );
-	webserv::testLocation(http.locations[2], "/", "/var/www/site1", true );
+	webserv::testLocation(http.locations[0], "/", "/var/www/site1", true, "NONE", false );
+	webserv::testLocation(http.locations[1], "/www/", "/var/www/site4", false, "NONE", false );
+	webserv::testLocation(http.locations[2], "/", "/var/www/site1", true, "NONE", false  );
+    webserv::testLocation(http.locations[3], "/time", "/var/cgi-bin", false, "/ret_time.py", true  );
 }
 
 void clearAll( webserv::httpData* http, webserv::socketData* socket ){
@@ -141,9 +143,9 @@ int main( int argc, char** argv, char** env ){
     configFile3.append( "testfile3_9.webserv" );
 	webserv::configParser test3_9 (configFile3 );
 	clearAll( &http5, &socket5 );
-	std::cout << BLUE << "server: reference parsing: " << test3_9.parseIntoPieces( &socket5, &http5 ) << " expected: " << SUCCES << RESET << std::endl;
+	std::cout << BLUE << "server: reference parsing: " << test3_9.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 
-	std::cout << CYAN << "\n---- check every variable without ; ----" << RESET << std::endl;
+	std::cout << CYAN << "\n---- check every variable without content ----" << RESET << std::endl;
 
 	std::string configFile4 = root;
     configFile4.append( "testfile4_1.webserv" );
@@ -186,4 +188,10 @@ int main( int argc, char** argv, char** env ){
 	webserv::configParser test4_7 (configFile4 );
 	clearAll( &http5, &socket5 );
 	std::cout << BLUE << "server: 7 parsing: " << test4_7.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
+
+    configFile4 = root;
+    configFile4.append( "testfile4_8.webserv" );
+    webserv::configParser test4_8 (configFile4 );
+    clearAll( &http5, &socket5 );
+    std::cout << BLUE << "server: 8 parsing: " << test4_8.parseIntoPieces( &socket5, &http5 ) << " expected: " << ERROR << RESET << std::endl;
 }
