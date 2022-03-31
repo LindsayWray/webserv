@@ -45,17 +45,22 @@ namespace webserv{
     struct locationData {
         std::string location;
         std::string root;
+        std::string cgi_param;
         int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
         bool autoindex;
+        bool CGI;
         locationData( void ){
             root = "NONE";
+            cgi_param = "NONE";
             memset( allowed_response, 1, 3);
             autoindex = false;
+            CGI = false;
         }
     };
 
     class httpData{
     public:
+        char** env;
         std::string abs_path;
         std::vector<std::string> server_name;
         std::vector<std::string> index;

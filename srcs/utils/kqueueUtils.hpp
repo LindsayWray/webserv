@@ -7,7 +7,8 @@
 
 #include "../config/configParser.hpp"
 #include "../utils/stringUtils.hpp"
-#include "../server/serverInstance.hpp"
+#include "../http/HTTPResponseMessage.hpp"
+#include <sys/event.h>
 #include "webserv.hpp"
 
 #define MAX_EVENTS 32
@@ -40,6 +41,7 @@ int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webse
         ret = object.parseIntoPieces( socket_vec[server], http_vec[server] );
         if ( ret == ERROR )
             return ERROR;
+        http_vec.back()->env = env;
         sockets += socket_vec.back()->ports.size();
 		server++;
     } while ( ret == NEOF );

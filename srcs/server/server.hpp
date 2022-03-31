@@ -11,5 +11,6 @@
 		webserv::kqConData& kqData,std::map<int,webserv::httpData*>& clientSockets);
 	HTTPResponseMessage handler( webserv::Request request, webserv::httpData* config );
 	void 				responder(int fd, HTTPResponseMessage response);
+    void responseFromCGI(webserv::httpData* config, webserv::locationData *location, HTTPResponseMessage& response );
 
 #endif

@@ -5,7 +5,7 @@
 #ifndef WEBSERV_TESTCONFIGPARSER_HPP
 #define WEBSERV_TESTCONFIGPARSER_HPP
 
-#include "../../srcs/server/parentServer.hpp"
+#include "../../srcs/server/server.hpp"
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
@@ -53,11 +53,40 @@ namespace webserv{
 			std::cout << BOLDGREEN << "** Test passed!! **" << RESET << std::endl;
 	}
 
-	template< class T >
-	void vec_test_pair( std::vector< T > expected, std::vector< T > result, std::string type ){
+    template< class T >
+    void vec_test_pair( std::vector< T > expected, std::vector< T > result, std::string type ){
+        bool same = true;
+        typename std::vector< T >::iterator it_bar = expected.begin();
+        typename std::vector< T >::iterator it_in = result.begin();
+
+        std::cout << CYAN << "\n---- " << type << " test ----" << RESET << std::endl;
+        if ( expected.size() != result.size()){
+            std::cout << " elements expected: " << expected.size() << " result: " << result.size() << std::endl;
+            same = false;
+        }
+        for ( ; it_bar != expected.end() && it_in != result.end(); it_bar++ ){
+            if ( it_bar->first != it_in->first ){
+                same = false;
+                std::cout << " first element " << type << " not same expected: " << it_bar->first << " result: " << it_in->first << std::endl;
+            }
+            if ( it_bar->second != it_in->second ){
+                same = false;
+                std::cout << " second element " << type << " not same expected: " << it_bar->second << " result: " << it_in->second << std::endl;
+            }
+            it_in++;
+        }
+        for ( ; it_in != result.end(); it_in++ )
+            std::cout << " to many elements in vector: " << it_in->first << " " << it_in->second << std::endl;
+        if ( !same )
+            std::cout << BOLDRED << "**  not same result **" << RESET << std::endl;
+        else
+            std::cout << BOLDGREEN << "** Test passed!! **" << RESET << std::endl;
+    }
+	template< class T, class U >
+	void vec_test_map( std::map< T, U > expected, std::map< T, U > result, std::string type ){
 		bool same = true;
-		typename std::vector< T >::iterator it_bar = expected.begin();
-		typename std::vector< T >::iterator it_in = result.begin();
+		typename std::map< T, U >::iterator it_bar = expected.begin();
+		typename std::map< T, U >::iterator it_in = result.begin();
 
 		std::cout << CYAN << "\n---- " << type << " test ----" << RESET << std::endl;
 		if ( expected.size() != result.size()){
@@ -118,7 +147,7 @@ namespace webserv{
 			std::cout << BOLDGREEN << "** Test passed!! **" << RESET << std::endl;
 	}
 
-	void testLocation( locationData loc, std::string location, std::string root, /*int allowed_respose[3],*/ bool autoindex ){
+	void testLocation( locationData loc, std::string location, std::string root, /*int allowed_respose[3],*/ bool autoindex, std::string cgi_param, bool CGI ){
 		bool same = true;
 		std::cout << CYAN << "\n---- Location data test ----" << RESET << std::endl;
 		if ( location != loc.location ){
@@ -129,6 +158,10 @@ namespace webserv{
 			same = false;
 			std::cout << " root is not same, expected: " << root << " result: " << loc.root << std::endl;
 		}
+        if ( cgi_param != loc.cgi_param ){
+            same = false;
+            std::cout << " cgi_param is not same, expected: " << cgi_param << " result: " << loc.cgi_param << std::endl;
+        }
 //		for ( int i = 0; i < 3; i++ )
 //			if ( allowed_respose[i] != loc.allowed_response[i] ){
 //				same = false;
@@ -138,6 +171,10 @@ namespace webserv{
 			same = false;
 			std::cout << " autoindex is not same, expected: " << autoindex << " result: " << loc.autoindex << std::endl;
 		}
+        if ( CGI != loc.CGI ){
+            same = false;
+            std::cout << " CGI is not same, expected: " << CGI << " result: " << loc.CGI << std::endl;
+        }
 		if ( !same )
 			std::cout << BOLDRED << "**  not same result **" << RESET << std::endl;
 		else

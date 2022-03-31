@@ -1,13 +1,13 @@
 #include "server.hpp"
-#include <stdio.h>
-#include <unistd.h>
-#include <fstream>
 #include <iostream>
 #include <string>
-#include <filesystem>
-#include <string> 
 
 
+//#include <stdio.h>
+#include <unistd.h>
+//#include <fstream>
+//#include <filesystem>
+//#include <string>
 #include <experimental/filesystem> // C++14
 namespace fs = std::experimental::filesystem;
 
@@ -62,25 +62,30 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 		// insert autoindexing here?...
 
 		return GET_handler(request, response, path + "index.html", config);
-	}
+	 }
+	 webserv::locationData *location = config->_findLocationBlock(request.getPath());
 
-	file.open(path);
-	if (file.good()) {
-		std::cout << "File found " << path << std::endl;
-		responseFromFile(file, extension, response, HTTPResponseMessage::OK);
-	} else { //404
-		if (config->error_page.find(404) != config->error_page.end()){
-			path = config->getRequestedFilePath(config->error_page[404]);
-			std::cout << "Get error page " << path << std::endl;
-			file.open(path);
-			if (file.good()) {
-				std::cout << "Error file found " << path << std::endl;
-				return responseFromFile(file, file_extension(path), response, HTTPResponseMessage::NOT_FOUND);
-			}
-		}
-		std::cout << "FILE not found " << path << std::endl;
-		fileNotFound(response);
-	}
+	 if ( location->CGI ){
+        responseFromCGI( config, location, response );
+        return;
+	 }
+	 file.open(path);
+     if (file.good()) {
+         std::cout << "File found " << path << std::endl;
+         responseFromFile(file, extension, response, HTTPResponseMessage::OK);
+     } else { //404
+         if (config->error_page.find(404) != config->error_page.end()){
+             path = config->getRequestedFilePath(config->error_page[404]);
+             std::cout << "Get error page " << path << std::endl;
+             file.open(path);
+             if (file.good()) {
+                 std::cout << "Error file found " << path << std::endl;
+                 return responseFromFile(file, file_extension(path), response, HTTPResponseMessage::NOT_FOUND);
+             }
+         }
+         std::cout << "FILE not found " << path << std::endl;
+         fileNotFound(response);
+     }
 }
 
 
