@@ -66,6 +66,8 @@ namespace webserv{
         httpData( std::string root ) : abs_path( root ) {}
         ~httpData() {}
 
+
+        std::map<std::string, std::string> created_files;
         /* EXAMPLE **
          * GET /images/2022/03/04/1400x1800.jpeg HTTP/1.1
          *  pathFromHTTPRequest = /images/2022/03/04/1400x1800.jpeg
@@ -92,7 +94,6 @@ namespace webserv{
          * - locationData.root and abs_path are both directory paths not ending with a slash
          * - everything with a '.' in the filepath is a file and not a directory
          */
-
         std::string getRequestedFilePath(std::string pathFromHTTPRequest) {
             std::string filePath;
             std::string root;
@@ -165,12 +166,6 @@ namespace webserv{
             }
             return NULL;
         }
-    };
-
-   	struct readData{
-        char* buf;
-        int buflen;
-        int bytesread;
     };
 
     struct kqConData {

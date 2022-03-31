@@ -7,24 +7,27 @@
 class HTTPResponseMessage {
 public:
 	enum e_responseStatusCode {
-		OK = 200,					/* SUCCESS */
+		OK = 200,						/* SUCCESS */
 		CREATED = 201,
+		ACCEPTED = 202,
 		NO_CONTENT = 204,
 
-		MOVED_PERMANENTLY = 301,	/* REDIRECTION */
+		MOVED_PERMANENTLY = 301,		/* REDIRECTION */
 		FOUND = 302,
 		SEE_OTHER = 303,
 		TEMPORARY_REDIRECT = 307,
 
-		BAD_REQUEST = 400,			/* CLIENT ERRORS */
+		BAD_REQUEST = 400,				/* CLIENT ERRORS */
 		FORBIDDEN = 403,
 		NOT_FOUND = 404,
+		METHOD_NOT_ALLOWED = 405,
 		REQUEST_TIMEOUT = 408,
 		GONE = 410,
 		IM_A_TEAPOT = 418,
 		TOO_MANY_REQUESTS = 429,
 
-		NOT_IMPLEMENTED = 501,		/* SERVER ERRORS */
+		INTERNAL_SERVER_ERROR = 500,	/* SERVER ERRORS */
+		NOT_IMPLEMENTED = 501,	
 		HTTP_VERSION_NOT_SUPPORTED = 505
 		// ...
 	};
@@ -54,8 +57,7 @@ public:
 	/** How to use these adders:
 	 *  HTTPResponseMessage response;
 	 *						response.addStatus(SUCCESS)
-	 *	 							.addTypeCat(TEXT)
-	 * 								.addTypeExt("plain")
+	 *	 							.addType("text/html")
 	 * 								.addLength(body.length())
 	 *	 							.addBody(body);
 	 **/

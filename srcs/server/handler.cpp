@@ -108,13 +108,34 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 }
 
 
-void POST_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
-	response.addStatus(HTTPResponseMessage::NOT_IMPLEMENTED);
+void POST_handler( Request request, HTTPResponseMessage& response, std::string& path, webserv::httpData* config ) {
+	std::string extension = file_extension(path);
+	if (extension != "txt")
+		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
+	else if (bool fileAlreadyExists = false)	// add fileExists check
+		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
+	else {
+		response.addStatus(HTTPResponseMessage::ACCEPTED);
+		std::ofstream file;
+		file.open(path, std::ios::out);
+		if (file.good()) {
+			file << request.getBody();
+			config->created_files[request.getPath()] = path;
+		}
+		file.close();
+	}
 }
 
-
-void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& root ) {
-	response.addStatus(HTTPResponseMessage::NOT_IMPLEMENTED);
+void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& path, webserv::httpData* config ) {
+	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
+	if (fileToBeDeleted != config->created_files.end()) {
+		if (std::remove(fileToBeDeleted->second.c_str()) == 0)
+			config->created_files.erase(fileToBeDeleted);
+		else
+			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	} else {
+		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	}
 }
 
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
@@ -128,8 +149,8 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	if ( request.getMethod() == Request::GET )
 		GET_handler( request, response, fullPath, config);
 	else if ( request.getMethod() == Request::POST )
-		POST_handler( request, response, fullPath );
+		POST_handler( request, response, fullPath, config);
 	else
-		DELETE_handler( request, response, fullPath);
+		DELETE_handler( request, response, fullPath, config);
 	return response;
 }

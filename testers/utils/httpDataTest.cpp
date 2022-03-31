@@ -188,6 +188,11 @@ void httpDataTest::getRequestedFilePath() {
     if (response != "/var/www/html/file.txt")
         throw std::exception();
 
+    request = "/images/co.png";
+    response = http.getRequestedFilePath(request);
+    if (response != "/var/www/html/resources/co.png")
+        throw std::exception();
+
     std::cout << "getRequestedFilePath: TEST SUCCESS\n";
 }
 

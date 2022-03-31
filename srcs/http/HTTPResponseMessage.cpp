@@ -2,24 +2,27 @@
 
 const std::map<int, const std::string> HTTPResponseMessage::responseStatusMessages =
 {
-	{ 200, "OK" }, 					/* SUCCESS */
+	{ 200, "OK" }, 						/* SUCCESS */
 	{ 201, "Created" },
+	{ 202, "Accepted" },
 	{ 204, "No Content" },
 
-	{ 301, "Moved Permanently"},	/* REDIRECTION */
+	{ 301, "Moved Permanently"},		/* REDIRECTION */
 	{ 302, "Found"}, 
 	{ 303, "See Other"},
 	{ 307, "Temporary Redirect"},
 
-	{ 400, "Bad Request"},			/* CLIENT ERRORS */
+	{ 400, "Bad Request"},				/* CLIENT ERRORS */
 	{ 403, "Forbidden"},
 	{ 404, "Not Found"},
+	{ 405, "Method Not Allowed"},
 	{ 408, "Request Timeout"},
 	{ 410, "Gone"},
 	{ 418, "I'm a teapot"}, 
 	{ 429, "Too Many Requests"},
 
-	{ 501, "Not Implemented"},		/* SERVER ERRORS */
+	{ 500, "Internal Server Error"},	/* SERVER ERRORS */
+	{ 501, "Not Implemented"},
 	{ 505, "HTTP Version Not Supported"}
 	// ...
 };
