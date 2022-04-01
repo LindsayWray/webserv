@@ -50,80 +50,74 @@ void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
 				.addType("text/html");
 };
 
-void GET_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
+void GET_handler( std::string path, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
 	std::ifstream file;
-
 	std::string extension = file_extension(path);
 	std::cout << "EXTENSION: "  << extension << std::endl;
+	std::string fullPath = location.root + path;
 
-	if (request.getPath().back() == "/") {
+	if (path.back() == '/') {
 		std::cout << "Is a directory " << path << std::endl;
-
-		// insert autoindexing here?...
-
-		return GET_handler(request, response, path + "index.html", config);
-	}
-
-	if (path.find("AUTOINDEX.HTML") == path.size() - strlen("AUTOINDEX.HTML")) {
-		std::string directory = path.substr(0, path.find("AUTOINDEX.HTML"));
-
-		std::string body;
-
-		try {
-			autoIndexing(request.getPath(), directory, body);
+		if (location.autoindex) {
+			std::string body;
+			try {
+				autoIndexing(path, fullPath, body);
+			}
+			catch ( DirectoryNotFoundException& e){
+				std::cout << e.what() << std::endl;
+				return fileNotFound(response, config);
+			}	
+			response.addStatus(HTTPResponseMessage::OK)
+				.addBody(body)
+				.addLength(body.length())
+				.addType("text/html");
+			return;
 		}
-		catch ( DirectoryNotFoundException& e){
-			std::cout << e.what() << std::endl;
-			return fileNotFound(response, config);
-		}	
-		response.addStatus(HTTPResponseMessage::OK)
-			.addBody(body)
-			.addLength(body.length())
-			.addType("text/html");
-		return;
+		return GET_handler(path + "index.html", response, config, location);
 	}
 
-	webserv::locationData *location = config->_findLocationBlock(request.getPath());
-	if ( location && location->CGI )
-		return responseFromCGI( config, location, response );
 
-	file.open(path);
+	// webserv::locationData *location = config->_findLocationBlock(request.getPath());
+	// if ( location && location->CGI )
+	// 	return responseFromCGI( config, location, response );
+
+	file.open(fullPath);
 	if (file.good()) {
-		std::cout << "File found " << path << std::endl;
+		std::cout << "File found " << fullPath << std::endl;
 		responseFromFile(file, extension, response, HTTPResponseMessage::OK);
 	} else
 		fileNotFound(response, config);
 }
 
-void POST_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
-	std::string extension = file_extension(path);
-	if (extension != "txt")
-		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
-	else if (bool fileAlreadyExists = false)	// add fileExists check
-		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
-	else {
-		response.addStatus(HTTPResponseMessage::ACCEPTED);
-		std::ofstream file;
-		file.open(path, std::ios::out);
-		if (file.good()) {
-			file << request.getBody();
-			config->created_files[request.getPath()] = path;
-		}
-		file.close();
-	}
-}
+// void POST_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
+// 	std::string extension = file_extension(path);
+// 	if (extension != "txt")
+// 		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
+// 	else if (bool fileAlreadyExists = false)	// add fileExists check
+// 		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
+// 	else {
+// 		response.addStatus(HTTPResponseMessage::ACCEPTED);
+// 		std::ofstream file;
+// 		file.open(path, std::ios::out);
+// 		if (file.good()) {
+// 			file << request.getBody();
+// 			config->created_files[request.getPath()] = path;
+// 		}
+// 		file.close();
+// 	}
+// }
 
-void DELETE_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
-	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
-	if (fileToBeDeleted != config->created_files.end()) {
-		if (std::remove(fileToBeDeleted->second.c_str()) == 0)
-			config->created_files.erase(fileToBeDeleted);
-		else
-			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
-	} else {
-		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
-	}
-}
+// void DELETE_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
+// 	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
+// 	if (fileToBeDeleted != config->created_files.end()) {
+// 		if (std::remove(fileToBeDeleted->second.c_str()) == 0)
+// 			config->created_files.erase(fileToBeDeleted);
+// 		else
+// 			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+// 	} else {
+// 		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+// 	}
+// }
 
 int findRequestedLocation( webserv::httpData* config, std::vector<std::string> path ){
     int len = 0;
@@ -138,22 +132,23 @@ int findRequestedLocation( webserv::httpData* config, std::vector<std::string> p
                 return i;
         }
     }
-    return NOT_FOUND;
+    return NOTFOUND;
 }
 
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	HTTPResponseMessage response;
 	int location_index = findRequestedLocation( config, request.getPath() );
-	if ( location_index == NOT_FOUND )
+	if ( location_index == NOTFOUND )
         (void)location_index; // TODO:: do something
 
     webserv::locationData location = config->locations[location_index];
 
+
 	if ( request.getMethod() == Request::GET )
-		GET_handler( request, response, config, location );
-	else if ( request.getMethod() == Request::POST )
-		POST_handler( request, response, config, location );
-	else if ( request.getMethod() == Request::DELETE )
-		DELETE_handler( request, response, config, location );
+		GET_handler( request.getRequestPath(), response, config, location );
+	// else if ( request.getMethod() == Request::POST )
+	// 	POST_handler( request, response, config, location );
+	// else if ( request.getMethod() == Request::DELETE )
+	// 	DELETE_handler( request, response, config, location );
 	return response;
 }

@@ -70,9 +70,8 @@ int main( int argc, char **argv, char **env ) {
 	std::string config = argc == 1 ? "config.webserv" : argv[1];
 	webserv::serverData serverData;
 
-    if ( init_servers(serverData.serverMap, config, env, serverData.kqData) == ERROR )
+    if ( init_servers(serverData.serverMap, config, env, serverData.kqData) == ERROR ) 
 		return EXIT_FAILURE;
-        
     int nev, serv;
     struct kevent* eventList = new struct kevent[MAX_EVENTS];
     serverData.kqData.nbr_connections = serverData.serverMap.size();

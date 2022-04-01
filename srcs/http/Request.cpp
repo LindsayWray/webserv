@@ -4,16 +4,16 @@ webserv::Request::Request(std::string req){
 	std::vector<std::string> header_lines;
 
 	std::stringstream ss(req);
-	std::string location;
+	std::string _requestPath;
 	std::string method;
 
 	ss >> method;
-	ss >> location;
+	ss >> _requestPath;
 	ss >> _version;
 	ss.ignore(2);
 	
 //	std::cout << method << _path << _version << std::endl;
-	setPath( location );
+	setPath( _requestPath );
 	parse_statusline(method);
 	
 	//std::cout << "Request --->" << req << "<------ " << std::endl;
@@ -51,7 +51,7 @@ void webserv::Request::parse_statusline(std::string& method){
 		throw(IncorrectRequestException());
 	}
 
-	if ( _path[0] != '/' ){
+	if ( _path[0] != "/" ){
 		printf("Fault in the statusline, (path)\n");
 		throw(IncorrectRequestException());
 	}
@@ -68,6 +68,10 @@ std::string webserv::Request::getBody() const {
 
 std::vector<std::string> webserv::Request::getPath() const {
 	return this->_path;
+}
+
+std::string webserv::Request::getRequestPath() const {
+	return this->_requestPath;
 }
 
 webserv::Request::method webserv::Request::getMethod() const {

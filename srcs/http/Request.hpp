@@ -18,6 +18,7 @@ namespace webserv {
 	//status line
 		method			_method;
 		std::vector<std::string>		_path;
+		std::string 	_requestPath;
 		std::string		_version;
 	//headers
 		std::map<std::string, std::string>	_headers;
@@ -33,6 +34,7 @@ namespace webserv {
 		std::string getBody() const;
 		std::vector<std::string> getPath() const;
 		method getMethod() const;
+		std::string getRequestPath() const;
 
 		class IncorrectRequestException : public std::exception{
 		public:
