@@ -14,6 +14,11 @@ server {
 		 root	/var/cgi-bin;
 		 cgi_param /ret_time.py;
 	}
+
+	location /time2 {
+    		 root	/var/cgi-bin;
+    		 cgi_param /first_cgi.py;
+    	}
 }
 
 server {

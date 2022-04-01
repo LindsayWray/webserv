@@ -105,7 +105,7 @@ void GET_handler( std::string path, HTTPResponseMessage& response, webserv::http
 // 		file.close();
 // 	}
 // }
-
+//
 // void DELETE_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
 // 	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
 // 	if (fileToBeDeleted != config->created_files.end()) {
