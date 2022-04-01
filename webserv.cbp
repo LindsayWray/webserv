@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="webserv"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\testers\;CMake Files\testers\catch2\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="parentConfigTester">
+				<Option output="/Users/kde-rooi/Documents/webserv/parentConfigTester" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 parentConfigTester"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="parentConfigTester/fast">
+				<Option output="/Users/kde-rooi/Documents/webserv/parentConfigTester" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 parentConfigTester/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="catchConfig">
+				<Option output="/Users/kde-rooi/Documents/webserv/catchConfig" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 catchConfig"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="catchConfig/fast">
+				<Option output="/Users/kde-rooi/Documents/webserv/catchConfig" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 catchConfig/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="webserv">
+				<Option output="/Users/kde-rooi/Documents/webserv/webserv" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 webserv"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="webserv/fast">
+				<Option output="/Users/kde-rooi/Documents/webserv/webserv" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 webserv/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParser.cpp">
+			<Option target="parentConfigTester"/>
+			<Option target="catchConfig"/>
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParser.hpp">
+			<Option target="parentConfigTester"/>
+			<Option target="catchConfig"/>
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/HTTPResponseMessage.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/HTTPResponseMessage.hpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/HTTPResponseMessageContentTypeMap.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/Request.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/Request.hpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/main.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/server/CGI.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/server/accepter.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/server/autoindexing.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/server/handler.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/server/responder.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/server/server.hpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/clientSocket.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/clientSocket.hpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/listeningSocket.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/listeningSocket.hpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/parentSocket.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/parentSocket.hpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/serverSocket.cpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/serverSocket.hpp">
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/kqueueUtils.hpp">
+			<Option target="catchConfig"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/stringUtils.hpp">
+			<Option target="catchConfig"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/catch2/catch.hpp">
+			<Option target="catchConfig"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/catch2/configParsing.cpp">
+			<Option target="catchConfig"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/catch2/main.cpp">
+			<Option target="catchConfig"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/testConfigTester/parentConfigTester.cpp">
+			<Option target="parentConfigTester"/>
+			<Option target="catchConfig"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/testConfigTester/testConfigParser.hpp">
+			<Option target="catchConfig"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/catch2/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\testers\catch2\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

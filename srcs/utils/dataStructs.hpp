@@ -12,10 +12,10 @@
 #include <netinet/in.h>
 #include <algorithm>
 
+#define NOTFOUND -2
 #define ERROR -1
 #define SUCCES 0
 #define NEOF 1
-#define NOTFOUND -2
 
 namespace webserv{
 

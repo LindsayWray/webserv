@@ -59,8 +59,8 @@ int webserv::configParser::parseIntoPieces(socketData* socketData, httpData* htt
 	TokenType::iterator it = _tokens.begin();
 	int ret;
 
-	if ( (_it++)->compare("server") || *_it !="{" )
-		return ERROR;
+	if ( _it++->compare("server") || *_it !="{" )
+        return ERROR;
 	while ( ++_it != _tokens.end() && *_it != "}" ) {
 		if ( *_it == "listen" )
 			ret = setSocket( socketData );
