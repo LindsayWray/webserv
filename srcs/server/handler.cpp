@@ -139,7 +139,7 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	int location_index = findRequestedLocation( config, request.getPath() );
 	if ( location_index == NOTFOUND )
         (void)location_index;
-//        std::cerr << location_index << " " << request.getPath()[0] << std::endl;
+	std::cerr << location_index << std::endl;
         //location_index = 0; // TODO:: do something
     webserv::locationData location = config->locations[location_index];
 
