@@ -4,7 +4,7 @@ server {
 
     error_page 404 /error.html;
 
-    location / {
+    path / {
     	root    /var/www/site2;
     }
 }

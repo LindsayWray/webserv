@@ -50,13 +50,13 @@ void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
 				.addType("text/html");
 };
 
-void GET_handler( Request request, HTTPResponseMessage& response, std::string path, webserv::httpData* config ) {
+void GET_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
 	std::ifstream file;
 
 	std::string extension = file_extension(path);
 	std::cout << "EXTENSION: "  << extension << std::endl;
 
-	if (path.back() == '/') {
+	if (request.getPath().back() == "/") {
 		std::cout << "Is a directory " << path << std::endl;
 
 		// insert autoindexing here?...
@@ -95,7 +95,7 @@ void GET_handler( Request request, HTTPResponseMessage& response, std::string pa
 		fileNotFound(response, config);
 }
 
-void POST_handler( Request request, HTTPResponseMessage& response, std::string& path, webserv::httpData* config ) {
+void POST_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
 	std::string extension = file_extension(path);
 	if (extension != "txt")
 		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
@@ -113,7 +113,7 @@ void POST_handler( Request request, HTTPResponseMessage& response, std::string& 
 	}
 }
 
-void DELETE_handler( Request request, HTTPResponseMessage& response, std::string& path, webserv::httpData* config ) {
+void DELETE_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
 	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
 	if (fileToBeDeleted != config->created_files.end()) {
 		if (std::remove(fileToBeDeleted->second.c_str()) == 0)
@@ -125,19 +125,35 @@ void DELETE_handler( Request request, HTTPResponseMessage& response, std::string
 	}
 }
 
+int findRequestedLocation( webserv::httpData* config, std::vector<std::string> path ){
+    int len = 0;
+    for ( int i = 0; i < config->locations.size(); i++ ){
+        len = config->locations[i].path.size();
+        if ( len > path.size() )
+            continue;
+        for ( int token = len; token >= 0; token-- ){
+            if ( config->locations[i].path[token] != path[token] )
+                break;
+            if ( token == 0 )
+                return i;
+        }
+    }
+    return NOT_FOUND;
+}
+
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	HTTPResponseMessage response;
-	std::string fullPath;
+	int location_index = findRequestedLocation( config, request.getPath() );
+	if ( location_index == NOT_FOUND )
+        (void)location_index; // TODO:: do something
 
-	fullPath = config->getRequestedFilePath(request.getPath());
-
-	std::cout << "PATH: " << fullPath << std::endl;
+    webserv::locationData location = config->locations[location_index];
 
 	if ( request.getMethod() == Request::GET )
-		GET_handler( request, response, fullPath, config);
+		GET_handler( request, response, config, location );
 	else if ( request.getMethod() == Request::POST )
-		POST_handler( request, response, fullPath, config);
-	else
-		DELETE_handler( request, response, fullPath, config);
+		POST_handler( request, response, config, location );
+	else if ( request.getMethod() == Request::DELETE )
+		DELETE_handler( request, response, config, location );
 	return response;
 }

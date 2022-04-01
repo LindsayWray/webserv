@@ -4,14 +4,16 @@ webserv::Request::Request(std::string req){
 	std::vector<std::string> header_lines;
 
 	std::stringstream ss(req);
+	std::string location;
 	std::string method;
 
 	ss >> method;
-	ss >> _path;
+	ss >> location;
 	ss >> _version;
 	ss.ignore(2);
 	
-	std::cout << method << _path << _version << std::endl;
+//	std::cout << method << _path << _version << std::endl;
+	setPath( location );
 	parse_statusline(method);
 	
 	//std::cout << "Request --->" << req << "<------ " << std::endl;
@@ -64,7 +66,7 @@ std::string webserv::Request::getBody() const {
 	return this->_body;
 }
 
-std::string webserv::Request::getPath() const {
+std::vector<std::string> webserv::Request::getPath() const {
 	return this->_path;
 }
 

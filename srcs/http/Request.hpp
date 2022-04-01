@@ -17,7 +17,7 @@ namespace webserv {
 	private:
 	//status line
 		method			_method;
-		std::string		_path;
+		std::vector<std::string>		_path;
 		std::string		_version;
 	//headers
 		std::map<std::string, std::string>	_headers;
@@ -31,7 +31,7 @@ namespace webserv {
 		Request(std::string);
 		
 		std::string getBody() const;
-		std::string getPath() const;
+		std::vector<std::string> getPath() const;
 		method getMethod() const;
 
 		class IncorrectRequestException : public std::exception{
@@ -40,6 +40,26 @@ namespace webserv {
 				return "Request Not Valid";
 			}
 		};
-	};
+
+		void setPath( std::string line ){
+            std::size_t i = 0, found;
+
+            if ( line[i] != '/' )
+                return;
+            while( i < line.length() ){
+                found = line.find_first_of( "/", i);
+                if ( found == std::string::npos ) {
+                    _path.push_back( line.substr( i, line.length() ) );
+                    break;
+                }else {
+                    if ( i != found - i )
+                        _path.push_back( line.substr( i, found - i ) );
+                    _path.push_back( line.substr( found, 1 ) );
+                    i = found + 1;
+                }
+            }
+		}
+    };
+
 }
 #endif

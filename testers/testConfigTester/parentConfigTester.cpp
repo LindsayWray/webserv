@@ -39,10 +39,18 @@ void testOneServer( int ret, webserv::httpData http, webserv::socketData socket,
 	webserv::vec_test_pair(pairs, http.redirect, "redirect" );
 	if ( ret < 0 )
 		return;
-	webserv::testLocation(http.locations[0], "/", "/var/www/site1", true, "NONE", false );
-	webserv::testLocation(http.locations[1], "/www/", "/var/www/site4", false, "NONE", false );
-	webserv::testLocation(http.locations[2], "/", "/var/www/site1", true, "NONE", false  );
-    webserv::testLocation(http.locations[3], "/time", "/var/cgi-bin", false, "/ret_time.py", true  );
+	names.clear();
+	names << (std::string) "/";
+	webserv::testLocation(http.locations[0], names, "/var/www/site1", true, "NONE", false );
+    names.clear();
+    names << (std::string) "/", (std::string) "www", (std::string) "/";
+	webserv::testLocation(http.locations[1], names, "/var/www/site4", false, "NONE", false );
+    names.clear();
+    names << (std::string) "/";
+	webserv::testLocation(http.locations[2], names, "/var/www/site1", true, "NONE", false  );
+    names.clear();
+    names << (std::string) "/", (std::string) "time";
+    webserv::testLocation(http.locations[3], names, "/var/cgi-bin", false, "/ret_time.py", true  );
 }
 
 void clearAll( webserv::httpData* http, webserv::socketData* socket ){

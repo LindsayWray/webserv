@@ -4968,7 +4968,7 @@ namespace Catch {
 
                 bool match( NSString* str ) const override {
                     return  (str != nil || m_substr == nil ) &&
-                            [str rangeOfString:m_substr].location != NSNotFound;
+                            [str rangeOfString:m_substr].path != NSNotFound;
                 }
 
                 std::string describe() const override {
@@ -4981,7 +4981,7 @@ namespace Catch {
 
                 bool match( NSString* str ) const override {
                     return  (str != nil || m_substr == nil ) &&
-                            [str rangeOfString:m_substr].location == 0;
+                            [str rangeOfString:m_substr].path == 0;
                 }
 
                 std::string describe() const override {
@@ -4993,7 +4993,7 @@ namespace Catch {
 
                 bool match( NSString* str ) const override {
                     return  (str != nil || m_substr == nil ) &&
-                            [str rangeOfString:m_substr].location == [str length] - [m_substr length];
+                            [str rangeOfString:m_substr].path == [str length] - [m_substr length];
                 }
 
                 std::string describe() const override {
@@ -7470,12 +7470,12 @@ namespace TestCaseTracking {
 
     struct NameAndLocation {
         std::string name;
-        SourceLineInfo location;
+        SourceLineInfo path;
 
         NameAndLocation( std::string const& _name, SourceLineInfo const& _location );
         friend bool operator==(NameAndLocation const& lhs, NameAndLocation const& rhs) {
             return lhs.name == rhs.name
-                && lhs.location == rhs.location;
+                && lhs.path == rhs.path;
         }
     };
 
@@ -7960,7 +7960,7 @@ namespace Catch {
 
 #elif defined(CATCH_PLATFORM_LINUX)
     // If we can use inline assembler, do it because this allows us to break
-    // directly at the location of the failing check instead of breaking inside
+    // directly at the path of the failing check instead of breaking inside
     // raise() called from it, i.e. one stack frame below.
     #if defined(__GNUC__) && (defined(__i386) || defined(__x86_64))
         #define CATCH_TRAP() asm volatile ("int $3") /* NOLINT */
@@ -14354,7 +14354,7 @@ namespace TestCaseTracking {
 
     NameAndLocation::NameAndLocation( std::string const& _name, SourceLineInfo const& _location )
     :   name( _name ),
-        location( _location )
+        path( _location )
     {}
 
     ITracker::~ITracker() = default;
@@ -14417,7 +14417,7 @@ namespace TestCaseTracking {
         auto it = std::find_if( m_children.begin(), m_children.end(),
             [&nameAndLocation]( ITrackerPtr const& tracker ){
                 return
-                    tracker->nameAndLocation().location == nameAndLocation.location &&
+                    tracker->nameAndLocation().path == nameAndLocation.path &&
                     tracker->nameAndLocation().name == nameAndLocation.name;
             } );
         return( it != m_children.end() )

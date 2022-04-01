@@ -43,7 +43,8 @@ namespace webserv{
     };
 
     struct locationData {
-        std::string location;
+        std::vector<std::string> path;
+        //std::string location; // /locatie/dinge/dit   / - locatie - / - dinge - ....
         std::string root;
         std::string cgi_param;
         int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
@@ -55,6 +56,25 @@ namespace webserv{
             memset( allowed_response, 1, 3);
             autoindex = false;
             CGI = false;
+        }
+
+        int tokenizer( std::string line ){
+            std::size_t i = 0, found;
+
+            if ( line[i] != '/' )
+                return ERROR;
+            while( i < line.length() ){
+                found = line.find_first_of( "/", i);
+                if ( found == std::string::npos ) {
+                    path.push_back(line.substr(i, line.length() ) );
+                    break;
+                }else {
+                    if ( i != found - i )
+                        path.push_back(line.substr(i, found - i ) );
+                    path.push_back(line.substr(found, 1 ) );
+                    i = found + 1;
+                }
+            }
         }
     };
 
@@ -70,7 +90,6 @@ namespace webserv{
         
         httpData( std::string root ) : abs_path( root ) {}
         ~httpData() {}
-
 
         std::map<std::string, std::string> created_files;
         /* EXAMPLE **
@@ -166,7 +185,7 @@ namespace webserv{
         locationData*   _findLocationBlock(std::string locationStr) {
             std::vector<locationData>::iterator it = this->locations.begin();
             for ( ; it != this->locations.end(); it++) {
-                if (locationStr == it->location)
+                if (locationStr == it->path[0])
                     return &(*it);
             }
             return NULL;
@@ -180,5 +199,8 @@ namespace webserv{
     };
 
 };
+
+
+
 
 #endif //WEBSERV_DATASTRUCTS_HPP

@@ -5,12 +5,12 @@ server{
 	
 	error_page 404 /error.html;
 
-	location / {
+	path / {
 		autoindex on;
 		root    /var/www/html;
 	}
 
-	location /time {
+	path /time {
 		 root	/var/cgi-bin;
 		 cgi_param /ret_time.py;
 	}
@@ -23,7 +23,7 @@ server {
     error_page 404 /error.html;
     error_page 403 /noaccess.html;
 
-    location / {
+    path / {
 		autoindex off;
     	root    /var/www/html;
     }

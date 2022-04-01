@@ -147,13 +147,14 @@ namespace webserv{
 			std::cout << BOLDGREEN << "** Test passed!! **" << RESET << std::endl;
 	}
 
-	void testLocation( locationData loc, std::string location, std::string root, /*int allowed_respose[3],*/ bool autoindex, std::string cgi_param, bool CGI ){
+	void testLocation( locationData loc, std::vector<std::string> location, std::string root, /*int allowed_respose[3],*/ bool autoindex, std::string cgi_param, bool CGI ){
 		bool same = true;
 		std::cout << CYAN << "\n---- Location data test ----" << RESET << std::endl;
-		if ( location != loc.location ){
-			same = false;
-			std::cout << " location is not same, expected: " << location << " result: " << loc.location << std::endl;
-		}
+		for (int i = 0; i < loc.path.size(); i++ )
+            if ( location[i] != loc.path[i] ){
+                same = false;
+                std::cout << " location is not same, expected: " << location[i] << " result: " << loc.path[i] << std::endl;
+            }
 		if ( root != loc.root ){
 			same = false;
 			std::cout << " root is not same, expected: " << root << " result: " << loc.root << std::endl;

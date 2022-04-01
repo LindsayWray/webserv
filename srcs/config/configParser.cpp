@@ -197,10 +197,13 @@ webserv::TokenType webserv::configParser::getTokens(void ){
 	return _tokens;
 }
 
+
+
 int webserv::configParser::_setLocation(locationData& element ){
 	if ( _isWrongInput( "{" ) )
 		return ERROR;
-	element.location = *_it++;
+	//element.location = *_it++;
+	element.tokenizer(*_it++);
 	return SUCCES;
 }
 

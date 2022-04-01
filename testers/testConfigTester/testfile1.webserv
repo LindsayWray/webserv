@@ -12,7 +12,7 @@ server{
     return 302 http://webserv.com$url;;;;;
     return 303 http://webserv.com$url;;;;;
 
-	location / {
+	 location / {
 		autoindex on;;;;;
 		root    /var/www/site1;;;;;;;
 	}
