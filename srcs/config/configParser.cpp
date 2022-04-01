@@ -55,12 +55,6 @@ int webserv::configParser::_newToken(std::string line ){
 	return --i;
 }
 
-bool _compare( webserv::locationData vec1, webserv::locationData vec2){
-    if ( vec1.path.size() > vec1.path.size() )
-        return true;
-    return false;
-}
-
 int webserv::configParser::parseIntoPieces(socketData* socketData, httpData* httpData ){
 	TokenType::iterator it = _tokens.begin();
 	int ret;
@@ -86,12 +80,6 @@ int webserv::configParser::parseIntoPieces(socketData* socketData, httpData* htt
 			return SUCCES;
 		if ( ret == ERROR )
             return ret;
-	}
-//    std::sort(httpData->locations.begin(), httpData->locations.end(), _compare);
-	for ( int i = 0; i < httpData->locations.size(); i++ ){
-	    for ( int j = 0; j < httpData->locations[i].path.size(); j++)
-	        std::cout << httpData->locations[i].path[j] << " ";
-	    std::cout << std::endl;
 	}
 	if ( *(_it++) == "}" && _it != _tokens.end() )
 		return NEOF;
@@ -176,7 +164,7 @@ int webserv::configParser::setErrorPage(httpData* httpData ){
 	return SUCCES;
 }
 
-void _insertBefore( webserv::httpData* httpData, webserv::locationData& element ){
+static void _insertBefore( webserv::httpData* httpData, webserv::locationData& element ){
     std::vector<webserv::locationData>::iterator it = --httpData->locations.end();
     for ( ; it >= httpData->locations.begin(); it-- ){
         if ( element.path.size() >= it->path.size() )
