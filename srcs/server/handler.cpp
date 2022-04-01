@@ -50,15 +50,15 @@ void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
 				.addType("text/html");
 };
 
-void GET_handler( std::string path, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
+void GET_handler( std::string path, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData* location ) {
 	std::ifstream file;
 	std::string extension = file_extension(path);
 	std::cout << "EXTENSION: "  << extension << std::endl;
-	std::string fullPath = location.root + path;
+	std::string fullPath = location->root + path;
 
 	if (path.back() == '/') {
 		std::cout << "Is a directory " << path << std::endl;
-		if (location.autoindex) {
+		if (location->autoindex) {
 			std::string body;
 			try {
 				autoIndexing(path, fullPath, body);
@@ -76,10 +76,9 @@ void GET_handler( std::string path, HTTPResponseMessage& response, webserv::http
 		return GET_handler(path + "index.html", response, config, location);
 	}
 
-
-	// webserv::locationData *location = config->_findLocationBlock(request.getPath());
-	// if ( location && location->CGI )
-	// 	return responseFromCGI( config, location, response );
+	//webserv::locationData *location = config->_findLocationBlock(request.getPath());
+	if ( location && location->CGI )
+		return responseFromCGI( config, location, response );
 
 	file.open(fullPath);
 	if (file.good()) {
@@ -143,9 +142,8 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 
     webserv::locationData location = config->locations[location_index];
 
-
 	if ( request.getMethod() == Request::GET )
-		GET_handler( request.getRequestPath(), response, config, location );
+		GET_handler( request.getRequestPath(), response, config, &location );
 	// else if ( request.getMethod() == Request::POST )
 	// 	POST_handler( request, response, config, location );
 	// else if ( request.getMethod() == Request::DELETE )

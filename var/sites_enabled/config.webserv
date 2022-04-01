@@ -1,16 +1,16 @@
-server{
+server {
 	listen 8080;
 
 	index   index.html index.htm;
 	
 	error_page 404 /error.html;
 
-	path / {
+	location / {
 		autoindex on;
 		root    /var/www/html;
 	}
 
-	path /time {
+	location /time {
 		 root	/var/cgi-bin;
 		 cgi_param /ret_time.py;
 	}
@@ -23,7 +23,7 @@ server {
     error_page 404 /error.html;
     error_page 403 /noaccess.html;
 
-    path / {
+    location / {
 		autoindex off;
     	root    /var/www/html;
     }

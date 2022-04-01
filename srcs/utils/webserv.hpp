@@ -4,7 +4,7 @@
 
 #include "../sockets/listeningSocket.hpp"
 
-#define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*>>
+#define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*> >
 
 namespace webserv {
 	
