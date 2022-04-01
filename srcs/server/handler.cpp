@@ -119,9 +119,10 @@ void GET_handler( std::string path, HTTPResponseMessage& response, webserv::http
 // }
 
 int findRequestedLocation( webserv::httpData* config, std::vector<std::string> path ){
-    int len = path.size();
+    int len;
     for ( int i = 0; i < config->locations.size(); i++ ){
-        if ( len < config->locations[i].path.size() )
+        len = config->locations[i].path.size();
+        if ( len > path.size() )
             continue;
         for ( int token = (len - 1); token >= 0; token-- ){
             if ( config->locations[i].path[token] != path[token] )
