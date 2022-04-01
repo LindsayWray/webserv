@@ -4,7 +4,6 @@ webserv::Request::Request(std::string req){
 	std::vector<std::string> header_lines;
 
 	std::stringstream ss(req);
-	std::string _requestPath;
 	std::string method;
 
 	ss >> method;
@@ -16,7 +15,7 @@ webserv::Request::Request(std::string req){
 	setPath( _requestPath );
 	parse_statusline(method);
 	
-	//std::cout << "Request --->" << req << "<------ " << std::endl;
+	//std::cout << "Request --->" << req << std::endl;
 
 	std::string header;
 	while( std::getline(ss, header) ){

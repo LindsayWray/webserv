@@ -27,6 +27,8 @@ void responder(int fd, HTTPResponseMessage response) {
 		std::cout << "sending response" << std::endl;
 
 		const std::string& responseStr = response.toString();
+
+		//std::cout << "responseStr " << responseStr << std::endl;
 		send( fd, responseStr.c_str(), responseStr.length(), 0 );
 
 	/* TEST WITH CONSTRUCTED RESPONSE */
