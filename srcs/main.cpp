@@ -21,11 +21,11 @@ void	takeRequest(webserv::serverData& serverData, int current_fd ) {
 			webserv::Request request( serverData.requests[current_fd] );
 			std::cout << "made request object" << std::endl;
 			HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd] );
-			serverData.responses[current_fd] = response;
+			serverData.responses[current_fd] = response.toString();
 			serverData.requests.erase(current_fd);
 			printf( "  register respond event - %d\n", current_fd );
 			struct kevent new_socket_change;
-			EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE | EV_ONESHOT, 0, 0, NULL );
+			EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
 			int ret = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
 			if ( ret == ERROR ) {
             	perror( "  kqueue() failed" );
@@ -45,8 +45,15 @@ void	processEvent(webserv::serverData& serverData, struct kevent& event){
 	} else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end() )
 		accepter( serverData.serverMap[current_fd] , serverData.kqData, serverData.clientSockets );
 	else if ( serverData.responses.find( current_fd ) != serverData.responses.end() ){
-		responder(current_fd, serverData.responses[current_fd]);
-		serverData.responses.erase(current_fd);
+		if ( responder(current_fd, serverData.responses) == FINISHED ) {
+			struct kevent deregister_socket_change;
+			EV_SET( &deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
+			int ret = kevent( serverData.kqData.kq, &deregister_socket_change, 1, NULL, 0, NULL );
+			if ( ret == ERROR ) {
+            	perror( "  kqueue() failed" );
+            	exit( EXIT_FAILURE );
+        	}
+		}
 	} else {
 		memset( serverData.buf, 0, serverData.buflen );	//clean struct
 		int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );
@@ -56,7 +63,7 @@ void	processEvent(webserv::serverData& serverData, struct kevent& event){
 		}
 		else if ( bytesread == 0 )
 			std::cout << "  Connection closed" << std::endl; 
-		else			
+		else
 			takeRequest( serverData, current_fd);
 	}
 }

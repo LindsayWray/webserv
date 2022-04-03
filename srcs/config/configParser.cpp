@@ -77,13 +77,13 @@ int webserv::configParser::parseIntoPieces(socketData* socketData, httpData* htt
 		else if ( *_it == "return" )
 			ret = setRedirect( httpData );
 		else if ( *_it == "}" )
-			return SUCCES;
+			return SUCCESS;
 		if ( ret == ERROR )
             return ret;
 	}
 	if ( *(_it++) == "}" && _it != _tokens.end() )
 		return NEOF;
-	return SUCCES;
+	return SUCCESS;
 }
 
 int webserv::configParser::setSocket(socketData* socketData ){
@@ -96,7 +96,7 @@ int webserv::configParser::setSocket(socketData* socketData ){
 	if ( _it == _tokens.end() || *(++_it) != ";" )
 		return ERROR;
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-	return SUCCES;
+	return SUCCESS;
 }
 
 int webserv::configParser::setWorkerConnections(socketData* socketData ){
@@ -109,7 +109,7 @@ int webserv::configParser::setWorkerConnections(socketData* socketData ){
     if ( _it == _tokens.end() || *(++_it) != ";" )
         return ERROR;
     for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-    return SUCCES;
+    return SUCCESS;
 }
 
 int webserv::configParser::setIndex(httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
@@ -120,7 +120,7 @@ int webserv::configParser::setIndex(httpData* httpData ){ // TODO:: iterating un
 	if ( _it == _tokens.end() || *(_it) != ";" )
 		return ERROR;
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-	return SUCCES;
+	return SUCCESS;
 }
 
 int webserv::configParser::setServerName(httpData* httpData ){ // TODO:: iterating untill ";" will give false positive in case of no ";" in file
@@ -131,7 +131,7 @@ int webserv::configParser::setServerName(httpData* httpData ){ // TODO:: iterati
 	if ( _it == _tokens.end() || *(_it) != ";" )
 		return ERROR;
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-	return SUCCES;
+	return SUCCESS;
 }
 
 int webserv::configParser::setRedirect(httpData* httpData ){
@@ -146,7 +146,7 @@ int webserv::configParser::setRedirect(httpData* httpData ){
 	if ( _it == _tokens.end() || *(++_it) != ";" ) // TODO:: check different url's to see if some charachters mess up the tokenizer
 		return ERROR;
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-	return SUCCES;
+	return SUCCESS;
 }
 
 int webserv::configParser::setErrorPage(httpData* httpData ){
@@ -161,7 +161,7 @@ int webserv::configParser::setErrorPage(httpData* httpData ){
 		}
 	}
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-	return SUCCES;
+	return SUCCESS;
 }
 
 static void _insertBefore( webserv::httpData* httpData, webserv::locationData& element ){
@@ -173,10 +173,10 @@ static void _insertBefore( webserv::httpData* httpData, webserv::locationData& e
 }
 
 int webserv::configParser::setLocation(httpData* httpData ){
-	int ret = SUCCES;
+	int ret = SUCCESS;
 	webserv::locationData element;
 	ret = _setLocation( element );
-	if ( ret == SUCCES && *_it =="{") {
+	if ( ret == SUCCESS && *_it =="{") {
 		while ( ++_it != _tokens.end() && *_it != "}"  ){
 			if ( *_it == "root" )
 				ret = _setRoot( element, httpData->abs_path );
@@ -214,8 +214,7 @@ int webserv::configParser::_setLocation(locationData& element ){
 	if ( _isWrongInput( "{" ) )
 		return ERROR;
 	//element.location = *_it++;
-	element.tokenizer(*_it++);
-	return SUCCES;
+	return element.tokenizer(*_it++);
 }
 
 int webserv::configParser::_setRoot(locationData& element, std::string abs_path ){
@@ -226,7 +225,7 @@ int webserv::configParser::_setRoot(locationData& element, std::string abs_path 
 	element.root = abs_path;
 	element.root.append( *_it );
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-	return SUCCES;
+	return SUCCESS;
 }
 
 int webserv::configParser::_setCgiParam(locationData& element ){
@@ -237,7 +236,7 @@ int webserv::configParser::_setCgiParam(locationData& element ){
     element.cgi_param = *_it;
     for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
     element.CGI = true;
-    return SUCCES;
+    return SUCCESS;
 }
 
 int webserv::configParser::_setAllowedResponse(locationData& element ){
@@ -248,7 +247,7 @@ int webserv::configParser::_setAllowedResponse(locationData& element ){
 //	if ( *_it != "GET" ) )
 //		element.allowed_response[GET] = true;
 
-	return SUCCES;
+	return SUCCESS;
 }
 
 int webserv::configParser::_setAutoindex(locationData& element ){
@@ -261,7 +260,7 @@ int webserv::configParser::_setAutoindex(locationData& element ){
 	else
 		return ERROR;
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
-	return SUCCES;
+	return SUCCESS;
 }
 
 bool webserv::configParser::_isWrongInput(char* str ){

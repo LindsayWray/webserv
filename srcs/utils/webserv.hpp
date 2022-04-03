@@ -14,7 +14,7 @@ namespace webserv {
 		SERVER_MAP serverMap;
 		
 		std::map<int,std::string> requests;
-		std::map<int,HTTPResponseMessage> responses;
+		std::map<int,std::string> responses;
 		std::map<int,webserv::httpData*> clientSockets;
 
 		char* buf;

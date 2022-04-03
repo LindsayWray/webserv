@@ -7,10 +7,13 @@
 #include "../http/Request.hpp"
 #include "../http/HTTPResponseMessage.hpp"
 
+#define FINISHED true
+#define NOT_FINISHED false
+
 	void 				accepter( std::pair<webserv::listeningSocket*,webserv::httpData*>& serverPair, 
 								webserv::kqConData& kqData,std::map<int,webserv::httpData*>& clientSockets);
 	HTTPResponseMessage handler( webserv::Request request, webserv::httpData* config );
-	void				responder(int fd, HTTPResponseMessage response);
+	bool				responder(int fd, std::map<int,std::string>& responses);
 	void				fileNotFound(HTTPResponseMessage& response, webserv::httpData* config );
 	void				autoIndexing( std::string path, std::string directory, std::string& body );
 	HTTPResponseMessage	responseFromCGI(webserv::httpData* config, webserv::locationData *location );

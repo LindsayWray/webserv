@@ -14,7 +14,7 @@
 
 #define NOTFOUND -2
 #define ERROR -1
-#define SUCCES 0
+#define SUCCESS 0
 #define NEOF 1
 
 namespace webserv{
@@ -76,6 +76,7 @@ namespace webserv{
                     i = found + 1;
                 }
             }
+			return SUCCESS;
         }
     };
 

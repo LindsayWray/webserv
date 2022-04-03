@@ -4,32 +4,30 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/event.h>
 
-void responder(int fd, HTTPResponseMessage response) {
-	/* TEST WITH RESPONSE MESSAGE READ FROM FILE */
-		// std::ifstream outfile;
-		// std::string line;
+#define CHUNK_SIZE 1024
 
-		// std::cout << "sending response" << std::endl;
-
-		// outfile.open("var/www/html/test.html");
-		// while( std::getline( outfile, line ) ) {
-		// 	send( fd, line.c_str(), line.length(), 0 );
-		// 	send( fd, "\n", 1, 0 );
-		// }
-		// send( fd, "\n", 1, 0 );
-		// send( fd, "\n", 1, 0 );
-
+bool responder(int fd, std::map<int,std::string>& responses) {
 	/* RESPONSE LOGGER */
 		// std::cout << response.toString();
 
 	/* FIRST ATTEMPT AT RESPONSE IMPL */
-		std::cout << "sending response" << std::endl;
+	std::cout << "sending chunk of response" << std::endl;
 
-		const std::string& responseStr = response.toString();
+	std::string chunk = responses[fd].substr(0, CHUNK_SIZE);
 
-		//std::cout << "responseStr " << responseStr << std::endl;
-		send( fd, responseStr.c_str(), responseStr.length(), 0 );
+	//std::cout << "responseStr " << responseStr << std::endl;
+	send( fd, chunk.c_str(), chunk.length(), 0 );
+
+	if (responses[fd].length() > CHUNK_SIZE) {
+		responses[fd] = responses[fd].substr(CHUNK_SIZE, responses[fd].length() );
+		return NOT_FINISHED;
+	}
+	else {
+		responses.erase(fd);
+		return FINISHED;
+	}
 
 	/* TEST WITH CONSTRUCTED RESPONSE */
 		// std::ifstream outfile;
