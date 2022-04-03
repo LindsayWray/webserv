@@ -167,12 +167,13 @@ std::string CGI( webserv::locationData *location, char** env ){
     return ret_str;
 }
 
-void responseFromCGI(webserv::httpData* config, webserv::locationData *location, HTTPResponseMessage& response ) {
+HTTPResponseMessage responseFromCGI(webserv::httpData* config, webserv::locationData *location ) {
+	HTTPResponseMessage response;
     std::string line;
     std::string body("");
 
     body = CGI( location, config->env );
-    response.addStatus(HTTPResponseMessage::OK )
+    return response.addStatus(HTTPResponseMessage::OK )
             .addLength(body.length())
             .addBody(body)
             .addType("text/plain");

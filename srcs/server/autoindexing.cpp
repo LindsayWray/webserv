@@ -2,7 +2,7 @@
 #include <dirent.h>
 
 
-void	sorting(std::vector<std::string>& vec, std::string& body){
+void	sorting( std::vector<std::string>& vec, std::string& body ){
 	std::sort(vec.begin(), vec.end());
 	for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++) {
 		body += *it;
@@ -16,11 +16,11 @@ void	autoIndexing( std::string path, std::string directory, std::string& body ) 
 	struct dirent *entry;
 
 	std::cout << "going autoindexing " << directory << std::endl;
-	if ((dir = opendir(directory.c_str())) == NULL) {
+	if ( ( dir = opendir(directory.c_str() ) ) == NULL ) {
 		throw (DirectoryNotFoundException());
 	}
 	readdir(dir);	// skip the first folder
-	while ((entry = readdir(dir)) != NULL) {
+	while ( (entry = readdir( dir ) ) != NULL) {
 		if ( entry->d_type == DT_DIR ){
 			std::string line = "<a href=\"" + path + entry->d_name + "/\">"
 				+ entry->d_name + "/"

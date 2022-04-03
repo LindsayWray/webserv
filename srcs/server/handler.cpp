@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include <iostream>
 #include <string>
+#include <sys/stat.h>
 
 using webserv::Request;
 
@@ -11,7 +12,8 @@ static std::string file_extension(std::string path) {
 	return path.substr(pos + 1); // +1 to skip the .
 }
 
-static void responseFromFile(std::ifstream& file, std::string extension, HTTPResponseMessage& response, HTTPResponseMessage::e_responseStatusCode statusCode) {
+static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode) {
+	HTTPResponseMessage response;
 	std::string line;
 	std::string body("");
 
@@ -27,10 +29,34 @@ static void responseFromFile(std::ifstream& file, std::string extension, HTTPRes
 	catch (...) {
 		response.addType("text/plain");   //temporary fix until directory handling 
 	}
+	return response;
 }
 
-void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
-	std::string body = "Not Found";
+HTTPResponseMessage fileForbidden( webserv::httpData* config ){
+	HTTPResponseMessage response;
+	std::string body = "403 Forbidden";
+	std::string path;
+	std::ifstream file;
+
+	if (config->error_page.find(403) != config->error_page.end()){
+		path = config->getRequestedFilePath(config->error_page[403]);
+		std::cout << "Get error page " << path << std::endl;
+		file.open(path);
+		if (file.good()) {
+			std::cout << "Error file found " << path << std::endl;
+			return responseFromFile(file, file_extension(path), HTTPResponseMessage::FORBIDDEN);
+		}
+	}
+	std::cout << "FILE not found " << path << std::endl;
+	return response.addStatus(HTTPResponseMessage::FORBIDDEN)
+				.addLength(body.length())
+				.addBody(body)
+				.addType("text/html");
+};
+
+HTTPResponseMessage fileNotFound(webserv::httpData* config ){
+	HTTPResponseMessage response;
+	std::string body = "404 Not Found";
 	std::string path;
 	std::ifstream file;
 
@@ -40,18 +66,19 @@ void fileNotFound(HTTPResponseMessage& response, webserv::httpData* config ){
 		file.open(path);
 		if (file.good()) {
 			std::cout << "Error file found " << path << std::endl;
-			return responseFromFile(file, file_extension(path), response, HTTPResponseMessage::NOT_FOUND);
+			return responseFromFile(file, file_extension(path), HTTPResponseMessage::NOT_FOUND);
 		}
 	}
 	std::cout << "FILE not found " << path << std::endl;
-	response.addStatus(HTTPResponseMessage::NOT_FOUND)
+	return response.addStatus(HTTPResponseMessage::NOT_FOUND)
 				.addLength(body.length())
 				.addBody(body)
 				.addType("text/html");
 };
 
-void GET_handler( std::string path, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData* location ) {
+HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, webserv::locationData* location ) {
 	std::ifstream file;
+	HTTPResponseMessage response;
 	std::string extension = file_extension(path);
 	std::cout << "EXTENSION: "  << extension << std::endl;
 	std::string fullPath = location->root + path;
@@ -65,27 +92,30 @@ void GET_handler( std::string path, HTTPResponseMessage& response, webserv::http
 			}
 			catch ( DirectoryNotFoundException& e){
 				std::cout << e.what() << std::endl;
-				return fileNotFound(response, config);
+				return fileNotFound(config);
 			}	
-			response.addStatus(HTTPResponseMessage::OK)
+			return response.addStatus(HTTPResponseMessage::OK)
 				.addBody(body)
 				.addLength(body.length())
 				.addType("text/html");
-			return;
 		}
-		return GET_handler(path + "index.html", response, config, location);
+		return GET_handler(path + "index.html", config, location);
 	}
 
-	//webserv::locationData *location = config->_findLocationBlock(request.getPath());
 	if ( location && location->CGI )
-		return responseFromCGI( config, location, response );
+		return responseFromCGI( config, location );
 
-	file.open(fullPath);
+	file.open( fullPath );
 	if (file.good()) {
 		std::cout << "File found " << fullPath << std::endl;
-		responseFromFile(file, extension, response, HTTPResponseMessage::OK);
-	} else
-		fileNotFound(response, config);
+		return responseFromFile( file, extension, HTTPResponseMessage::OK );
+	} else {
+		struct stat buf;
+		if ( ::stat(fullPath.c_str(), &buf) == -1 ){
+			return fileNotFound( config );
+		}
+		return fileForbidden( config );
+	}
 }
 
 // void POST_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
@@ -142,7 +172,7 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
     webserv::locationData location = config->locations[location_index];
 
 	if ( request.getMethod() == Request::GET )
-		GET_handler( request.getRequestPath(), response, config, &location );
+		return GET_handler( request.getRequestPath(), config, &location );
 	// else if ( request.getMethod() == Request::POST )
 	// 	POST_handler( request, response, config, location );
 	// else if ( request.getMethod() == Request::DELETE )
