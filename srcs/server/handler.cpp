@@ -88,7 +88,12 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 		if (location->autoindex) {
 			std::string body;
 			try {
-				autoIndexing(path, fullPath, body);
+				std::string concatPath;
+				for(int i = 0; i < location->path.size() - 1; i++){
+					concatPath += location->path[i];
+				}
+				concatPath += path;
+				autoIndexing(concatPath, fullPath, body);
 			}
 			catch ( DirectoryNotFoundException& e){
 				std::cout << e.what() << std::endl;
