@@ -11,31 +11,23 @@ webserv::Request::Request(std::string req){
 	ss >> _version;
 	ss.ignore(2);
 	
-//	std::cout << method << _path << _version << std::endl;
 	setPath( _requestPath );
 	parse_statusline(method);
-	
-	//std::cout << "Request --->" << req << std::endl;
 
 	std::string header;
 	while( std::getline(ss, header) ){
-		//std::cout << "header: " << header << std::endl;
 		std::stringstream line(header);
 		if (header.empty() || header == "\r")
 			break;
 		std::string key;
 		std::getline(line, key, ':');
 		std::getline(line, _headers[key]);
-		// std::cout << "key: " << key << "		value: " << _headers[key] << std::endl;
 		if ( key.empty() || _headers[key].empty()){
 			printf("Fault in the headers\n");
 			throw(IncorrectRequestException());
 		}
 	}
-
 	std::getline(ss, _body, (char)26);
-	// std::cout << "body: " << _body << std::endl;
-
 }
 
 void webserv::Request::parse_statusline(std::string& method){
@@ -58,6 +50,25 @@ void webserv::Request::parse_statusline(std::string& method){
 	if ( _version != "HTTP/1.1" ){
 		printf("Fault in the statusline, (version)\n");
 		throw(IncorrectRequestException());
+	}
+}
+
+void webserv::Request::setPath( std::string line ){
+	std::size_t i = 0, found;
+
+	if ( line[i] != '/' )
+		return;
+	while( i < line.length() ){
+		found = line.find_first_of( "/", i);
+		if ( found == std::string::npos ) {
+			_path.push_back( line.substr( i, line.length() ) );
+			break;
+		} else {
+			if ( i != found - i )
+				_path.push_back( line.substr( i, found - i ) );
+			_path.push_back( line.substr( found, 1 ) );
+			i = found + 1;
+		}
 	}
 }
 
