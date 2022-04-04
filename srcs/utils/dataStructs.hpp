@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <netinet/in.h>
 #include <algorithm>
@@ -94,7 +95,7 @@ namespace webserv{
         httpData( std::string root ) : abs_path( root ), redirect( std::make_pair(-1, "") ) {}
         ~httpData() {}
 
-        std::map<std::string, std::string> created_files;
+        std::set<std::string> created_files;
         /* EXAMPLE **
          * GET /images/2022/03/04/1400x1800.jpeg HTTP/1.1
          *  pathFromHTTPRequest = /images/2022/03/04/1400x1800.jpeg

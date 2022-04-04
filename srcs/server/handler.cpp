@@ -147,7 +147,7 @@ HTTPResponseMessage POST_handler( std::string& requestPath, Request request, web
 		file.open(fullPath, std::ios::out);
 		if (file.good()) {
 			file << request.getBody();
-			config->created_files[request.getRequestPath()] = fullPath;
+			config->created_files.insert(fullPath);
 		}
 		file.close();
 
@@ -160,18 +160,24 @@ HTTPResponseMessage POST_handler( std::string& requestPath, Request request, web
 	return response;
 }
 
-//
-// void DELETE_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
-// 	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
-// 	if (fileToBeDeleted != config->created_files.end()) {
-// 		if (std::remove(fileToBeDeleted->second.c_str()) == 0)
-// 			config->created_files.erase(fileToBeDeleted);
-// 		else
-// 			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
-// 	} else {
-// 		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
-// 	}
-// }
+HTTPResponseMessage DELETE_handler( std::string& requestPath, Request request, webserv::httpData* config, webserv::locationData* location ) {
+	HTTPResponseMessage response;
+	std::string fullPath = location->root + requestPath;
+
+	std::set<std::string>::iterator fileToBeDeleted = config->created_files.find(fullPath);
+	if (fileToBeDeleted != config->created_files.end()) {
+		if (std::remove(fileToBeDeleted->c_str()) == 0) {
+			response.addStatus(HTTPResponseMessage::OK);
+			config->created_files.erase(fileToBeDeleted);
+		}
+		else
+			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	} else {
+		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	}
+
+	return response;
+}
 
 int findRequestedLocation( webserv::httpData* config, std::vector<std::string> path ){
     int len;
@@ -208,10 +214,12 @@ HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData* config
 
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	HTTPResponseMessage response;
+
 	int location_index = findRequestedLocation( config, request.getPath() );
 	if ( location_index == NOTFOUND )
         (void)location_index; // TODO:: do something
     webserv::locationData location = config->locations[location_index];
+
     std::string requestPath;
     for(int i = location.path.size() - 1; i < request.getPath().size(); i++){
         requestPath += request.getPath()[i];
@@ -223,7 +231,7 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
         return GET_handler( requestPath, config, &location );
 	else if ( request.getMethod() == Request::POST )
 		return POST_handler( requestPath, request, config, &location );
-	// else if ( request.getMethod() == Request::DELETE )
-	// 	DELETE_handler( request, response, config, location );
+	else if ( request.getMethod() == Request::DELETE )
+		return DELETE_handler( requestPath, request, config, &location );
 	return response;
 }
