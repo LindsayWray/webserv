@@ -81,6 +81,8 @@ int webserv::configParser::parseIntoPieces(socketData* socketData, httpData* htt
 		if ( ret == ERROR )
             return ret;
 	}
+	if ( httpData->locations.size() == 0 )
+        httpData->locations.push_back( webserv::locationData( httpData->abs_path ) );
 	if ( *(_it++) == "}" && _it != _tokens.end() )
 		return NEOF;
 	return SUCCESS;
@@ -174,12 +176,12 @@ static void _insertBefore( webserv::httpData* httpData, webserv::locationData& e
 
 int webserv::configParser::setLocation(httpData* httpData ){
 	int ret = SUCCESS;
-	webserv::locationData element;
+	webserv::locationData element( httpData->abs_path );
 	ret = _setLocation( element );
 	if ( ret == SUCCESS && *_it =="{") {
 		while ( ++_it != _tokens.end() && *_it != "}"  ){
 			if ( *_it == "root" )
-				ret = _setRoot( element, httpData->abs_path );
+				ret = _setRoot( element );
 //			else if ( *_it == "add_header" )
 //				ret = _setAllowedResponse( element );
 			else if ( *_it == "autoindex" )
@@ -217,12 +219,9 @@ int webserv::configParser::_setLocation(locationData& element ){
 	return element.tokenizer(*_it++);
 }
 
-int webserv::configParser::_setRoot(locationData& element, std::string abs_path ){
+int webserv::configParser::_setRoot(locationData& element ){
 	if ( _isWrongInput( ";" ) )
 		return ERROR;
-	if ( element.root != "NONE" )
-		return ERROR;
-	element.root = abs_path;
 	element.root.append( *_it );
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
 	return SUCCESS;

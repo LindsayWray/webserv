@@ -51,8 +51,9 @@ namespace webserv{
         int allowed_response[3]; // GET = 0, POST = 1, DELETE = 2
         bool autoindex;
         bool CGI;
-        locationData( void ){
-            root = "NONE";
+        locationData( std::string _root ){
+            path.push_back( "/" );
+            root = _root;
             cgi_param = "NONE";
             memset( allowed_response, 1, 3);
             autoindex = false;
@@ -62,7 +63,7 @@ namespace webserv{
         int tokenizer( std::string line ){
             std::size_t i = 0, found;
 
-            if ( line[i] != '/' )
+            if ( line[i++] != '/' )
                 return ERROR;
             while( i < line.length() ){
                 found = line.find_first_of( "/", i);

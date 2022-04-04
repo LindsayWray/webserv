@@ -42,7 +42,7 @@ namespace webserv{
     private:
         int _newToken( std::string line );
         int _setLocation( locationData& element );
-        int _setRoot( locationData& element, std::string abs_path );
+        int _setRoot( locationData& element );
         int _setCgiParam( locationData& element );
         int _setAllowedResponse( locationData& element );
         int _setAutoindex( locationData& element );
