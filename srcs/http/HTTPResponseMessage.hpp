@@ -45,6 +45,7 @@ private:
 	unsigned int 					length;		// Need From RequestHandler
 	std::string						type;		// Need From RequestHandler
 	std::string						_getDateStr() const;
+	std::string						location;
 	inline static const std::string server = "Wonderkind & Co's Webserver";
 
 	/** Body */
@@ -75,4 +76,9 @@ public:
 
 private:
 	const std::string _getStatusCodeStr() const;
+	const std::string _headerContentLengthToString(void) const;
+	const std::string _headerContentTypeToString(void) const;
+	const std::string _headerDateToString(void) const;
+	const std::string _headerLocationToString(void) const;
+	const std::string _headerServerToString(void) const;
 };
