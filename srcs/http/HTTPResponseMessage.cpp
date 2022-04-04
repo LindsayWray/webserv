@@ -33,15 +33,42 @@ const std::string HTTPResponseMessage::toString() const {
 	output =
 		protocol + ' ' + _getStatusCodeStr() + ' ' + message + "\r\n" +
 
-		"content-length: " + std::to_string(length) + "\r\n" +
-		"content-type: " + type + "\r\n" +
-		"date: " + _getDateStr() + "\r\n" +
-		"server: " + server + "\r\n" +
+		_headerContentLengthToString() +
+		_headerContentTypeToString() +
+		_headerDateToString() +
+		_headerLocationToString() +
+		_headerServerToString() +
 		"\r\n" +
 
 		body;
 
 	return output;
+}
+
+const std::string HTTPResponseMessage::_headerContentLengthToString(void) const {
+	if (body != "")
+		return "content-length: " + std::to_string(length) + "\r\n";
+	else
+		return "";
+}
+
+const std::string HTTPResponseMessage::_headerContentTypeToString(void) const {
+	return "content-type: " + type + "\r\n";
+}
+
+const std::string HTTPResponseMessage::_headerDateToString(void) const {
+	return "date: " + _getDateStr() + "\r\n";
+}
+
+const std::string HTTPResponseMessage::_headerLocationToString(void) const {
+	if (location != "")
+		return "location: " + location + "\r\n";
+	else
+		return "";
+}
+
+const std::string HTTPResponseMessage::_headerServerToString(void) const {
+	return "server: " + server + "\r\n";
 }
 
 std::string HTTPResponseMessage::_getDateStr() const {
