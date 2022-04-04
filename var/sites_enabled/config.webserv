@@ -18,7 +18,12 @@ server {
 	location /time2 {
     		 root	/var/cgi-bin;
     		 cgi_param /first_cgi.py;
-    	}
+    }
+
+	location /images/ {
+		root /var/www/html/resources;
+	}
+		
 }
 
 server {
