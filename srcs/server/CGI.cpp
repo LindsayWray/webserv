@@ -3,15 +3,14 @@
 //
 #include "server.hpp"
 #include <unistd.h>
-
-#include "../utils/getNextLine.hpp"
+#include <sys/stat.h>
 
 std::string CGI( webserv::locationData *location, char** env ){
     HTTPResponseMessage response;
-    int ret = EXIT_FAILURE, status, pipes[2], stdin_copy = dup(STDIN_FILENO);
+    int ret = EXIT_FAILURE, status, pipes[2];
     pid_t pid;
     std::string ret_str, reqPath = location->root;
-    char* line;
+    struct stat sb{};
     reqPath.append(location->cgi_param);
     char* args[3] = { strdup("/usr/bin/python"), strdup(reqPath.c_str()), NULL };
 
@@ -30,11 +29,9 @@ std::string CGI( webserv::locationData *location, char** env ){
     } else {
         waitpid( pid, &status, 0 );
         close( pipes[1] );
-        while ( get_next_line(pipes[0], reinterpret_cast<char **>(&line)) ) { //get_next_line(STDIN_FILENO, reinterpret_cast<char **>(&line)) // getline( std::cin, line )
-            ret_str.append(line);
-            ret_str.append("\n");
-        }
-        dup2(stdin_copy, 0);
+        fstat( pipes[0], &sb );
+        ret_str.resize( sb.st_size );
+        read( pipes[0], (char*)(ret_str.data()), sb.st_size );
         if ( WIFEXITED(status) )
             ret = WIFEXITED(status);
     }

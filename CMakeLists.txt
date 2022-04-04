@@ -10,7 +10,7 @@ add_executable(webserv srcs/main.cpp
         srcs/server/autoindexing.cpp srcs/http/Request.cpp srcs/http/HTTPResponseMessage.cpp srcs/http/HTTPResponseMessageContentTypeMap.cpp
         srcs/config/configParser.cpp )
 add_executable(catchConfig testers/catch2/catch.hpp testers/catch2/main.cpp testers/catch2/configParsing.cpp srcs/config/configParser.cpp 
-		testers/testConfigTester/parentConfigTester.cpp srcs/utils/stringUtils.hpp testers/testConfigTester/testConfigParser.hpp srcs/utils/kqueueUtils.hpp srcs/utils/getNextLine.hpp srcs/utils/printFormatting.hpp)
+		testers/testConfigTester/parentConfigTester.cpp srcs/utils/stringUtils.hpp testers/testConfigTester/testConfigParser.hpp srcs/utils/kqueueUtils.hpp srcs/utils/printFormatting.hpp)
 add_executable(parentConfigTester testers/testConfigTester/parentConfigTester.cpp srcs/config/configParser.cpp)
 include_directories(srcs/config)
 add_subdirectory(testers/catch2)
