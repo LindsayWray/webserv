@@ -1,5 +1,5 @@
 #include "Request.hpp"
-
+#include "../utils/printFormatting.hpp"
 webserv::Request::Request(std::string req){
 	std::vector<std::string> header_lines;
 
@@ -10,24 +10,34 @@ webserv::Request::Request(std::string req){
 	ss >> _requestPath;
 	ss >> _version;
 	ss.ignore(2);
-	
+
+    std::cout << GREEN << method << RESET << std::endl;
+	for (int i = 0; i < _path.size(); i++)
+	    std::cout << BLUE << _path[i] << _version << RESET << std::endl;
 	setPath( _requestPath );
 	parse_statusline(method);
+	
+	std::cout << CYAN << "Request --->" << req << RESET << std::endl;
 
 	std::string header;
 	while( std::getline(ss, header) ){
+//		std::cout << "header: " << header << std::endl;
 		std::stringstream line(header);
 		if (header.empty() || header == "\r")
 			break;
 		std::string key;
 		std::getline(line, key, ':');
 		std::getline(line, _headers[key]);
+//		 std::cout << "key: " << key << "		value: " << _headers[key] << std::endl;
 		if ( key.empty() || _headers[key].empty()){
 			printf("Fault in the headers\n");
 			throw(IncorrectRequestException());
 		}
 	}
+
 	std::getline(ss, _body, (char)26);
+	 std::cout << YELLOW << "body: " << _body << RESET << std::endl;
+
 }
 
 void webserv::Request::parse_statusline(std::string& method){
@@ -53,25 +63,6 @@ void webserv::Request::parse_statusline(std::string& method){
 	}
 }
 
-void webserv::Request::setPath( std::string line ){
-	std::size_t i = 0, found;
-
-	if ( line[i] != '/' )
-		return;
-	while( i < line.length() ){
-		found = line.find_first_of( "/", i);
-		if ( found == std::string::npos ) {
-			_path.push_back( line.substr( i, line.length() ) );
-			break;
-		} else {
-			if ( i != found - i )
-				_path.push_back( line.substr( i, found - i ) );
-			_path.push_back( line.substr( found, 1 ) );
-			i = found + 1;
-		}
-	}
-}
-
 std::string webserv::Request::getBody() const {
 	return this->_body;
 }
@@ -80,9 +71,9 @@ std::vector<std::string> webserv::Request::getPath() const {
 	return this->_path;
 }
 
-// std::string webserv::Request::getRequestPath() const {
-// 	return this->_requestPath;
-// }
+std::string webserv::Request::getRequestPath() const {
+	return this->_requestPath;
+}
 
 webserv::Request::method webserv::Request::getMethod() const {
 	return this->_method;

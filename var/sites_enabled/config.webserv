@@ -1,8 +1,10 @@
 server {
 	listen 8080;
 
+	server_name localhost www.localhost;
+
 	index   index.html index.htm;
-	
+
 	error_page 404 /error.html;
 
 	location / {
@@ -27,6 +29,13 @@ server {
 }
 
 server {
+    listen          80;
+    server_name     localhost www.localhost;
+
+    return 302 http://localhost:8080$uri;
+}
+
+server {
     listen 8100;
     server_name     webserv.com www.webserv.com;
 
@@ -37,11 +46,4 @@ server {
 		autoindex off;
     	root    /var/www/html;
     }
-}
-
-server {
-    listen          8200;
-    server_name     old.com www.old.com;
-
-    return 302 http://webserv.com$url;
 }

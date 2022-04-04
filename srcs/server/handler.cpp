@@ -88,12 +88,7 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 		if (location->autoindex) {
 			std::string body;
 			try {
-				std::string concatPath;
-				for(int i = 0; i < location->path.size() - 1; i++){
-					concatPath += location->path[i];
-				}
-				concatPath += path;
-				autoIndexing(concatPath, fullPath, body);
+				autoIndexing(path, fullPath, body);
 			}
 			catch ( DirectoryNotFoundException& e){
 				std::cout << e.what() << std::endl;
@@ -154,19 +149,36 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 // }
 
 int findRequestedLocation( webserv::httpData* config, std::vector<std::string> path ){
-	int len;
-	for ( int i = 0; i < config->locations.size(); i++ ){
-		len = config->locations[i].path.size();
-		if ( len > path.size() )
-			continue;
-		for ( int token = (len - 1); token >= 0; token-- ){
-			if ( config->locations[i].path[token] != path[token] )
-				break;
-			if ( token == 0 )
-				return i;
-		}
-	}
-	return NOTFOUND;
+    int len;
+    for ( int i = 0; i < config->locations.size(); i++ ){
+        len = config->locations[i].path.size();
+        if ( len > path.size() )
+            continue;
+        for ( int token = (len - 1); token >= 0; token-- ){
+            if ( config->locations[i].path[token] != path[token] )
+                break;
+            if ( token == 0 )
+                return i;
+        }
+    }
+    return NOTFOUND;
+}
+
+HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData* config ) {
+    HTTPResponseMessage response;
+    std::string requestPath;
+    std::string location = config->redirect.second;
+    int pos = location.find_first_of("$uri" );
+    if ( pos != std::string::npos ) {
+        location.erase(pos, 4);
+        for (int i = 0; i < request.getPath().size(); i++)
+            std::cout << "--" << request.getPath()[i] << std::endl;
+    }
+    response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(config->redirect.first) )
+            .addLength(0)
+            .addBody("")
+            .addLocation( location );
+    return response;
 }
 
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
@@ -176,13 +188,10 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
         (void)location_index; // TODO:: do something
     webserv::locationData location = config->locations[location_index];
 
-	std::string requestPath;
-	for(int i = location.path.size() - 1; i < request.getPath().size(); i++){
-		requestPath += request.getPath()[i];
-	}
-
+    if ( config->redirect.first > 0 )
+        return REDIRECT_handler( request, config );
 	if ( request.getMethod() == Request::GET )
-		return GET_handler( requestPath, config, &location );
+		return GET_handler( request.getRequestPath(), config, &location );
 	// else if ( request.getMethod() == Request::POST )
 	// 	POST_handler( request, response, config, location );
 	// else if ( request.getMethod() == Request::DELETE )

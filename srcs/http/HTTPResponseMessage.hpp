@@ -45,13 +45,14 @@ private:
 	unsigned int 					length;		// Need From RequestHandler
 	std::string						type;		// Need From RequestHandler
 	std::string						_getDateStr() const;
+	std::string						location;
 	inline static const std::string server = "Wonderkind & Co's Webserver";
 
 	/** Body */
 	std::string						body;		// Need From RequestHandler
 
 public:
-	HTTPResponseMessage() {};
+	HTTPResponseMessage() : location() {};
 	~HTTPResponseMessage() {};
 
 	/** How to use these adders:
@@ -70,9 +71,16 @@ public:
 	addLength( const unsigned int contentLength ) { length = contentLength; return *this; }
 	HTTPResponseMessage&
 	addBody( const std::string body ) { this->body = body; return *this; }
+    HTTPResponseMessage&
+    addLocation( const std::string location ) { this->location = location; return *this; }
 
 	const std::string toString() const;
 
 private:
 	const std::string _getStatusCodeStr() const;
+	const std::string _headerContentLengthToString(void) const;
+	const std::string _headerContentTypeToString(void) const;
+	const std::string _headerDateToString(void) const;
+	const std::string _headerLocationToString(void) const;
+	const std::string _headerServerToString(void) const;
 };
