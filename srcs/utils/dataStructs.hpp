@@ -87,11 +87,11 @@ namespace webserv{
         std::string abs_path;
         std::vector<std::string> server_name;
         std::vector<std::string> index;
-        std::map<int, std::string> error_page; // maybe map because of unique key's
-        std::vector<std::pair<int, std::string> > redirect; // but vector is chronological which is nice
+        std::map<int, std::string> error_page;
+        std::pair<int, std::string> redirect;
         std::vector<locationData> locations;
         
-        httpData( std::string root ) : abs_path( root ) {}
+        httpData( std::string root ) : abs_path( root ), redirect( std::make_pair(-1, "") ) {}
         ~httpData() {}
 
         std::map<std::string, std::string> created_files;

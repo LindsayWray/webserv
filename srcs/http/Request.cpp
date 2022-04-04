@@ -1,5 +1,5 @@
 #include "Request.hpp"
-
+#include "../utils/printFormatting.hpp"
 webserv::Request::Request(std::string req){
 	std::vector<std::string> header_lines;
 
@@ -10,23 +10,25 @@ webserv::Request::Request(std::string req){
 	ss >> _requestPath;
 	ss >> _version;
 	ss.ignore(2);
-	
-//	std::cout << method << _path << _version << std::endl;
+
+    std::cout << GREEN << method << RESET << std::endl;
+	for (int i = 0; i < _path.size(); i++)
+	    std::cout << BLUE << _path[i] << _version << RESET << std::endl;
 	setPath( _requestPath );
 	parse_statusline(method);
 	
-	//std::cout << "Request --->" << req << std::endl;
+	std::cout << CYAN << "Request --->" << req << RESET << std::endl;
 
 	std::string header;
 	while( std::getline(ss, header) ){
-		//std::cout << "header: " << header << std::endl;
+//		std::cout << "header: " << header << std::endl;
 		std::stringstream line(header);
 		if (header.empty() || header == "\r")
 			break;
 		std::string key;
 		std::getline(line, key, ':');
 		std::getline(line, _headers[key]);
-		// std::cout << "key: " << key << "		value: " << _headers[key] << std::endl;
+//		 std::cout << "key: " << key << "		value: " << _headers[key] << std::endl;
 		if ( key.empty() || _headers[key].empty()){
 			printf("Fault in the headers\n");
 			throw(IncorrectRequestException());
@@ -34,7 +36,7 @@ webserv::Request::Request(std::string req){
 	}
 
 	std::getline(ss, _body, (char)26);
-	// std::cout << "body: " << _body << std::endl;
+	 std::cout << YELLOW << "body: " << _body << RESET << std::endl;
 
 }
 

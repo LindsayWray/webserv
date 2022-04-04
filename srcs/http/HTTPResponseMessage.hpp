@@ -52,7 +52,7 @@ private:
 	std::string						body;		// Need From RequestHandler
 
 public:
-	HTTPResponseMessage() {};
+	HTTPResponseMessage() : location() {};
 	~HTTPResponseMessage() {};
 
 	/** How to use these adders:
@@ -71,6 +71,8 @@ public:
 	addLength( const unsigned int contentLength ) { length = contentLength; return *this; }
 	HTTPResponseMessage&
 	addBody( const std::string body ) { this->body = body; return *this; }
+    HTTPResponseMessage&
+    addLocation( const std::string location ) { this->location = location; return *this; }
 
 	const std::string toString() const;
 

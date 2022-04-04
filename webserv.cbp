@@ -210,6 +210,9 @@
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/kqueueUtils.hpp">
 			<Option target="catchConfig"/>
 		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/printFormatting.hpp">
+			<Option target="catchConfig"/>
+		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/stringUtils.hpp">
 			<Option target="catchConfig"/>
 		</Unit>

@@ -164,6 +164,23 @@ int findRequestedLocation( webserv::httpData* config, std::vector<std::string> p
     return NOTFOUND;
 }
 
+HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData* config ) {
+    HTTPResponseMessage response;
+    std::string requestPath;
+    std::string location = config->redirect.second;
+    int pos = location.find_first_of("$uri" );
+    if ( pos != std::string::npos ) {
+        location.erase(pos, 4);
+        for (int i = 0; i < request.getPath().size(); i++)
+            std::cout << "--" << request.getPath()[i] << std::endl;
+    }
+    response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(config->redirect.first) )
+            .addLength(0)
+            .addBody("")
+            .addLocation( location );
+    return response;
+}
+
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	HTTPResponseMessage response;
 	int location_index = findRequestedLocation( config, request.getPath() );
@@ -171,6 +188,8 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
         (void)location_index; // TODO:: do something
     webserv::locationData location = config->locations[location_index];
 
+    if ( config->redirect.first > 0 )
+        return REDIRECT_handler( request, config );
 	if ( request.getMethod() == Request::GET )
 		return GET_handler( request.getRequestPath(), config, &location );
 	// else if ( request.getMethod() == Request::POST )

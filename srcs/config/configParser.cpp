@@ -137,14 +137,23 @@ int webserv::configParser::setServerName(httpData* httpData ){ // TODO:: iterati
 }
 
 int webserv::configParser::setRedirect(httpData* httpData ){
-	if (  _isWrongInput( NULL ) )
+	int code;
+    if (  _isWrongInput( NULL ) )
 		return ERROR;
+	if ( httpData->redirect.first != -1 )
+	    return ERROR;
 	try {
-		httpData->redirect.emplace_back( std::make_pair(std::stoi( *(_it++) ), (*_it)));
+		code = std::stoi( *(_it++) );
 	} catch ( std::exception &e ){
 		std::cerr << "configParser::setRedirect " << *_it << " " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
 		return ERROR;
 	}
+	if ( code != 301 && code != 302 && code != 303 && code != 307 )
+	    return ERROR;
+    httpData->redirect = std::make_pair(code, (*_it));
+    if ( httpData->redirect.second.find( "$uri" ) != std::string::npos )
+        if ( httpData->redirect.second.find( "$uri" ) + 4 <  httpData->redirect.second.size() )
+            return ERROR;
 	if ( _it == _tokens.end() || *(++_it) != ";" ) // TODO:: check different url's to see if some charachters mess up the tokenizer
 		return ERROR;
 	for (; _it != _tokens.end() && *(_it + 1) == ";"; _it++ ){}
@@ -210,12 +219,9 @@ webserv::TokenType webserv::configParser::getTokens(void ){
 	return _tokens;
 }
 
-
-
 int webserv::configParser::_setLocation(locationData& element ){
 	if ( _isWrongInput( "{" ) )
 		return ERROR;
-	//element.location = *_it++;
 	return element.tokenizer(*_it++);
 }
 
