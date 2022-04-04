@@ -83,6 +83,8 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 	std::cout << "EXTENSION: "  << extension << std::endl;
 	std::string fullPath = location->root + path;
 
+	std::cout << location->root << " " << path << " " << fullPath << "\n";
+
 	if (path.back() == '/') {
 		std::cout << "Is a directory " << path << std::endl;
 		if (location->autoindex) {
@@ -123,23 +125,41 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 	}
 }
 
-// void POST_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
-// 	std::string extension = file_extension(path);
-// 	if (extension != "txt")
-// 		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
-// 	else if (bool fileAlreadyExists = false)	// add fileExists check
-// 		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED);
-// 	else {
-// 		response.addStatus(HTTPResponseMessage::ACCEPTED);
-// 		std::ofstream file;
-// 		file.open(path, std::ios::out);
-// 		if (file.good()) {
-// 			file << request.getBody();
-// 			config->created_files[request.getPath()] = path;
-// 		}
-// 		file.close();
-// 	}
-// }
+HTTPResponseMessage POST_handler( std::string& requestPath, Request request, webserv::httpData* config, webserv::locationData* location ) {
+	HTTPResponseMessage response;
+	std::string extension = file_extension(requestPath);
+	std::cout << "EXTENSION: "  << extension << std::endl;
+	std::string fullPath = location->root + requestPath;
+
+	struct stat buf;
+	bool fileAlreadyExists = (::stat(fullPath.c_str(), &buf) != -1);
+	if (fileAlreadyExists) {
+		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED)
+				.addType("text/plain")
+				.addLength(0)
+				.addBody("");
+	}
+	else {
+		response.addStatus(HTTPResponseMessage::ACCEPTED)
+				.addLength(0)
+				.addBody("");
+		std::ofstream file;
+		file.open(fullPath, std::ios::out);
+		if (file.good()) {
+			file << request.getBody();
+			config->created_files[request.getRequestPath()] = fullPath;
+		}
+		file.close();
+
+		std::map<std::string, const std::string>::const_iterator type = HTTPResponseMessage::contentTypes.find(extension);
+		if (type != HTTPResponseMessage::contentTypes.end())
+			response.addType(type->second);
+		else
+			response.addType("executable");
+	}
+	return response;
+}
+
 //
 // void DELETE_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
 // 	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
@@ -201,8 +221,8 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
         return REDIRECT_handler( request, config );
 	if ( request.getMethod() == Request::GET )
         return GET_handler( requestPath, config, &location );
-	// else if ( request.getMethod() == Request::POST )
-	// 	POST_handler( request, response, config, location );
+	else if ( request.getMethod() == Request::POST )
+		return POST_handler( requestPath, request, config, &location );
 	// else if ( request.getMethod() == Request::DELETE )
 	// 	DELETE_handler( request, response, config, location );
 	return response;
