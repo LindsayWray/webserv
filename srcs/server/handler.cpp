@@ -172,7 +172,7 @@ HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData* config
     if ( pos != std::string::npos ) {
         location.erase(pos, 4);
         for (int i = 0; i < request.getPath().size(); i++)
-            std::cout << "--" << request.getPath()[i] << std::endl;
+            location.append( request.getPath()[i] );
     }
     response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(config->redirect.first) )
             .addLength(0)
@@ -187,11 +187,15 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
 	if ( location_index == NOTFOUND )
         (void)location_index; // TODO:: do something
     webserv::locationData location = config->locations[location_index];
+    std::string requestPath;
+    for(int i = location.path.size() - 1; i < request.getPath().size(); i++){
+        requestPath += request.getPath()[i];
+    }
 
     if ( config->redirect.first > 0 )
         return REDIRECT_handler( request, config );
 	if ( request.getMethod() == Request::GET )
-		return GET_handler( request.getRequestPath(), config, &location );
+        return GET_handler( requestPath, config, &location );
 	// else if ( request.getMethod() == Request::POST )
 	// 	POST_handler( request, response, config, location );
 	// else if ( request.getMethod() == Request::DELETE )
