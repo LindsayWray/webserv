@@ -1,5 +1,15 @@
 # webserv
 
+## How to config
+
+The root of the webserv is the top directory of the project.  
+You can add your own config file to ~/var/sites-enabled.  
+
+Names in location block's should always start with '/',  
+names ending on '/' will be seen as a directory and without as a file.  
+The root should always start with '/' but doesn't need to end on it.  
+
+
 ## How to run
 ```bash
 cmake .
