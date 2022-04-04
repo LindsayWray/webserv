@@ -88,7 +88,12 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 		if (location->autoindex) {
 			std::string body;
 			try {
-				autoIndexing(path, fullPath, body);
+				std::string concatPath;
+				for(int i = 0; i < location->path.size() - 1; i++){
+					concatPath += location->path[i];
+				}
+				concatPath += path;
+				autoIndexing(concatPath, fullPath, body);
 			}
 			catch ( DirectoryNotFoundException& e){
 				std::cout << e.what() << std::endl;
@@ -149,19 +154,19 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 // }
 
 int findRequestedLocation( webserv::httpData* config, std::vector<std::string> path ){
-    int len;
-    for ( int i = 0; i < config->locations.size(); i++ ){
-        len = config->locations[i].path.size();
-        if ( len > path.size() )
-            continue;
-        for ( int token = (len - 1); token >= 0; token-- ){
-            if ( config->locations[i].path[token] != path[token] )
-                break;
-            if ( token == 0 )
-                return i;
-        }
-    }
-    return NOTFOUND;
+	int len;
+	for ( int i = 0; i < config->locations.size(); i++ ){
+		len = config->locations[i].path.size();
+		if ( len > path.size() )
+			continue;
+		for ( int token = (len - 1); token >= 0; token-- ){
+			if ( config->locations[i].path[token] != path[token] )
+				break;
+			if ( token == 0 )
+				return i;
+		}
+	}
+	return NOTFOUND;
 }
 
 HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
@@ -171,8 +176,13 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
         (void)location_index; // TODO:: do something
     webserv::locationData location = config->locations[location_index];
 
+	std::string requestPath;
+	for(int i = location.path.size() - 1; i < request.getPath().size(); i++){
+		requestPath += request.getPath()[i];
+	}
+
 	if ( request.getMethod() == Request::GET )
-		return GET_handler( request.getRequestPath(), config, &location );
+		return GET_handler( requestPath, config, &location );
 	// else if ( request.getMethod() == Request::POST )
 	// 	POST_handler( request, response, config, location );
 	// else if ( request.getMethod() == Request::DELETE )

@@ -80,9 +80,9 @@ std::vector<std::string> webserv::Request::getPath() const {
 	return this->_path;
 }
 
-std::string webserv::Request::getRequestPath() const {
-	return this->_requestPath;
-}
+// std::string webserv::Request::getRequestPath() const {
+// 	return this->_requestPath;
+// }
 
 webserv::Request::method webserv::Request::getMethod() const {
 	return this->_method;

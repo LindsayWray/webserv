@@ -30,7 +30,7 @@ namespace webserv {
 		std::string getBody() const;
 		std::vector<std::string> getPath() const;
 		method getMethod() const;
-		std::string getRequestPath() const;
+		// std::string getRequestPath() const;
 		void setPath( std::string line );
 
 		class IncorrectRequestException : public std::exception{
