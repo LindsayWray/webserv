@@ -1,73 +1,74 @@
 #include "Request.hpp"
 #include "../utils/printFormatting.hpp"
-webserv::Request::Request(std::string req){
+
+webserv::Request::Request( std::string req ) {
     std::vector<std::string> header_lines;
 
-    std::stringstream ss(req);
+    std::stringstream ss( req );
     std::string method;
 
     ss >> method;
     ss >> _requestPath;
     ss >> _version;
-    ss.ignore(2);
+    ss.ignore( 2 );
 
     setPath( _requestPath );
-    parse_statusline(method);
+    parse_statusline( method );
 
     std::string header;
-    while( std::getline(ss, header) ){
-        std::stringstream line(header);
-        if (header.empty() || header == "\r")
+    while ( std::getline( ss, header )) {
+        std::stringstream line( header );
+        if ( header.empty() || header == "\r" )
             break;
         std::string key;
-        std::getline(line, key, ':');
-        std::getline(line, _headers[key]);
-        if ( key.empty() || _headers[key].empty()){
-            printf("Fault in the headers\n");
-            throw(IncorrectRequestException());
+        std::getline( line, key, ':' );
+        std::getline( line, _headers[key] );
+        if ( key.empty() || _headers[key].empty()) {
+            printf( "Fault in the headers\n" );
+            throw ( IncorrectRequestException());
         }
     }
-    std::getline(ss, _body, (char)26);
+    std::getline( ss, _body, ( char ) 26 );
 
 }
 
-void webserv::Request::parse_statusline(std::string& method){
-	if (method == "GET")
-		_method = GET;
-	else if (method == "POST")
-		_method = POST;
-	else if (method == "DELETE")
-		_method = DELETE;
-	else {
-		printf("Fault in the statusline, (method)\n");
-		throw(IncorrectRequestException());
-	}
+void webserv::Request::parse_statusline( std::string &method ) {
+    if ( method == "GET" )
+        _method = GET;
+    else if ( method == "POST" )
+        _method = POST;
+    else if ( method == "DELETE" )
+        _method = DELETE;
+    else {
+        printf( "Fault in the statusline, (method)\n" );
+        throw ( IncorrectRequestException());
+    }
 
-	if ( _path[0] != "/" ){
-		printf("Fault in the statusline, (path)\n");
-		throw(IncorrectRequestException());
-	}
+    if ( _path[0] != "/" ) {
+        printf( "Fault in the statusline, (path)\n" );
+        throw ( IncorrectRequestException());
+    }
 
-	if ( _version != "HTTP/1.1" ){
-		printf("Fault in the statusline, (version)\n");
-		throw(IncorrectRequestException());
-	}
+    if ( _version != "HTTP/1.1" ) {
+        printf( "Fault in the statusline, (version)\n" );
+        throw ( IncorrectRequestException());
+    }
 }
 
 std::string webserv::Request::getBody() const {
-	return this->_body;
+    return this->_body;
 }
 
 std::vector<std::string> webserv::Request::getPath() const {
-	return this->_path;
+    return this->_path;
 }
 
 std::string webserv::Request::getRequestPath() const {
-	return this->_requestPath;
+    return this->_requestPath;
 }
 
 webserv::Request::method webserv::Request::getMethod() const {
-	return this->_method;
+    return this->_method;
 }
 
 
