@@ -9,17 +9,19 @@
 
 namespace webserv {
 
-	class listeningSocket : public serverSocket {
+    class listeningSocket : public serverSocket {
 
-	private:
-		int _backlog;
-		int _listening;
+    private:
+        int _backlog;
+        int _listening;
 
-	public:
-		listeningSocket( socketData input, int port );
-		void start_listening( void );
-		bool is_listening( void );
-	};
+    public:
+        listeningSocket( socketData input, int port );
+
+        void start_listening( void );
+
+        bool is_listening( void );
+    };
 }
 
 #endif //WEBSERV_LISTENINGSOCKET_HPP
