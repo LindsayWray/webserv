@@ -9,17 +9,17 @@
 
 namespace webserv {
 
-	class serverSocket : public parentSocket {
+    class serverSocket : public parentSocket {
 
-	public:
-		serverSocket( socketData input, int port );
+    public:
+        serverSocket( socketData input, int port );
 
-		void connect_to_network( void );
+        void connect_to_network( void );
 
-		void set_nonblock( void );
+        void set_nonblock( void );
 
-		void set_sockt_opt( int options );
-	};
+        void set_sockt_opt( int options );
+    };
 
 }
 

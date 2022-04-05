@@ -13,28 +13,28 @@
 
 namespace webserv {
 
-	class parentSocket {
+    class parentSocket {
 
-	protected:
+    protected:
 
-		int _socket;
-		int _connection;
-		struct sockaddr_in _address;
+        int _socket;
+        int _connection;
+        struct sockaddr_in _address;
 
-	public:
+    public:
 
-		parentSocket( socketData input, int port );
+        parentSocket( socketData input, int port );
 
-		virtual void connect_to_network( void ) = 0;
+        virtual void connect_to_network( void ) = 0;
 
-		void test_connection( std::string, int );
+        void test_connection( std::string, int );
 
-		int get_sock( void );
+        int get_sock( void );
 
-		int get_connection( void );
+        int get_connection( void );
 
-		struct sockaddr_in get_address( void );
-	};
+        struct sockaddr_in get_address( void );
+    };
 }
 
 #endif //WEBSERV_PARENTSOCKET_HPP
