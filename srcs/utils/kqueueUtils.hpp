@@ -11,7 +11,7 @@
 #include <sys/event.h>
 #include "webserv.hpp"
 
-#define MAX_EVENTS 32
+#define MAX_EVENTS 1024
 
 int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webserv::kqConData& kqData ){
     std::string root = webserv::setFileLocation( env );
@@ -32,8 +32,6 @@ int init_servers( SERVER_MAP& serverMap, std::string filename, char** env, webse
      *
      * kqData has:
      * kq
-     * current connections (nbr_connections)
-     * max connections (worker_connections)
      */
     do {
         http_vec.push_back( new webserv::httpData(root) );

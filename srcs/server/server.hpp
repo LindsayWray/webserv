@@ -12,7 +12,7 @@
 
 	void 				accepter( std::pair<webserv::listeningSocket*,webserv::httpData*>& serverPair, 
 								webserv::kqConData& kqData,std::map<int,webserv::httpData*>& clientSockets);
-	HTTPResponseMessage handler( webserv::Request request, webserv::httpData* config );
+	HTTPResponseMessage handler( webserv::Request request, webserv::httpData* config, webserv::locationData location );
 	bool				responder(int fd, std::map<int,std::string>& responses);
 	void				fileNotFound(HTTPResponseMessage& response, webserv::httpData* config );
 	void				autoIndexing( std::string path, std::string directory, std::string& body );

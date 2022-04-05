@@ -35,7 +35,7 @@ namespace webserv{
             //ports.push_back( 80 );
             interface = INADDR_ANY;
             backlog = 32;
-            worker_connections = 10;
+            worker_connections = 1024;
         }
         void addPort( int newPort ){ // start on port 80, if no port 80 is defined use other
             if ( std::find( ports.begin(), ports.end(), newPort ) == ports.end() )
@@ -90,8 +90,11 @@ namespace webserv{
         std::map<int, std::string> error_page;
         std::pair<int, std::string> redirect;
         std::vector<locationData> locations;
+        int max_client_body_size; // in kb
         
-        httpData( std::string root ) : abs_path( root ), redirect( std::make_pair(-1, "") ) {}
+        httpData( std::string root ) : abs_path( root ), redirect( std::make_pair(-1, "") ) {
+            max_client_body_size = 1000;
+        }
         ~httpData() {}
 
         std::map<std::string, std::string> created_files;

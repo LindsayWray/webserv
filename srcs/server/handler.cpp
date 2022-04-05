@@ -109,8 +109,8 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData* config, we
 		return GET_handler(path + "index.html", config, location);
 	}
 
-	if ( location && location->CGI )
-		return responseFromCGI( config, location );
+//	if ( location && location->CGI )
+//		return responseFromCGI( config, location );
 
 	file.open( fullPath );
 	if (file.good()) {
@@ -173,21 +173,6 @@ HTTPResponseMessage POST_handler( std::string& requestPath, Request request, web
 // 	}
 // }
 
-int findRequestedLocation( webserv::httpData* config, std::vector<std::string> path ){
-    int len;
-    for ( int i = 0; i < config->locations.size(); i++ ){
-        len = config->locations[i].path.size();
-        if ( len > path.size() )
-            continue;
-        for ( int token = (len - 1); token >= 0; token-- ){
-            if ( config->locations[i].path[token] != path[token] )
-                break;
-            if ( token == 0 )
-                return i;
-        }
-    }
-    return NOTFOUND;
-}
 
 HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData* config ) {
     HTTPResponseMessage response;
@@ -206,12 +191,8 @@ HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData* config
     return response;
 }
 
-HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
+HTTPResponseMessage handler( Request request, webserv::httpData* config, webserv::locationData location ) {
 	HTTPResponseMessage response;
-	int location_index = findRequestedLocation( config, request.getPath() );
-	if ( location_index == NOTFOUND )
-        (void)location_index; // TODO:: do something
-    webserv::locationData location = config->locations[location_index];
     std::string requestPath;
     for(int i = location.path.size() - 1; i < request.getPath().size(); i++){
         requestPath += request.getPath()[i];
