@@ -6,6 +6,7 @@
 #include "../sockets/listeningSocket.hpp"
 #include "../http/Request.hpp"
 #include "../http/HTTPResponseMessage.hpp"
+#include "../utils/webserv.hpp"
 
 #define FINISHED true
 #define NOT_FINISHED false
@@ -16,7 +17,8 @@
 	bool				responder(int fd, std::map<int,std::string>& responses);
 	void				fileNotFound(HTTPResponseMessage& response, webserv::httpData* config );
 	void				autoIndexing( std::string path, std::string directory, std::string& body );
-	HTTPResponseMessage	responseFromCGI(webserv::httpData* config, webserv::locationData *location );
+    int                 CGI_register( webserv::locationData location, webserv::serverData& serverData, char** env );
+    int                 responseFromCGI(webserv::serverData& serverData, int current_fd );
 
 	class DirectoryNotFoundException : public std::exception{
 		public:
