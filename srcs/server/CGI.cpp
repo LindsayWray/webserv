@@ -61,7 +61,6 @@ int responseFromCGI( webserv::serverData &serverData ) {
     std::string line;
     std::string body( "" );
 
-    serverData.current_fd = -2;
     body = CGI_attempt( serverData );
     response.addStatus( HTTPResponseMessage::OK )
             .addLength( body.length())
