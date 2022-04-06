@@ -1,5 +1,6 @@
 #include "Request.hpp"
 #include "../utils/printFormatting.hpp"
+#include <fstream> 
 
 webserv::Request::Request( std::string req ) {
     std::vector<std::string> header_lines;
@@ -28,7 +29,12 @@ webserv::Request::Request( std::string req ) {
             throw ( IncorrectRequestException());
         }
     }
-    std::getline( ss, _body, ( char ) 26 );
+    int current_position = ss.tellg();
+    _body = req.substr(current_position, req.size() - current_position );
+
+    //std::cout << "BODY" << _body << std::endl;
+
+    //std::getline( ss, _body, ( char ) 26 );
 
 }
 

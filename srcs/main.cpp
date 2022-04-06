@@ -29,11 +29,33 @@ int findRequestedLocation( webserv::httpData *config, std::vector<std::string> p
     return NOTFOUND;
 }
 
-void takeRequest( webserv::serverData &serverData, int current_fd ) {
-    serverData.requests[current_fd] += serverData.buf;
+void takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
+    std::ofstream outfile1("./outfile1");
+    std::ofstream outfile2("./outfile2");
+
+    serverData.requests[current_fd].append(serverData.buf);
+
+    // if (serverData.requests[current_fd].find( "\n\n" ) != std::string::npos ) {
+    //     std::size_t CLfound = serverData.requests[current_fd].find("content-length: ");
+    //     unsigned int length = 0;
+    //     if (CLfound != std::string::npos)
+    //         length = std::stoi(serverData.requests[current_fd], CLfound + 16);
+    // }
+    // endOfHeaders = .find( "\n\n" )
+    // CLfound = .find("content-length: ")
+    // unsigned int length = stoi(found + 16)
+    // endOfBody = endOfHeaders + length
+
+    std::cout << "LEN " << serverData.buflen << " " << bytesread << std::endl;
+    if (serverData.buflen == bytesread )
+        return;
+
 
     if ( serverData.requests[current_fd].find( "\r\n\r\n" ) != std::string::npos ) {
         try {
+            outfile1 << "string 1 "<< serverData.requests[current_fd] << std::endl;
+            outfile2 << "string 2 "<< serverData.buf << std::endl;
+
             webserv::Request request( serverData.requests[current_fd] );
             std::cout << "made request object" << std::endl;
             serverData.location_index = findRequestedLocation( serverData.clientSockets[current_fd], request.getPath());
@@ -62,6 +84,7 @@ void takeRequest( webserv::serverData &serverData, int current_fd ) {
             std::cout << e.what() << std::endl;
         }
     }
+
 }
 
 void processEvent( webserv::serverData &serverData, struct kevent &event ) {
@@ -91,11 +114,12 @@ void processEvent( webserv::serverData &serverData, struct kevent &event ) {
         else if ( bytesread == 0 )
             std::cout << "  Connection closed" << std::endl;
         else
-            takeRequest( serverData, current_fd );
+            takeRequest( serverData, current_fd, bytesread );
     }
 }
 
 int main( int argc, char **argv, char **env ) {
+
     if ( argc > 2 ) {
         std::cout << "Incorrect program usage\n	RUN: ./webserv [configuration file]\n";
         return EXIT_FAILURE;
