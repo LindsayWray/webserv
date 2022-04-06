@@ -12,10 +12,12 @@ namespace webserv {
     typedef struct serverData {
         webserv::kqConData kqData;
         SERVER_MAP serverMap;
-        int CGI;
-        int location_index;
-        int current_fd;
 
+        // int CGI;
+        // int location_index;
+        // int current_fd;
+
+		std::map<int, std::pair<int, std::string> > cgi_repsonses; // key: cgi_pipe, value: client_socket + cgi_response
         std::map<int, std::string> requests;
         std::map<int, std::string> responses;
         std::map<int, webserv::httpData *> clientSockets;

@@ -2,6 +2,7 @@
 #include "../utils/printFormatting.hpp"
 
 webserv::Request::Request( std::string req ) {
+	
     std::vector<std::string> header_lines;
 
     std::stringstream ss( req );

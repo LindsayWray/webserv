@@ -30,19 +30,17 @@ int findRequestedLocation( webserv::httpData *config, std::vector<std::string> p
 }
 
 void takeRequest( webserv::serverData &serverData, int current_fd ) {
-    serverData.requests[current_fd] += serverData.buf;
-
     if ( serverData.requests[current_fd].find( "\r\n\r\n" ) != std::string::npos ) {
         try {
             webserv::Request request( serverData.requests[current_fd] );
             std::cout << "made request object" << std::endl;
-            serverData.location_index = findRequestedLocation( serverData.clientSockets[current_fd], request.getPath());
-            if ( serverData.location_index == NOTFOUND )
-                ( void ) serverData.location_index; // TODO:: do something
-            webserv::locationData location = serverData.clientSockets[current_fd]->locations[serverData.location_index];
-            serverData.current_fd = current_fd;
+            int location_index = findRequestedLocation( serverData.clientSockets[current_fd], request.getPath());
+            if ( location_index == NOTFOUND )
+                ( void ) location_index; // TODO:: do something
+            webserv::locationData location = serverData.clientSockets[current_fd]->locations[location_index];
+            // serverData.current_fd = current_fd;
             if ( location.CGI ) {
-                if ( CGI_register( location, serverData, serverData.clientSockets[serverData.current_fd]->env ) < 0 )
+                if ( CGI_register( location, serverData, serverData.clientSockets[current_fd]->env, current_fd ) < 0 )
                     std::cerr << "we have to handle this error" << std::endl;
             } else {
                 HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd], location );

@@ -23,7 +23,7 @@ std::string CGI_attempt( webserv::serverData &serverData ) {
     return ret_str;
 }
 
-int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env ) {
+int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_socket_fd ) {
     int pipes[2], ret;
     std::string ret_str, reqPath = location.root;
 
@@ -32,7 +32,8 @@ int CGI_register( webserv::locationData location, webserv::serverData &serverDat
 
     if ( pipe( pipes ) != 0 )
         std::cerr << "pipe failed" << std::endl;
-    serverData.CGI = pipes[0];
+    // serverData.CGI = pipes[0];
+	serverData.cgi_repsonses[pipes[0]] = std::make_pair(client_socket_fd, "");
 
     struct kevent new_socket_change;
     EV_SET( &new_socket_change, pipes[0], EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
@@ -76,3 +77,4 @@ int responseFromCGI( webserv::serverData &serverData ) {
         return -1;
     return 0;
 }
+ 
