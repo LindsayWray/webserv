@@ -204,9 +204,6 @@
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/sockets/serverSocket.hpp">
 			<Option target="webserv"/>
 		</Unit>
-		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/getNextLine.hpp">
-			<Option target="catchConfig"/>
-		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/kqueueUtils.hpp">
 			<Option target="catchConfig"/>
 		</Unit>

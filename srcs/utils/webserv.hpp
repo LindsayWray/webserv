@@ -3,23 +3,26 @@
 
 
 #include "../sockets/listeningSocket.hpp"
+#include <unistd.h>
 
 #define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*> >
 
 namespace webserv {
-	
 
-	typedef struct serverData {
-		webserv::kqConData kqData;
-		SERVER_MAP serverMap;
-		
-		std::map<int,std::string> requests;
-		std::map<int,std::string> responses;
-		std::map<int,webserv::httpData*> clientSockets;
+    typedef struct serverData {
+        webserv::kqConData kqData;
+        SERVER_MAP serverMap;
+        int CGI;
+        int location_index;
+        int current_fd;
 
-		char* buf;
-		int buflen;
-	} serverData;
+        std::map<int, std::string> requests;
+        std::map<int, std::string> responses;
+        std::map<int, webserv::httpData *> clientSockets;
+
+        char *buf;
+        int buflen;
+    } serverData;
 };
 
 #endif

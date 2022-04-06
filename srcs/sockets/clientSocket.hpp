@@ -9,13 +9,13 @@
 
 namespace webserv {
 
-	class clientSocket : public parentSocket {
+    class clientSocket : public parentSocket {
 
-	public:
-		clientSocket( socketData input, int port );
+    public:
+        clientSocket( socketData input, int port );
 
-		void connect_to_network( void );
-	};
+        void connect_to_network( void );
+    };
 
 }
 

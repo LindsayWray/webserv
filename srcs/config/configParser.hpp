@@ -9,12 +9,12 @@
 #include <fstream>
 #include <vector>
 
-namespace webserv{
+namespace webserv {
 
-	typedef std::vector<std::string> TokenType;
-	typedef std::ifstream FileType;
+    typedef std::vector<std::string> TokenType;
+    typedef std::ifstream FileType;
 
-    class configParser{
+    class configParser {
 
     private:
         FileType _configFile;
@@ -22,31 +22,46 @@ namespace webserv{
         TokenType::iterator _it;
 
     public:
-        configParser(std::string config_file );
+        configParser( std::string config_file );
+
         ~configParser();
 
         void tokenizer( void );
-        int parseIntoPieces( socketData* socketData, httpData* httpData );
 
-        int setSocket( socketData* socketData );
-        int setIndex( httpData* httpData );
-        int setLocation( httpData* httpData );
-        int setServerName( httpData* httpData );
-        int setErrorPage( httpData* httpData );
-        int setRedirect( httpData* httpData );
-        int setWorkerConnections( socketData* socketData );
+        int parseIntoPieces( socketData *socketData, httpData *httpData );
 
-        FileType& getFile( void );
+        int setSocket( socketData *socketData );
+
+        int setIndex( httpData *httpData );
+
+        int setLocation( httpData *httpData );
+
+        int setServerName( httpData *httpData );
+
+        int setErrorPage( httpData *httpData );
+
+        int setRedirect( httpData *httpData );
+
+        int setWorkerConnections( socketData *socketData );
+
+        FileType &getFile( void );
+
         TokenType getTokens( void );
 
     private:
         int _newToken( std::string line );
-        int _setLocation( locationData& element );
-        int _setRoot( locationData& element );
-        int _setCgiParam( locationData& element );
-        int _setAllowedResponse( locationData& element );
-        int _setAutoindex( locationData& element );
-        bool _isWrongInput( char* );
+
+        int _setLocation( locationData &element );
+
+        int _setRoot( locationData &element );
+
+        int _setCgiParam( locationData &element );
+
+        int _setAllowedResponse( locationData &element );
+
+        int _setAutoindex( locationData &element );
+
+        bool _isWrongInput( char * );
     };
 }
 
