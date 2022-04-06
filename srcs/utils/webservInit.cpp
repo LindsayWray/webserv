@@ -45,7 +45,7 @@ void initServerData( webserv::serverData &serverData, webserv::httpData* httpDat
         if ( serverData.host_servername.find( pair ) == serverData.host_servername.end() )
             serverData.host_servername[pair] = httpData;
 //        else
-//            return ERROR;
+//            return ERROR; //duplicate servername with port
     }
 }
 
