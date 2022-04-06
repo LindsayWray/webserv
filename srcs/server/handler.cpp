@@ -144,7 +144,7 @@ HTTPResponseMessage POST_handler( std::string& requestPath, Request request, web
 				.addLength(0)
 				.addBody("");
 		std::ofstream file;
-		file.open(fullPath, std::ios::out);
+		file.open(fullPath, std::ios::out | std::ios::binary);
 		if (file.good()) {
 			file << request.getBody();
 			config->created_files.insert(fullPath);
