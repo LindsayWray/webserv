@@ -35,20 +35,7 @@ responseFromFile( std::ifstream &file, std::string extension, HTTPResponseMessag
 
 HTTPResponseMessage fileForbidden( webserv::httpData *config ) {
     HTTPResponseMessage response;
-    std::string body = "403 Forbidden";
-    std::string path;
-    std::ifstream file;
-
-    if ( config->error_page.find( 403 ) != config->error_page.end()) {
-        path = config->getRequestedFilePath( config->error_page[403] );
-        std::cout << "Get error page " << path << std::endl;
-        file.open( path );
-        if ( file.good()) {
-            std::cout << "Error file found " << path << std::endl;
-            return responseFromFile( file, file_extension( path ), HTTPResponseMessage::FORBIDDEN );
-        }
-    }
-    std::cout << "FILE not found " << path << std::endl;
+    std::string body = config->error_page[403];
     return response.addStatus( HTTPResponseMessage::FORBIDDEN )
             .addLength( body.length())
             .addBody( body )
@@ -57,20 +44,7 @@ HTTPResponseMessage fileForbidden( webserv::httpData *config ) {
 
 HTTPResponseMessage fileNotFound( webserv::httpData *config ) {
     HTTPResponseMessage response;
-    std::string body = "404 Not Found";
-    std::string path;
-    std::ifstream file;
-
-    if ( config->error_page.find( 404 ) != config->error_page.end()) {
-        path = config->getRequestedFilePath( config->error_page[404] );
-        std::cout << "Get error page " << path << std::endl;
-        file.open( path );
-        if ( file.good()) {
-            std::cout << "Error file found " << path << std::endl;
-            return responseFromFile( file, file_extension( path ), HTTPResponseMessage::NOT_FOUND );
-        }
-    }
-    std::cout << "FILE not found " << path << std::endl;
+    std::string body = config->error_page[404];
     return response.addStatus( HTTPResponseMessage::NOT_FOUND )
             .addLength( body.length())
             .addBody( body )
@@ -109,9 +83,6 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData *config, we
         }
         return GET_handler( path + "index.html", config, location );
     }
-
-//	if ( location && location->CGI )
-//		return responseFromCGI( config, location );
 
     file.open( fullPath );
     if ( file.good()) {

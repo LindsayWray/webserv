@@ -24,6 +24,7 @@ namespace webserv {
 				SOCKET,
 				WORKERC,
 				INDEX,
+				MAXBODY,
 				LOCATION,
 				SERVERNAME,
 				ERRORPAGE,
@@ -52,6 +53,8 @@ namespace webserv {
         int setSocket( socketData *socketData );
 
         int setIndex( httpData *httpData );
+
+        int setClientMaxBodySize( webserv::httpData *httpData );
 
         int setLocation( httpData *httpData );
 
