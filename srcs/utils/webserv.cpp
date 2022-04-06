@@ -34,14 +34,24 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
         else if ( bytesread == 0 )
             std::cout << "  Connection closed" << std::endl;
         else
-            takeRequest( serverData, current_fd );
+            takeRequest( serverData, current_fd, bytesread );
     }
 }
 
-void webserv::takeRequest( webserv::serverData &serverData, int current_fd ) {
-    serverData.requests[current_fd] += serverData.buf;
+void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
+    std::ofstream outfile1("outfile1");
+    std::ofstream outfile2("outfile2");
+
+    serverData.requests[current_fd].append(serverData.buf, bytesread);
+
+    std::cout << "LEN " << serverData.buflen << " " << bytesread << std::endl;
+
+    if (bytesread == serverData.buflen)
+        return; 
 
     if ( serverData.requests[current_fd].find( "\r\n\r\n" ) != std::string::npos ) {
+        outfile1 << "string 1 " << serverData.requests[current_fd] << std::endl;
+        outfile2 << "string 2 " << serverData.buf << std::endl;
         try {
             webserv::Request request( serverData.requests[current_fd] );
             std::cout << "made request object" << std::endl;
@@ -70,7 +80,7 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd ) {
         catch ( webserv::Request::IncorrectRequestException &e ) {        // catches parsing errors from request
             std::cout << e.what() << std::endl;
         }
-    }
+   }
 }
 
 int webserv::findRequestedLocation( webserv::httpData *config, std::vector<std::string> path ) {

@@ -31,7 +31,7 @@ static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string ext
 	}
 	/* START TEST CODE 1_A */
 	std::ofstream testFile;
-	testFile.open("/Users/tel-bara/Documents/CODAM/webserv/responseFromFile.txt", std::ios::binary);
+	testFile.open("/Users/lwray/Documents/webserv/responseFromFile.txt", std::ios::binary);
 	testFile << body;
 	testFile.close();
 	/* END TEST CODE 1_A */
@@ -110,7 +110,7 @@ HTTPResponseMessage POST_handler( std::string& requestPath, Request request, web
 
 	/* START TEST CODE 1_B */
 	std::ofstream testFile;
-	testFile.open("/Users/tel-bara/Documents/CODAM/webserv/POST_handler.txt", std::ios::binary);
+	testFile.open("/Users/lwray/Documents/webserv/POST_handler.txt", std::ios::binary);
 	testFile << request.getBody();
 	testFile.close();
 	/* END TEST CODE 1_B */
