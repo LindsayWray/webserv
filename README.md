@@ -37,27 +37,20 @@ an example config file can look like this:
 
 * The standard port where a server will listen to is 80
 * Index will define the index if none is specified for a directory
-* The root will always be handles like a directory
 * Within error_page you can define custom error pages formatted as: 
 > 'nbr'-'space'-'file'-'space'-...;
 * If a serverblock should redirect the return statement can be used as follows:
 > 'nbr'-'space'-'destination''$uri';  
-* If **$uri** is left out the destination will be used as if.
-* When **$uri** is defined it will bu substituted with the path after the initial server_name;
-* Only one return will be handled per server block  
-* When a return is defined, anything besides port and server_name will be ignored  
-* When a file is meant in any definition, it can never end in a '/'
 
-The rules specific for location blocks are:
-  * If the specified location ends with a **'/'** it will be handles like a directory
-  * If it ends without a '/' it will be handles as a file
-    > example of a directory: ***location /example_directory/***  
-      example of a file: ***location /example_file***   
-  * If the cgi_param is defined it will be handled by cgi
-  * The default root for cgi programs should be set to ***~/var/cgi-bin***
-  * Only python scripts will be handled by CGI
-
-If any parameter is defined without following these rules the webserve will exit with code 1
+for the location blocks there are some rules as well:
+  * if the specified location ends with a **'/'** it will be handles like a directory
+    > example of a directory: ***location /example_directory/*** will be a directory  
+     ***location /example_file*** will be a file  
+  * if it ends without a '/' it will be handles as a file
+  * the root will always be handles like a directory
+  * if the cgi_param is defined it will be handles by cgi
+  * the default root for cgi programs is ~/var/cgi-bin
+  * only python scripts will be handled by CGI
 
 ## How to run
 ```bash

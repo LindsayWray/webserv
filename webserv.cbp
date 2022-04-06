@@ -144,6 +144,18 @@
 			<Option target="catchConfig"/>
 			<Option target="webserv"/>
 		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParserLocation.cpp">
+			<Option target="catchConfig"/>
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParserSetters.cpp">
+			<Option target="catchConfig"/>
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParserUtils.cpp">
+			<Option target="catchConfig"/>
+			<Option target="webserv"/>
+		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/HTTPResponseMessage.cpp">
 			<Option target="webserv"/>
 		</Unit>
@@ -208,9 +220,6 @@
 			<Option target="catchConfig"/>
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/printFormatting.hpp">
-			<Option target="catchConfig"/>
-		</Unit>
-		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/stringUtils.hpp">
 			<Option target="catchConfig"/>
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/catch2/catch.hpp">

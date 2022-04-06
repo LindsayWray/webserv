@@ -7,7 +7,7 @@
 class HTTPResponseMessage {
 public:
     enum e_responseStatusCode {
-        OK = 200,                        /* SUCCESS */
+        OK = 200,                        /* SUCCES */
         CREATED = 201,
         ACCEPTED = 202,
         NO_CONTENT = 204,
@@ -59,7 +59,7 @@ public:
 
     /** How to use these adders:
      *  HTTPResponseMessage response;
-     *						response.addStatus(SUCCESS)
+     *						response.addStatus(SUCCES)
      *	 							.addType("text/html")
      * 								.addLength(body.length())
      *	 							.addBody(body);
