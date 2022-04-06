@@ -6,34 +6,37 @@
 
 class HTTPResponseMessage {
 public:
-    enum e_responseStatusCode {
-        OK = 200,                        /* SUCCES */
-        CREATED = 201,
-        ACCEPTED = 202,
-        NO_CONTENT = 204,
+	enum e_responseStatusCode {
+		OK = 200,						/* SUCCESS */
+		CREATED = 201,
+		ACCEPTED = 202,
+		NO_CONTENT = 204,
 
-        MOVED_PERMANENTLY = 301,        /* REDIRECTION */
-        FOUND = 302,
-        SEE_OTHER = 303,
-        TEMPORARY_REDIRECT = 307,
+		MOVED_PERMANENTLY = 301,		/* REDIRECTION */
+		FOUND = 302,
+		SEE_OTHER = 303,
+		TEMPORARY_REDIRECT = 307,
 
-        BAD_REQUEST = 400,                /* CLIENT ERRORS */
-        FORBIDDEN = 403,
-        NOT_FOUND = 404,
-        METHOD_NOT_ALLOWED = 405,
-        REQUEST_TIMEOUT = 408,
-        GONE = 410,
-        IM_A_TEAPOT = 418,
-        TOO_MANY_REQUESTS = 429,
+		BAD_REQUEST = 400,				/* CLIENT ERRORS */
+		FORBIDDEN = 403,
+		NOT_FOUND = 404,
+		METHOD_NOT_ALLOWED = 405,
+		REQUEST_TIMEOUT = 408,
+		GONE = 410,
+		LENGTH_REQUIRED = 411,
+		URI_TOO_LONG = 414,
+		IM_A_TEAPOT = 418,
+		TOO_MANY_REQUESTS = 429,
+		REQUEST_HEADER_FIELDS_TOO_LARGE = 431,
 
-        INTERNAL_SERVER_ERROR = 500,    /* SERVER ERRORS */
-        NOT_IMPLEMENTED = 501,
-        HTTP_VERSION_NOT_SUPPORTED = 505
-        // ...
-    };
-
-    static const std::map<int, const std::string> responseStatusMessages;
-    static const std::map<std::string, const std::string> contentTypes;
+		INTERNAL_SERVER_ERROR = 500,	/* SERVER ERRORS */
+		NOT_IMPLEMENTED = 501,	
+		HTTP_VERSION_NOT_SUPPORTED = 505
+		// ...
+	};
+	
+	static const std::map<int, const std::string> responseStatusMessages;
+	static const std::map<std::string, const std::string> contentTypes;
 
 private:
     /** Status line */

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <netinet/in.h>
 #include <algorithm>
@@ -99,8 +100,6 @@ namespace webserv {
 
         ~httpData() {}
 
-        std::map<std::string, std::string> created_files;
-
         std::string formatErrorPage( std::string message ){
             std::string page = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\
                                 <html>\
@@ -137,6 +136,7 @@ namespace webserv {
                 error_page[431] = formatErrorPage( "431 Request Header Fields Too Large" );
         }
 
+        std::set<std::string> created_files;
         /* EXAMPLE **
          * GET /images/2022/03/04/1400x1800.jpeg HTTP/1.1
          *  pathFromHTTPRequest = /images/2022/03/04/1400x1800.jpeg
