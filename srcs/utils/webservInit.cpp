@@ -44,6 +44,8 @@ void initServerData( webserv::serverData &serverData, webserv::httpData* httpDat
         pair = std::make_pair( port, httpData->server_name[i] );
         if ( serverData.host_servername.find( pair ) == serverData.host_servername.end() )
             serverData.host_servername[pair] = httpData;
+//        else
+//            return ERROR;
     }
 }
 
