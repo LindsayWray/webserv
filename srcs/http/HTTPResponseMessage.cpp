@@ -7,23 +7,26 @@ const std::map<int, const std::string> HTTPResponseMessage::responseStatusMessag
 	{ 202, "Accepted" },
 	{ 204, "No Content" },
 
-	{ 301, "Moved Permanently"},		/* REDIRECTION */
-	{ 302, "Found"}, 
-	{ 303, "See Other"},
-	{ 307, "Temporary Redirect"},
+	{ 301, "Moved Permanently" },		/* REDIRECTION */
+	{ 302, "Found" }, 
+	{ 303, "See Other" },
+	{ 307, "Temporary Redirect" },
 
-	{ 400, "Bad Request"},				/* CLIENT ERRORS */
-	{ 403, "Forbidden"},
-	{ 404, "Not Found"},
-	{ 405, "Method Not Allowed"},
-	{ 408, "Request Timeout"},
-	{ 410, "Gone"},
-	{ 418, "I'm a teapot"}, 
-	{ 429, "Too Many Requests"},
+	{ 400, "Bad Request" },				/* CLIENT ERRORS */
+	{ 403, "Forbidden" },
+	{ 404, "Not Found" },
+	{ 405, "Method Not Allowed" },
+	{ 408, "Request Timeout" },
+	{ 410, "Gone" },
+	{ 411, "Length Required" },
+	{ 414, "URI Too Long" },
+	{ 418, "I'm a teapot" }, 
+	{ 429, "Too Many Requests" },
+	{ 431, "Request Header Fields Too Large" },
 
-	{ 500, "Internal Server Error"},	/* SERVER ERRORS */
-	{ 501, "Not Implemented"},
-	{ 505, "HTTP Version Not Supported"}
+	{ 500, "Internal Server Error" },	/* SERVER ERRORS */
+	{ 501, "Not Implemented" },
+	{ 505, "HTTP Version Not Supported" }
 	// ...
 };
 
