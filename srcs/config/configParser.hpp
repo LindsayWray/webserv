@@ -31,7 +31,7 @@ namespace webserv {
 				REDIRECT,
 				ROOT,
 				CGIPARAM,
-				ALLOWEDRESPONSE,
+				LIMITEDMETHOD,
 				AUTOINDEX
 			};
 
@@ -81,11 +81,16 @@ namespace webserv {
 
         int _setCgiParam( locationData &element );
 
-        int _setAllowedResponse( locationData &element );
+        int _setLimitedMethod( locationData &element );
 
         int _setAutoindex( locationData &element );
 
         bool _isWrongInput( char * );
+
+        bool _isCorrectCode( int input );
+
+        int _endOfLine( int errorcode);
+
     };
 }
 

@@ -3,7 +3,7 @@
 //
 
 #include "configParser.hpp"
-#include "../../srcs/utils/stringUtils.hpp"
+#include "../../srcs/utils/stringUtils.cpp"
 #include "testConfigParser.hpp"
 
 template<typename T>

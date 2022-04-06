@@ -12,27 +12,6 @@ static std::string file_extension( std::string path ) {
     return path.substr( pos + 1 ); // +1 to skip the .
 }
 
-<<<<<<< HEAD
-static HTTPResponseMessage
-responseFromFile( std::ifstream &file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
-    HTTPResponseMessage response;
-    std::string line;
-    std::string body( "" );
-
-    while ( std::getline( file, line ))
-        body += ( line + '\n' );
-    file.close();
-    response.addStatus( statusCode )
-            .addLength( body.length())
-            .addBody( body );
-    try {
-        response.addType( HTTPResponseMessage::contentTypes.at( extension ));
-    }
-    catch ( ... ) {
-        response.addType( "text/plain" );   //temporary fix until directory handling
-    }
-    return response;
-=======
 static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode) {
 	HTTPResponseMessage response;
 	std::string line;
@@ -57,7 +36,6 @@ static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string ext
 	testFile.close();
 	/* END TEST CODE 1_A */
 	return response;
->>>>>>> tijmen
 }
 
 HTTPResponseMessage fileForbidden( webserv::httpData *config ) {
@@ -203,19 +181,8 @@ HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData *config
     return response;
 }
 
-<<<<<<< HEAD
 HTTPResponseMessage handler( Request request, webserv::httpData *config, webserv::locationData location ) {
     HTTPResponseMessage response;
-=======
-HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
-	HTTPResponseMessage response;
-
-	int location_index = findRequestedLocation( config, request.getPath() );
-	if ( location_index == NOTFOUND )
-        (void)location_index; // TODO:: do something
-    webserv::locationData location = config->locations[location_index];
-
->>>>>>> tijmen
     std::string requestPath;
     for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ ) {
         requestPath += request.getPath()[i];
@@ -225,17 +192,9 @@ HTTPResponseMessage handler( Request request, webserv::httpData* config ) {
         return REDIRECT_handler( request, config );
     if ( request.getMethod() == Request::GET )
         return GET_handler( requestPath, config, &location );
-<<<<<<< HEAD
-    else if ( request.getMethod() == Request::POST )
-        return POST_handler( requestPath, request, config, &location );
-    // else if ( request.getMethod() == Request::DELETE )
-    // 	DELETE_handler( request, response, config, location );
-    return response;
-=======
 	else if ( request.getMethod() == Request::POST )
 		return POST_handler( requestPath, request, config, &location );
 	else if ( request.getMethod() == Request::DELETE )
 		return DELETE_handler( requestPath, request, config, &location );
 	return response;
->>>>>>> tijmen
 }
