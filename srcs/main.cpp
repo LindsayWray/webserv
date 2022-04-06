@@ -18,6 +18,7 @@ void	takeRequest(webserv::serverData& serverData, int current_fd ) {
 	serverData.requests[current_fd] += serverData.buf;
 	if ( serverData.requests[current_fd].find("\r\n\r\n") != std::string::npos ){
 		try{
+			serverData.requests[current_fd] = serverData.requests[current_fd].substr(0, serverData.requests[current_fd].find("\r\n\r\n"));
 			webserv::Request request( serverData.requests[current_fd] );
 			std::cout << "made request object" << std::endl;
 			HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd] );
