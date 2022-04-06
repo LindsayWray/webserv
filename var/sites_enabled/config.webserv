@@ -31,7 +31,7 @@ server {
 
 	location /images/limited/ {
 		root /var/www/html/resources;
-		limit_method POST DELETE GET;
+		limit_method POST;
 	}
 		
 }
@@ -45,7 +45,18 @@ server {
 
 server {
     listen 8100;
-    server_name     webserv.com www.webserv.com;
+    server_name     webserv.com;
+
+
+    location / {
+		autoindex off;
+    	root    /var/www/html;
+    }
+}
+
+server {
+    listen 8100;
+    server_name     wonderkind.nl;
 
 
     location / {

@@ -83,6 +83,6 @@ int webserv::init_servers( webserv::serverData &serverData, std::string filename
             EV_SET( &in_events[i++], socket_tmp->get_sock(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
         }
     }
-    return kevent( serverData.kqData.kq, in_events, sockets, NULL, 0,
-                   NULL );  //  register all listening sockets at once
+
+    return kevent( serverData.kqData.kq, in_events, sockets, NULL, 0, NULL );  //  register all listening sockets at once
 }
