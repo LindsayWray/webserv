@@ -29,6 +29,12 @@ static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string ext
 	catch (...) {
 		response.addType("text/plain");   //temporary fix until directory handling 
 	}
+	/* START TEST CODE 1_A */
+	std::ofstream testFile;
+	testFile.open("/Users/tel-bara/Documents/CODAM/webserv/responseFromFile.txt", std::ios::binary);
+	testFile << body;
+	testFile.close();
+	/* END TEST CODE 1_A */
 	return response;
 }
 
@@ -130,6 +136,13 @@ HTTPResponseMessage POST_handler( std::string& requestPath, Request request, web
 	std::string extension = file_extension(requestPath);
 	std::cout << "EXTENSION: "  << extension << std::endl;
 	std::string fullPath = location->root + requestPath;
+
+	/* START TEST CODE 1_B */
+	std::ofstream testFile;
+	testFile.open("/Users/tel-bara/Documents/CODAM/webserv/POST_handler.txt", std::ios::binary);
+	testFile << request.getBody();
+	testFile.close();
+	/* END TEST CODE 1_B */
 
 	struct stat buf;
 	bool fileAlreadyExists = (::stat(fullPath.c_str(), &buf) != -1);
