@@ -12,6 +12,6 @@ add_executable(webserv srcs/main.cpp
         srcs/config/configParser.cpp srcs/config/configParserSetters.cpp srcs/config/configParserLocation.cpp srcs/config/configParserUtils.cpp )
 add_executable(catchConfig testers/catch2/catch.hpp testers/catch2/main.cpp testers/catch2/configParsing.cpp srcs/config/configParser.cpp 
 		testers/testConfigTester/parentConfigTester.cpp testers/testConfigTester/testConfigParser.hpp srcs/utils/printFormatting.hpp srcs/config/configParserLocation.cpp srcs/config/configParserUtils.cpp srcs/config/configParserSetters.cpp srcs/utils/webservInit.cpp srcs/utils/dataStructs.cpp srcs/utils/webserv.hpp srcs/utils/webserv.cpp)
-add_executable(parentConfigTester testers/testConfigTester/parentConfigTester.cpp srcs/config/configParser.cpp)
+#add_executable(testers/testConfigTester/parentConfigTester.cpp srcs/config/configParser.cpp)
 include_directories(srcs/config)
 add_subdirectory(testers/catch2)

@@ -54,13 +54,3 @@ server {
     }
 }
 
-server {
-    listen 8100;
-    server_name     wonderkind.nl;
-
-
-    location / {
-		autoindex off;
-    	root    /var/www/html;
-    }
-}

@@ -12,16 +12,16 @@ namespace webserv {
 
     typedef struct serverData {
         webserv::kqConData kqData;
-        SERVER_MAP serverMap;
         int CGI;
         int location_index;
         int current_fd;
 
-        std::map<std::pair<int, std::string>, httpData *> host_servername;
-        std::map<int, httpData *> default_server;
+        SERVER_MAP serverMap; //key = fd
+        std::map<std::pair<int,std::string>, httpData *> host_servername; //key = port & servername
+        std::map<int, httpData *> default_server; //key = port
+        std::map<int, httpData *> clientSockets;
         std::map<int, std::string> requests;
         std::map<int, std::string> responses;
-        std::map<int, httpData *> clientSockets;
 
         char *buf;
         int buflen;

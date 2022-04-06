@@ -4,18 +4,21 @@
 
 #include "configParser.hpp"
 
-int webserv::configParser::setSocket( socketData *socketData ) {
+int webserv::configParser::setSocket( socketData *socketData, httpData *httpData ) {
+    int port;
     if ( _isWrongInput( NULL )){
         _errorCode = SOCKET;
         return ERROR;
     }
     try {
-        socketData->addPort( stoi( *_it++ ));
+        port = stoi( *_it++ );
     } catch ( std::exception &e ) { // TODO:: test to see if "iterator out of bounds" will be catched properly;
         std::cerr << "configParser::setSocket " << *_it << " " << e.what() << std::endl;
         _errorCode = SOCKET;
         return ERROR;
     }
+    socketData->addPort( port);
+    httpData->port = port;
     return _endOfLine( SOCKET );
 }
 

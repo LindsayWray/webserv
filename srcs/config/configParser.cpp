@@ -60,9 +60,9 @@ int webserv::configParser::parseIntoPieces( socketData *socketData, httpData *ht
         return ERROR;
     while ( ++_it != _tokens.end() && *_it != "}" ) {
         if ( *_it == "listen" )
-            ret = setSocket( socketData );
-        else if ( *_it == "worker_connections" )
-            ret = setWorkerConnections( socketData );
+            ret = setSocket( socketData, httpData );
+//        else if ( *_it == "worker_connections" )
+//            ret = setWorkerConnections( socketData );
         else if ( *_it == "index" )
             ret = setIndex( httpData );
         else if ( *_it == "location" )

@@ -50,7 +50,7 @@ namespace webserv {
 
         int parseIntoPieces( socketData *socketData, httpData *httpData );
 
-        int setSocket( socketData *socketData );
+        int setSocket( socketData *socketData, httpData *httpData );
 
         int setIndex( httpData *httpData );
 
