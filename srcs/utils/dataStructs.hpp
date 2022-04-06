@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <netinet/in.h>
 #include <algorithm>
@@ -56,8 +57,8 @@ namespace webserv {
         std::map<int, std::string> error_page;
         std::pair<int, std::string> redirect;
         std::vector<locationData> locations;
-        std::map<std::string, std::string> created_files;
         int max_client_body_size; // in kb
+        std::set<std::string> created_files;
 
         httpData( std::string root );
 

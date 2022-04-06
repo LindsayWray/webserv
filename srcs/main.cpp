@@ -2,6 +2,7 @@
 #include "utils/webserv.hpp"
 
 int main( int argc, char **argv, char **env ) {
+
     if ( argc > 2 ) {
         std::cout << "Incorrect program usage\n	RUN: ./webserv [configuration file]\n";
         return EXIT_FAILURE;
