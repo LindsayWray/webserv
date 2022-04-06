@@ -27,22 +27,19 @@ int init_servers( webserv::serverData &serverData, std::string filename, char **
     serverData.buflen = 1024;
     serverData.buf = new char[serverData.buflen + 1];
     serverData.buf[serverData.buflen] = '\0';
-
-    /*
-     * this next block parses the config file by server{ } block
-     * all the ports are saved per server in socketData
-     * this might be obsolete in the current setup but works for now
-     * all the server specific data is saved in httpData
-     *
-     * kqData has:
-     * kq
-     */
+	if ( object.checkErrorCode() == ERROR )
+		return ERROR;
     do {
         http_vec.push_back( new webserv::httpData( root ));
         socket_vec.push_back( new webserv::socketData());
         ret = object.parseIntoPieces( socket_vec[server], http_vec[server] );
-        if ( ret == ERROR )
-            return ERROR;
+        if ( object.checkErrorCode() == ERROR ){
+        	for ( ; server >= 0; server-- ){
+        		delete socket_vec[server];
+        		delete http_vec[server];
+        	}
+			return ERROR;
+		}
         http_vec.back()->env = env;
         sockets += socket_vec.back()->ports.size();
         server++;
@@ -55,15 +52,6 @@ int init_servers( webserv::serverData &serverData, std::string filename, char **
         return ERROR;
     }
 
-
-    /*
-     * serverMap consists of:
-     * first type : fd of the socket we are listening to;
-     * second type: pair of listeningSocket and httpData connected to that socket
-     *
-     * in the next block are all sockets initialized and put in the serverMap
-     * also all the listening kevent elements are set with EV_SET
-     */
     struct kevent in_events[sockets];
     webserv::listeningSocket *socket_tmp;
     int i = 0;

@@ -2,7 +2,7 @@
 
 const std::map<int, const std::string> HTTPResponseMessage::responseStatusMessages =
         {
-                { 200, "OK" },                        /* SUCCESS */
+                { 200, "OK" },                        /* SUCCES */
                 { 201, "Created" },
                 { 202, "Accepted" },
                 { 204, "No Content" },

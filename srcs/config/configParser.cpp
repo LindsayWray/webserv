@@ -5,21 +5,18 @@
 #include "configParser.hpp"
 
 webserv::configParser::configParser( std::string config_file ) {
-    // system("pwd");
-    // std::cout << config_file << std::endl;
-    // _configFile.open( "var/sites_enabled/config.webserv", std::fstream::in );
-    // if ( _configFile.fail() )
-    // 	std::cerr << "opening file failed" << std::endl;
-
     _configFile.open( config_file, std::fstream::in );
+    _errorCode = NONE;
     if ( _configFile.fail())
-        std::cerr << "opening file failed" << std::endl;
-    if ( _configFile.bad())
-        std::cerr << "opened file is bad" << std::endl;
-    if ( _configFile.eof())
-        std::cerr << "end of file while opening" << std::endl;
-    tokenizer();
-    _it = _tokens.begin();
+        _errorCode = NOFILE;
+    else if ( _configFile.bad())
+        _errorCode = BADFILE;
+    else if ( _configFile.eof())
+        _errorCode = EMPTYFILE;
+    else {
+		tokenizer();
+		_it = _tokens.begin();
+	}
     return;
 }
 
@@ -77,7 +74,7 @@ int webserv::configParser::parseIntoPieces( socketData *socketData, httpData *ht
         else if ( *_it == "return" )
             ret = setRedirect( httpData );
         else if ( *_it == "}" )
-            return SUCCESS;
+            return SUCCES;
         if ( ret == ERROR )
             return ret;
     }
@@ -85,7 +82,7 @@ int webserv::configParser::parseIntoPieces( socketData *socketData, httpData *ht
         httpData->locations.push_back( webserv::locationData( httpData->abs_path ));
     if ( *( _it++ ) == "}" && _it != _tokens.end())
         return NEOF;
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::setSocket( socketData *socketData ) {
@@ -93,12 +90,15 @@ int webserv::configParser::setSocket( socketData *socketData ) {
         socketData->addPort( stoi( *( ++_it )));
     } catch ( std::exception &e ) { // TODO:: test to see if "iterator out of bounds" will be catched properly;
         std::cerr << "configParser::setSocket " << *_it << " " << e.what() << std::endl;
+		_errorCode = SOCKET;
         return ERROR;
     }
-    if ( _it == _tokens.end() || *( ++_it ) != ";" )
-        return ERROR;
+    if ( _it == _tokens.end() || *( ++_it ) != ";" ){
+    	_errorCode = SOCKET;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::setWorkerConnections( socketData *socketData ) {
@@ -106,77 +106,100 @@ int webserv::configParser::setWorkerConnections( socketData *socketData ) {
         socketData->worker_connections = stoi( *( ++_it ));
     } catch ( std::exception &e ) {
         std::cerr << "configParser::setWorkerConnections " << *_it << " " << e.what() << std::endl;
+		_errorCode = WORKERC;
         return ERROR;
     }
-    if ( _it == _tokens.end() || *( ++_it ) != ";" )
-        return ERROR;
+    if ( _it == _tokens.end() || *( ++_it ) != ";" ){
+		_errorCode = WORKERC;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::setIndex(
         httpData *httpData ) { // TODO:: iterating untill ";" will give false positive in case of no ";" in file
-    if ( _isWrongInput( NULL ))
-        return ERROR;
+    if ( _isWrongInput( NULL )){
+		_errorCode = INDEX;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *_it != ";"; _it++ )
         httpData->index.push_back( *_it );
-    if ( _it == _tokens.end() || *( _it ) != ";" )
-        return ERROR;
+    if ( _it == _tokens.end() || *( _it ) != ";" ){
+		_errorCode = INDEX;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::setServerName(
         httpData *httpData ) { // TODO:: iterating untill ";" will give false positive in case of no ";" in file
-    if ( _isWrongInput( NULL ))
-        return ERROR;
+    if ( _isWrongInput( NULL )){
+		_errorCode = SERVERNAME;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *_it != ";"; _it++ )
         httpData->server_name.push_back( *_it );
-    if ( _it == _tokens.end() || *( _it ) != ";" )
-        return ERROR;
+    if ( _it == _tokens.end() || *( _it ) != ";" ){
+		_errorCode = SERVERNAME;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::setRedirect( httpData *httpData ) {
     int code;
-    if ( _isWrongInput( NULL ))
-        return ERROR;
-    if ( httpData->redirect.first != -1 )
-        return ERROR;
+    if ( _isWrongInput( NULL )){
+		_errorCode = REDIRECT;
+		return ERROR;
+	}
+    if ( httpData->redirect.first != -1 ){
+		_errorCode = REDIRECT;
+		return ERROR;
+	}
     try {
         code = std::stoi( *( _it++ ));
     } catch ( std::exception &e ) {
-        std::cerr << "configParser::setRedirect " << *_it << " " << e.what()
-                  << std::endl; // TODO:: check if catch catches out of bound etc...
+        std::cerr << "configParser::setRedirect " << *_it << " " << e.what() << std::endl; // TODO:: check if catch catches out of bound etc...
+		_errorCode = REDIRECT;
         return ERROR;
     }
-    if ( code != 301 && code != 302 && code != 303 && code != 307 )
-        return ERROR;
+    if ( code != 301 && code != 302 && code != 303 && code != 307 ){
+		_errorCode = REDIRECT;
+		return ERROR;
+	}
     httpData->redirect = std::make_pair( code, ( *_it ));
     if ( httpData->redirect.second.find( "$uri" ) != std::string::npos )
-        if ( httpData->redirect.second.find( "$uri" ) + 4 < httpData->redirect.second.size())
-            return ERROR;
-    if ( _it == _tokens.end() ||
-         *( ++_it ) != ";" ) // TODO:: check different url's to see if some charachters mess up the tokenizer
-        return ERROR;
+        if ( httpData->redirect.second.find( "$uri" ) + 4 < httpData->redirect.second.size()){
+			_errorCode = REDIRECT;
+			return ERROR;
+		}
+    if ( _it == _tokens.end() || *( ++_it ) != ";" ){ // TODO:: check different url's to see if some charachters mess up the tokenizer
+		_errorCode = REDIRECT;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::setErrorPage( httpData *httpData ) {
-    if ( _isWrongInput( NULL ))
+    if ( _isWrongInput( NULL )){
+		_errorCode = ERRORPAGE;
         return ERROR;
+    }
     for ( ; _it != _tokens.end() && *_it != ";"; _it++ ) {
         try {
             httpData->error_page.insert( std::make_pair( std::stoi( *( _it++ )), ( *_it )));
         } catch ( std::exception &e ) {
             std::cerr << "configParser::setErrorPage " << *_it << " " << e.what() << std::endl;
+			_errorCode = ERRORPAGE;
             return ERROR;
         }
     }
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 static void _insertBefore( webserv::httpData *httpData, webserv::locationData &element ) {
@@ -188,26 +211,26 @@ static void _insertBefore( webserv::httpData *httpData, webserv::locationData &e
 }
 
 int webserv::configParser::setLocation( httpData *httpData ) {
-    int ret = SUCCESS;
+    int ret = SUCCES;
     webserv::locationData element( httpData->abs_path );
     ret = _setLocation( element );
-    if ( ret == SUCCESS && *_it == "{" ) {
+    if ( ret == SUCCES && *_it == "{" ) {
         while ( ++_it != _tokens.end() && *_it != "}" ) {
-            if ( *_it == "root" )
+			if ( *_it == "root" )
                 ret = _setRoot( element );
-//			else if ( *_it == "add_header" )
-//				ret = _setAllowedResponse( element );
-            else if ( *_it == "autoindex" )
+			else if ( *_it == "add_header" )
+				ret = _setAllowedResponse( element );
+			else if ( *_it == "autoindex" )
                 ret = _setAutoindex( element );
-            else if ( *_it == "cgi_param" )
+			else if ( *_it == "cgi_param" )
                 ret = _setCgiParam( element );
-            else
+			else
                 ret = ERROR;
             if ( ret )
                 return ret;
         }
     } else
-        return ERROR;
+		return ERROR;
     if ( httpData->locations.size() > 0 && element.path.size() > httpData->locations.back().path.size())
         _insertBefore( httpData, element );
     else
@@ -224,52 +247,66 @@ webserv::TokenType webserv::configParser::getTokens( void ) {
 }
 
 int webserv::configParser::_setLocation( locationData &element ) {
-    if ( _isWrongInput( "{" ))
+    if ( _isWrongInput( "{" )){
+		_errorCode = LOCATION;
         return ERROR;
+    }
     return element.tokenizer( *_it++ );
 }
 
 int webserv::configParser::_setRoot( locationData &element ) {
-    if ( _isWrongInput( ";" ))
+    if ( _isWrongInput( ";" )){
+		_errorCode = ROOT;
         return ERROR;
+    }
     element.root.append( *_it );
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::_setCgiParam( locationData &element ) {
-    if ( _isWrongInput( ";" ))
-        return ERROR;
-    if ( element.cgi_param != "NONE" )
-        return ERROR;
+    if ( _isWrongInput( ";" )){
+		_errorCode = CGIPARAM;
+		return ERROR;
+	}
+    if ( element.cgi_param != "NONE" ){
+		_errorCode = CGIPARAM;
+		return ERROR;
+	}
     element.cgi_param = *_it;
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
     element.CGI = true;
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::_setAllowedResponse( locationData &element ) {
-    if ( _isWrongInput( ";" ))
-        return ERROR;
+    if ( _isWrongInput( ";" )){
+		_errorCode = ALLOWEDRESPONSE;
+		return ERROR;
+	}
 
     // TODO:: figure right wy to format this
 //	if ( *_it != "GET" ) )
 //		element.allowed_response[GET] = true;
 
-    return SUCCESS;
+    return SUCCES;
 }
 
 int webserv::configParser::_setAutoindex( locationData &element ) {
-    if ( _isWrongInput( ";" ))
-        return ERROR;
+    if ( _isWrongInput( ";" )){
+		_errorCode = AUTOINDEX;
+		return ERROR;
+	}
     if ( *_it == "on" )
         element.autoindex = true;
     else if ( *_it == "off" )
         element.autoindex = false;
-    else
-        return ERROR;
+    else {
+		_errorCode = AUTOINDEX;
+		return ERROR;
+	}
     for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCESS;
+    return SUCCES;
 }
 
 bool webserv::configParser::_isWrongInput( char *str ) {
@@ -286,5 +323,40 @@ bool webserv::configParser::_isWrongInput( char *str ) {
     return false;
 }
 
+int webserv::configParser::checkErrorCode( void ){
+	if ( _errorCode == NONE )
+		return SUCCES;
+	switch ( _errorCode ){
+		case NOFILE:
+			std::cerr << "File error: No File" << std::endl; break;
+		case BADFILE:
+			std::cerr << "File error: Bad File" << std::endl; break;
+		case EMPTYFILE:
+			std::cerr << "File error: Empty File" << std::endl; break;
+		case SOCKET:
+			std::cerr << "Parsing error: Port definition" << std::endl; break;
+		case WORKERC:
+			std::cerr << "Parsing error: Worker connections" << std::endl; break;
+		case INDEX:
+			std::cerr << "Parsing error: Index definition" << std::endl; break;
+		case LOCATION:
+			std::cerr << "Parsing error: Location definition" << std::endl; break;
+		case SERVERNAME:
+			std::cerr << "Parsing error: Server_name definition" << std::endl; break;
+		case ERRORPAGE:
+			std::cerr << "Parsing error: Error_page definition" << std::endl; break;
+		case REDIRECT:
+			std::cerr << "Parsing error: Redirect/return definition" << std::endl; break;
+		case ROOT:
+			std::cerr << "Parsing error: Root definition" << std::endl; break;
+		case CGIPARAM:
+			std::cerr << "Parsing error: CGI_param definition" << std::endl; break;
+		case ALLOWEDRESPONSE:
+			std::cerr << "Parsing error: Add_header definition" << std::endl; break;
+		case AUTOINDEX:
+			std::cerr << "Parsing error: Autoindex definition" << std::endl; break;
+	}
+	return ERROR;
+}
 
 

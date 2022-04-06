@@ -82,7 +82,7 @@ int main( int argc, char** argv, char** env ){
 	std::cout << BOLDYELLOW << "testfile 1, 1 server" << RESET << std::endl;
 	ret = test1.parseIntoPieces( &socket1, &http1 );
 	testOneServer( ret, http1, socket1, env );
-	std::cout << BLUE << "ret parsing: " << ret << " expected: " << SUCCESS << RESET << std::endl;
+	std::cout << BLUE << "ret parsing: " << ret << " expected: " << SUCCES << RESET << std::endl;
 
 	std::cout << BOLDYELLOW << "\ntestfile 2, 3 server" << RESET << std::endl;
 	ret = test2.parseIntoPieces( &socket2, &http2 );
@@ -93,7 +93,7 @@ int main( int argc, char** argv, char** env ){
 	std::cout << BLUE << "server: 2 ret parsing: " << ret << " expected: " << NEOF << RESET << std::endl;
 	ret = test2.parseIntoPieces( &socket4, &http4 );
 	testOneServer( ret, http4, socket4, env );
-	std::cout << BLUE << "server: 3 ret parsing: " << ret << " expected: " << SUCCESS << RESET << std::endl;
+	std::cout << BLUE << "server: 3 ret parsing: " << ret << " expected: " << SUCCES << RESET << std::endl;
 	ret = test2.parseIntoPieces( &socket5, &http5 );
 	std::cout << BLUE << "server: NAV ret parsing: " << ret << " expected: " << ERROR << RESET << std::endl;
 
