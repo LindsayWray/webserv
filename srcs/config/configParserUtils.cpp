@@ -11,6 +11,24 @@ webserv::TokenType webserv::configParser::getTokens( void ) {
     return _tokens;
 }
 
+bool webserv::configParser::_isCorrectCode( int input ){
+    switch (input){
+        case 400: return true;
+        case 403: return true;
+        case 404: return true;
+        case 408: return true;
+        case 411: return true;
+        case 414: return true;
+        case 418: return true;
+        case 429: return true;
+        case 431: return true;
+        case 500: return true;
+        case 501: return true;
+        case 505: return true;
+    }
+    return false;
+}
+
 bool webserv::configParser::_isWrongInput( char *str ) {
     if ( ++_it == _tokens.end())
         return true;
@@ -23,6 +41,15 @@ bool webserv::configParser::_isWrongInput( char *str ) {
     if ( str && *( _it + 1 ) != str )
         return true;
     return false;
+}
+
+int webserv::configParser::_endOfLine( int errorcode ) {
+    if ( _it == _tokens.end() || *_it != ";" ) {
+        _errorCode = errorcode;
+        return ERROR;
+    }
+    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ );
+    return SUCCES;
 }
 
 int webserv::configParser::checkErrorCode( void ){
@@ -55,7 +82,7 @@ int webserv::configParser::checkErrorCode( void ){
             std::cerr << "Parsing error: Root definition" << std::endl; break;
         case CGIPARAM:
             std::cerr << "Parsing error: CGI_param definition" << std::endl; break;
-        case ALLOWEDRESPONSE:
+        case LIMITEDMETHOD:
             std::cerr << "Parsing error: Add_header definition" << std::endl; break;
         case AUTOINDEX:
             std::cerr << "Parsing error: Autoindex definition" << std::endl; break;

@@ -20,8 +20,8 @@ int webserv::configParser::setLocation( httpData *httpData ) {
         while ( ++_it != _tokens.end() && *_it != "}" ) {
             if ( *_it == "root" )
                 ret = _setRoot( element );
-            else if ( *_it == "add_header" )
-                ret = _setAllowedResponse( element );
+            else if ( *_it == "limit_method" )
+                ret = _setLimitedMethod( element );
             else if ( *_it == "autoindex" )
                 ret = _setAutoindex( element );
             else if ( *_it == "cgi_param" )
@@ -53,9 +53,8 @@ int webserv::configParser::_setRoot( locationData &element ) {
         _errorCode = ROOT;
         return ERROR;
     }
-    element.root.append( *_it );
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCES;
+    element.root.append( *_it++ );
+    return _endOfLine( ROOT );
 }
 
 int webserv::configParser::_setCgiParam( locationData &element ) {
@@ -67,23 +66,30 @@ int webserv::configParser::_setCgiParam( locationData &element ) {
         _errorCode = CGIPARAM;
         return ERROR;
     }
-    element.cgi_param = *_it;
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
+    element.cgi_param = *_it++;
     element.CGI = true;
-    return SUCCES;
+    return _endOfLine( LIMITEDMETHOD );
 }
 
-int webserv::configParser::_setAllowedResponse( locationData &element ) {
-    if ( _isWrongInput( ";" )){
-        _errorCode = ALLOWEDRESPONSE;
+int webserv::configParser::_setLimitedMethod( locationData &element ) {
+    if ( _isWrongInput( NULL )){
+        _errorCode = LIMITEDMETHOD;
         return ERROR;
     }
-
-    // TODO:: figure right wy to format this
-//	if ( *_it != "GET" ) )
-//		element.allowed_response[GET] = true;
-
-    return SUCCES;
+    for ( int i = 0; i < 3 && *_it != ";" ; i++ ){
+        if ( *_it == "GET" )
+            element.allowed_response[webserv::Request::GET] = true;
+        else if ( *_it == "POST" )
+            element.allowed_response[webserv::Request::POST] = true;
+        else if ( *_it == "DELETE" )
+            element.allowed_response[webserv::Request::DELETE] = true;
+        else {
+            _errorCode = LIMITEDMETHOD;
+            return ERROR;
+        }
+        _it++;
+    }
+    return _endOfLine( LIMITEDMETHOD );
 }
 
 int webserv::configParser::_setAutoindex( locationData &element ) {
@@ -99,6 +105,6 @@ int webserv::configParser::_setAutoindex( locationData &element ) {
         _errorCode = AUTOINDEX;
         return ERROR;
     }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCES;
+    _it++;
+    return _endOfLine( AUTOINDEX );
 }

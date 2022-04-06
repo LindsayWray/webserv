@@ -1,19 +1,40 @@
 //
-// Created by Kester kas De rooij on 3/23/22.
+// Created by Kester kas De rooij on 4/6/22.
 //
 
-#ifndef WEBSERV_KQUEUEUTILS_HPP
-#define WEBSERV_KQUEUEUTILS_HPP
-
+#include "webservInit.hpp"
 #include "../config/configParser.hpp"
-#include "../utils/stringUtils.hpp"
-#include "../http/HTTPResponseMessage.hpp"
 #include <sys/event.h>
-#include "webserv.hpp"
 
-#define MAX_EVENTS 1024
+int webserv::findPWD( char **env ) {
+    std::string pwd = "PWD=";
+    int i = 0, found;
 
-int init_servers( webserv::serverData &serverData, std::string filename, char **env ) {
+    for ( ; env[i]; i++ ) {
+        found = 1;
+        for ( int j = 0; j < 4 && env[i][j]; j++ ) {
+            if ( env[i][j] != pwd[j] )
+                found = 0;
+        }
+        if ( found )
+            break;
+    }
+    if ( !found )
+        return -1;
+    return i;
+}
+
+std::string webserv::setFileLocation( char **env ) {
+    int pwd = findPWD( env );
+    if ( pwd == ERROR )
+        return "PWDNOTFOUND";
+    std::string current( env[pwd] );
+    int pos = current.find( "webserv" );
+    std::string root = current.substr( 4, pos + 3 );
+    return root;
+}
+
+int webserv::init_servers( webserv::serverData &serverData, std::string filename, char **env ) {
     std::string root = webserv::setFileLocation( env );
     std::string configFile = root;
     configFile.append( "/var/sites_enabled/" );
@@ -27,19 +48,19 @@ int init_servers( webserv::serverData &serverData, std::string filename, char **
     serverData.buflen = 1024;
     serverData.buf = new char[serverData.buflen + 1];
     serverData.buf[serverData.buflen] = '\0';
-	if ( object.checkErrorCode() == ERROR )
-		return ERROR;
+    if ( object.checkErrorCode() == ERROR )
+        return ERROR;
     do {
         http_vec.push_back( new webserv::httpData( root ));
         socket_vec.push_back( new webserv::socketData());
         ret = object.parseIntoPieces( socket_vec[server], http_vec[server] );
         if ( object.checkErrorCode() == ERROR ){
-        	for ( ; server >= 0; server-- ){
-        		delete socket_vec[server];
-        		delete http_vec[server];
-        	}
-			return ERROR;
-		}
+            for ( ; server >= 0; server-- ){
+                delete socket_vec[server];
+                delete http_vec[server];
+            }
+            return ERROR;
+        }
         http_vec.back()->env = env;
         sockets += socket_vec.back()->ports.size();
         server++;
@@ -65,5 +86,3 @@ int init_servers( webserv::serverData &serverData, std::string filename, char **
     return kevent( serverData.kqData.kq, in_events, sockets, NULL, 0,
                    NULL );  //  register all listening sockets at once
 }
-
-#endif //WEBSERV_KQUEUEUTILS_HPP

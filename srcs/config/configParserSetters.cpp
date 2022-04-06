@@ -10,18 +10,13 @@ int webserv::configParser::setSocket( socketData *socketData ) {
         return ERROR;
     }
     try {
-        socketData->addPort( stoi( *_it ));
+        socketData->addPort( stoi( *_it++ ));
     } catch ( std::exception &e ) { // TODO:: test to see if "iterator out of bounds" will be catched properly;
         std::cerr << "configParser::setSocket " << *_it << " " << e.what() << std::endl;
         _errorCode = SOCKET;
         return ERROR;
     }
-    if ( _it == _tokens.end() || *( ++_it ) != ";" ){
-        _errorCode = SOCKET;
-        return ERROR;
-    }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCES;
+    return _endOfLine( SOCKET );
 }
 
 int webserv::configParser::setWorkerConnections( socketData *socketData ) {
@@ -36,12 +31,7 @@ int webserv::configParser::setWorkerConnections( socketData *socketData ) {
         _errorCode = WORKERC;
         return ERROR;
     }
-    if ( _it == _tokens.end() || *( ++_it ) != ";" ){
-        _errorCode = WORKERC;
-        return ERROR;
-    }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCES;
+    return _endOfLine( WORKERC );
 }
 
 int webserv::configParser::setIndex(
@@ -51,12 +41,7 @@ int webserv::configParser::setIndex(
         return ERROR;
     }
     httpData->index.push_back( *_it++ );
-    if ( _it == _tokens.end() || *( _it ) != ";" ){
-        _errorCode = INDEX;
-        return ERROR;
-    }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCES;
+    return _endOfLine( INDEX );
 }
 
 int webserv::configParser::setServerName(
@@ -67,12 +52,7 @@ int webserv::configParser::setServerName(
     }
     for ( ; _it != _tokens.end() && *_it != ";"; _it++ )
         httpData->server_name.push_back( *_it );
-    if ( _it == _tokens.end() || *( _it ) != ";" ){
-        _errorCode = SERVERNAME;
-        return ERROR;
-    }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCES;
+    return _endOfLine( SERVERNAME );
 }
 
 int webserv::configParser::setRedirect( httpData *httpData ) {
@@ -97,18 +77,13 @@ int webserv::configParser::setRedirect( httpData *httpData ) {
         _errorCode = REDIRECT;
         return ERROR;
     }
-    httpData->redirect = std::make_pair( code, ( *_it ));
+    httpData->redirect = std::make_pair( code, ( *_it++ ));
     if ( httpData->redirect.second.find( "$uri" ) != std::string::npos )
         if ( httpData->redirect.second.find( "$uri" ) + 4 < httpData->redirect.second.size()){
             _errorCode = REDIRECT;
             return ERROR;
         }
-    if ( _it == _tokens.end() || *( ++_it ) != ";" ){ // TODO:: check different url's to see if some charachters mess up the tokenizer
-        _errorCode = REDIRECT;
-        return ERROR;
-    }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ );
-    return SUCCES;
+    return _endOfLine( REDIRECT );
 }
 
 int webserv::configParser::setErrorPage( httpData *httpData ) {
@@ -123,14 +98,18 @@ int webserv::configParser::setErrorPage( httpData *httpData ) {
     for ( ; _it != _tokens.end() && *_it != ";"; _it++ ) {
         filepath = httpData->abs_path;
         try {
-            error_code = std::stoi( *( _it++ ));
+            error_code = std::stoi( *_it );
         } catch ( std::exception &e ) {
             std::cerr << "configParser::setErrorPage " << *_it << " " << e.what() << std::endl;
             _errorCode = ERRORPAGE;
             return ERROR;
         }
+        if ( !_isCorrectCode( error_code ) ){
+            _errorCode = ERRORPAGE;
+            return ERROR;
+        }
         filepath.append("/var/error_pages/");
-        filepath.append(*_it );
+        filepath.append(*++_it );
         file.open( filepath );
         if ( file.good()) {
             while ( std::getline( file, line ))
@@ -143,8 +122,7 @@ int webserv::configParser::setErrorPage( httpData *httpData ) {
         }
         httpData->error_page.insert( std::make_pair( error_code, body));
     }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ );
-    return SUCCES;
+    return _endOfLine( ERRORPAGE );
 }
 
 int webserv::configParser::setClientMaxBodySize( webserv::httpData *httpData ) {
@@ -153,7 +131,7 @@ int webserv::configParser::setClientMaxBodySize( webserv::httpData *httpData ) {
         return ERROR;
     }
     try {
-        httpData->max_client_body_size = stoi( *_it );
+        httpData->max_client_body_size = stoi( *_it++ );
     } catch ( std::exception &e ) {
         std::cerr << "configParser::setClientMaxBodySize " << *_it << " " << e.what() << std::endl;
         _errorCode = MAXBODY;
@@ -163,10 +141,5 @@ int webserv::configParser::setClientMaxBodySize( webserv::httpData *httpData ) {
         _errorCode = MAXBODY;
         return ERROR;
     }
-    if ( _it == _tokens.end() || *( ++_it ) != ";" ){
-        _errorCode = MAXBODY;
-        return ERROR;
-    }
-    for ( ; _it != _tokens.end() && *( _it + 1 ) == ";"; _it++ ) {}
-    return SUCCES;
+    return _endOfLine( MAXBODY );
 }

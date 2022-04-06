@@ -6,7 +6,7 @@
 #include "../sockets/listeningSocket.hpp"
 #include "../http/Request.hpp"
 #include "../http/HTTPResponseMessage.hpp"
-#include "../utils/webserv.hpp"
+#include "../utils/webservInit.hpp"
 
 #define FINISHED true
 #define NOT_FINISHED false
