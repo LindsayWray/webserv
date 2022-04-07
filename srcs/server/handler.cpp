@@ -30,10 +30,10 @@ static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string ext
 		response.addType("text/plain");   //temporary fix until directory handling 
 	}
 	/* START TEST CODE 1_A */
-	std::ofstream testFile;
-	testFile.open("/Users/lwray/Documents/webserv/responseFromFile.txt", std::ios::binary);
-	testFile << body;
-	testFile.close();
+	// std::ofstream testFile;
+	// testFile.open("/Users/lwray/Documents/webserv/responseFromFile.txt", std::ios::binary);
+	// testFile << body;
+	// testFile.close();
 	/* END TEST CODE 1_A */
 	return response;
 }
@@ -109,10 +109,10 @@ HTTPResponseMessage POST_handler( std::string& requestPath, Request request, web
 	std::string fullPath = location->root + requestPath;
 
 	/* START TEST CODE 1_B */
-	std::ofstream testFile;
-	testFile.open("/Users/lwray/Documents/webserv/POST_handler.txt", std::ios::binary);
-	testFile << request.getBody();
-	testFile.close();
+	// std::ofstream testFile;
+	// testFile.open("/Users/lwray/Documents/webserv/POST_handler.txt", std::ios::binary);
+	// testFile << request.getBody();
+	// testFile.close();
 	/* END TEST CODE 1_B */
 
 	struct stat buf;
