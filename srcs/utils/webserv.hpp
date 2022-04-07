@@ -1,30 +1,19 @@
+//
+// Created by Kester kas De rooij on 4/6/22.
+//
+
 #ifndef WEBSERV_WEBSERV_HPP
 #define WEBSERV_WEBSERV_HPP
 
+#include "dataStructs.hpp"
+#include "../server/server.hpp"
+#include "../http/HTTPResponseMessage.hpp"
 
-#include "../sockets/listeningSocket.hpp"
-#include <unistd.h>
+namespace webserv{
+    void disconnected( int fd, int &nbr_conn );
+    int findRequestedLocation( webserv::httpData *config, std::vector<std::string> path );
+    void takeRequest( webserv::serverData &serverData, int current_fd, int bytesread );
+    void processEvent( webserv::serverData &serverData, struct kevent &event );
+}
 
-#define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*> >
-
-namespace webserv {
-
-    typedef struct serverData {
-        webserv::kqConData kqData;
-        SERVER_MAP serverMap;
-
-        // int CGI;
-        // int location_index;
-        // int current_fd;
-
-		std::map<int, std::pair<int, std::string> > cgi_repsonses; // key: cgi_pipe, value: client_socket + cgi_response
-        std::map<int, std::string> requests;
-        std::map<int, std::string> responses;
-        std::map<int, webserv::httpData *> clientSockets;
-
-        char *buf;
-        int buflen;
-    } serverData;
-};
-
-#endif
+#endif //WEBSERV_WEBSERV_HPP

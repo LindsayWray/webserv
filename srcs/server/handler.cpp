@@ -12,43 +12,35 @@ static std::string file_extension( std::string path ) {
     return path.substr( pos + 1 ); // +1 to skip the .
 }
 
-static HTTPResponseMessage
-responseFromFile( std::ifstream &file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
-    HTTPResponseMessage response;
-    std::string line;
-    std::string body( "" );
+static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode) {
+	HTTPResponseMessage response;
+	std::string line;
+	std::string body("");
 
-    while ( std::getline( file, line ))
-        body += ( line + '\n' );
-    file.close();
-    response.addStatus( statusCode )
-            .addLength( body.length())
-            .addBody( body );
-    try {
-        response.addType( HTTPResponseMessage::contentTypes.at( extension ));
-    }
-    catch ( ... ) {
-        response.addType( "text/plain" );   //temporary fix until directory handling
-    }
-    return response;
+	while( std::getline( file, line ) )
+		body += (line + '\n');
+	file.close();
+	response.addStatus(statusCode)
+			.addLength(body.length())
+			.addBody(body);
+	try {
+		response.addType(HTTPResponseMessage::contentTypes.at(extension));
+	}
+	catch (...) {
+		response.addType("text/plain");   //temporary fix until directory handling 
+	}
+	/* START TEST CODE 1_A */
+	// std::ofstream testFile;
+	// testFile.open("/Users/lwray/Documents/webserv/responseFromFile.txt", std::ios::binary);
+	// testFile << body;
+	// testFile.close();
+	/* END TEST CODE 1_A */
+	return response;
 }
 
 HTTPResponseMessage fileForbidden( webserv::httpData *config ) {
     HTTPResponseMessage response;
-    std::string body = "403 Forbidden";
-    std::string path;
-    std::ifstream file;
-
-    if ( config->error_page.find( 403 ) != config->error_page.end()) {
-        path = config->getRequestedFilePath( config->error_page[403] );
-        std::cout << "Get error page " << path << std::endl;
-        file.open( path );
-        if ( file.good()) {
-            std::cout << "Error file found " << path << std::endl;
-            return responseFromFile( file, file_extension( path ), HTTPResponseMessage::FORBIDDEN );
-        }
-    }
-    std::cout << "FILE not found " << path << std::endl;
+    std::string body = config->error_page[403];
     return response.addStatus( HTTPResponseMessage::FORBIDDEN )
             .addLength( body.length())
             .addBody( body )
@@ -57,20 +49,7 @@ HTTPResponseMessage fileForbidden( webserv::httpData *config ) {
 
 HTTPResponseMessage fileNotFound( webserv::httpData *config ) {
     HTTPResponseMessage response;
-    std::string body = "404 Not Found";
-    std::string path;
-    std::ifstream file;
-
-    if ( config->error_page.find( 404 ) != config->error_page.end()) {
-        path = config->getRequestedFilePath( config->error_page[404] );
-        std::cout << "Get error page " << path << std::endl;
-        file.open( path );
-        if ( file.good()) {
-            std::cout << "Error file found " << path << std::endl;
-            return responseFromFile( file, file_extension( path ), HTTPResponseMessage::NOT_FOUND );
-        }
-    }
-    std::cout << "FILE not found " << path << std::endl;
+    std::string body = config->error_page[404];
     return response.addStatus( HTTPResponseMessage::NOT_FOUND )
             .addLength( body.length())
             .addBody( body )
@@ -110,9 +89,6 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData *config, we
         return GET_handler( path + "index.html", config, location );
     }
 
-//	if ( location && location->CGI )
-//		return responseFromCGI( config, location );
-
     file.open( fullPath );
     if ( file.good()) {
         std::cout << "File found " << fullPath << std::endl;
@@ -126,54 +102,66 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData *config, we
     }
 }
 
-HTTPResponseMessage
-POST_handler( std::string &requestPath, Request request, webserv::httpData *config, webserv::locationData *location ) {
-    HTTPResponseMessage response;
-    std::string extension = file_extension( requestPath );
-    std::cout << "EXTENSION: " << extension << std::endl;
-    std::string fullPath = location->root + requestPath;
+HTTPResponseMessage POST_handler( std::string& requestPath, Request request, webserv::httpData* config, webserv::locationData* location ) {
+	HTTPResponseMessage response;
+	std::string extension = file_extension(requestPath);
+	std::cout << "EXTENSION: "  << extension << std::endl;
+	std::string fullPath = location->root + requestPath;
 
-    struct stat buf;
-    bool fileAlreadyExists = ( ::stat( fullPath.c_str(), &buf ) != -1 );
-    if ( fileAlreadyExists ) {
-        response.addStatus( HTTPResponseMessage::METHOD_NOT_ALLOWED )
-                .addType( "text/plain" )
-                .addLength( 0 )
-                .addBody( "" );
-    } else {
-        response.addStatus( HTTPResponseMessage::ACCEPTED )
-                .addLength( 0 )
-                .addBody( "" );
-        std::ofstream file;
-        file.open( fullPath, std::ios::out );
-        if ( file.good()) {
-            file << request.getBody();
-            config->created_files[request.getRequestPath()] = fullPath;
-        }
-        file.close();
+	/* START TEST CODE 1_B */
+	// std::ofstream testFile;
+	// testFile.open("/Users/lwray/Documents/webserv/POST_handler.txt", std::ios::binary);
+	// testFile << request.getBody();
+	// testFile.close();
+	/* END TEST CODE 1_B */
 
-        std::map<std::string, const std::string>::const_iterator type = HTTPResponseMessage::contentTypes.find(
-                extension );
-        if ( type != HTTPResponseMessage::contentTypes.end())
-            response.addType( type->second );
-        else
-            response.addType( "executable" );
-    }
-    return response;
+	struct stat buf;
+	bool fileAlreadyExists = (::stat(fullPath.c_str(), &buf) != -1);
+	if (fileAlreadyExists) {
+		response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED)
+				.addType("text/plain")
+				.addLength(0)
+				.addBody("");
+	}
+	else {
+		response.addStatus(HTTPResponseMessage::ACCEPTED)
+				.addLength(0)
+				.addBody("");
+		std::ofstream file;
+		file.open(fullPath, std::ios::out | std::ios::binary);
+		if (file.good()) {
+			file << request.getBody();
+			config->created_files.insert(fullPath);
+		}
+		file.close();
+
+		std::map<std::string, const std::string>::const_iterator type = HTTPResponseMessage::contentTypes.find(extension);
+		if (type != HTTPResponseMessage::contentTypes.end())
+			response.addType(type->second);
+		else
+			response.addType("executable");
+	}
+	return response;
 }
 
-//
-// void DELETE_handler( Request request, HTTPResponseMessage& response, webserv::httpData* config, webserv::locationData location ) {
-// 	std::map<std::string, std::string>::iterator fileToBeDeleted = config->created_files.find(request.getPath());
-// 	if (fileToBeDeleted != config->created_files.end()) {
-// 		if (std::remove(fileToBeDeleted->second.c_str()) == 0)
-// 			config->created_files.erase(fileToBeDeleted);
-// 		else
-// 			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
-// 	} else {
-// 		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
-// 	}
-// }
+HTTPResponseMessage DELETE_handler( std::string& requestPath, Request request, webserv::httpData* config, webserv::locationData* location ) {
+	HTTPResponseMessage response;
+	std::string fullPath = location->root + requestPath;
+
+	std::set<std::string>::iterator fileToBeDeleted = config->created_files.find(fullPath);
+	if (fileToBeDeleted != config->created_files.end()) {
+		if (std::remove(fileToBeDeleted->c_str()) == 0) {
+			response.addStatus(HTTPResponseMessage::OK);
+			config->created_files.erase(fileToBeDeleted);
+		}
+		else
+			response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	} else {
+		response.addStatus(HTTPResponseMessage::INTERNAL_SERVER_ERROR);
+	}
+
+	return response;
+}
 
 
 HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData *config ) {
@@ -204,9 +192,9 @@ HTTPResponseMessage handler( Request request, webserv::httpData *config, webserv
         return REDIRECT_handler( request, config );
     if ( request.getMethod() == Request::GET )
         return GET_handler( requestPath, config, &location );
-    else if ( request.getMethod() == Request::POST )
-        return POST_handler( requestPath, request, config, &location );
-    // else if ( request.getMethod() == Request::DELETE )
-    // 	DELETE_handler( request, response, config, location );
-    return response;
+	else if ( request.getMethod() == Request::POST )
+		return POST_handler( requestPath, request, config, &location );
+	else if ( request.getMethod() == Request::DELETE )
+		return DELETE_handler( requestPath, request, config, &location );
+	return response;
 }

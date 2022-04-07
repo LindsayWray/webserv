@@ -16,10 +16,30 @@ namespace webserv {
 
     class configParser {
 
+			enum e_configErrorCodes {
+				NONE,
+				NOFILE,
+				BADFILE,
+				EMPTYFILE,
+				SOCKET,
+				WORKERC,
+				INDEX,
+				MAXBODY,
+				LOCATION,
+				SERVERNAME,
+				ERRORPAGE,
+				REDIRECT,
+				ROOT,
+				CGIPARAM,
+				LIMITEDMETHOD,
+				AUTOINDEX
+			};
+
     private:
         FileType _configFile;
         TokenType _tokens;
         TokenType::iterator _it;
+        int _errorCode;
 
     public:
         configParser( std::string config_file );
@@ -33,6 +53,8 @@ namespace webserv {
         int setSocket( socketData *socketData );
 
         int setIndex( httpData *httpData );
+
+        int setClientMaxBodySize( webserv::httpData *httpData );
 
         int setLocation( httpData *httpData );
 
@@ -48,6 +70,8 @@ namespace webserv {
 
         TokenType getTokens( void );
 
+        int checkErrorCode( void );
+
     private:
         int _newToken( std::string line );
 
@@ -57,11 +81,16 @@ namespace webserv {
 
         int _setCgiParam( locationData &element );
 
-        int _setAllowedResponse( locationData &element );
+        int _setLimitedMethod( locationData &element );
 
         int _setAutoindex( locationData &element );
 
         bool _isWrongInput( char * );
+
+        bool _isCorrectCode( int input );
+
+        int _endOfLine( int errorcode);
+
     };
 }
 
