@@ -56,7 +56,10 @@ const std::string HTTPResponseMessage::_headerContentLengthToString( void ) cons
 }
 
 const std::string HTTPResponseMessage::_headerContentTypeToString( void ) const {
-    return "content-type: " + type + "\r\n";
+    if ( body != "" )
+        return "content-type: " + type + "\r\n";
+    else
+        return "";
 }
 
 const std::string HTTPResponseMessage::_headerDateToString( void ) const {
