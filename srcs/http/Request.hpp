@@ -35,7 +35,7 @@ namespace webserv {
 
     public:
 		Request(){};
-		Request(int);
+		//Request(int);
         //Request( std::string );
 
 		Request& operator=(const Request& original);

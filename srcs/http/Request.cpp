@@ -2,23 +2,7 @@
 #include "../utils/printFormatting.hpp"
 #include <fstream> 
 
-webserv::Request::Request(int max_client_body) : _max_client_body(max_client_body), _headersDone(false) {};
-
-// webserv::Request::Request( std::string req ) {
-	
-//     std::vector<std::string> header_lines;
-
-//     std::stringstream ss( req );
-
-
-    // int current_position = ss.tellg();
-    //_body = req.substr(current_position, req.size() - current_position );
-
-    //std::cout << "BODY" << _body << std::endl;
-
-    //std::getline( ss, _body, ( char ) 26 );
-
-//}
+//webserv::Request::Request(int max_client_body) : _max_client_body(max_client_body), _headersDone(false) {};
 
 webserv::Request& webserv::Request::operator=(const webserv::Request& original){
 	this->_rawRequest = original._rawRequest;
