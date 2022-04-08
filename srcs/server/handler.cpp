@@ -89,15 +89,15 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData *config, we
         return GET_handler( path + "index.html", config, location );
     }
 
+	struct stat buf;
+    if ( ::stat( fullPath.c_str(), &buf ) == -1 || !S_ISREG(buf.st_mode)) {
+        return fileNotFound( config );
+    }
     file.open( fullPath );
     if ( file.good()) {
         std::cout << "File found " << fullPath << std::endl;
         return responseFromFile( file, extension, HTTPResponseMessage::OK );
     } else {
-        struct stat buf;
-        if ( ::stat( fullPath.c_str(), &buf ) == -1 ) {
-            return fileNotFound( config );
-        }
         return fileForbidden( config );
     }
 }

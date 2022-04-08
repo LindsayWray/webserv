@@ -27,6 +27,7 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
         disconnected( current_fd, serverData.kqData.nbr_connections );
     } else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end()) {
         accepter( serverData.serverMap[current_fd], serverData.kqData, serverData.clientSockets );
+		serverData.requests[current_fd] = webserv::Request(serverData.clientSockets[current_fd]->max_client_body_size); 		//creates new (empty) request in map
     } else if ( serverData.responses.find( current_fd ) != serverData.responses.end()) {
         if ( responder( current_fd, serverData.responses ) == FINISHED ) {
             struct kevent deregister_socket_change;
@@ -51,16 +52,20 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
 }
 
 void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
-    serverData.requests[current_fd].append(serverData.buf, bytesread);
+	webserv::Request& request = serverData.requests[current_fd];
 
+    request.parseChunk(serverData.buf, bytesread);
+	
+	//serverData.requests[current_fd].append(serverData.buf, bytesread);
     //std::cout << "LEN " << serverData.buflen << " " << bytesread << std::endl;
-    if (bytesread == serverData.buflen)
-        return; 
+    // if (bytesread == serverData.buflen)
+    //     return; 
 
-    if ( serverData.requests[current_fd].find( "\r\n\r\n" ) != std::string::npos ) {
+    //if ( serverData.requests[current_fd].find( "\r\n\r\n" ) != std::string::npos ) {
+	if ( request.isComplete() ) {
         try {
-            webserv::Request request( serverData.requests[current_fd] );
-            std::cout << "made request object" << std::endl;
+            //webserv::Request request( serverData.requests[current_fd] );
+            //std::cout << "made request object" << std::endl;
             int location_index = findRequestedLocation( serverData.clientSockets[current_fd], request.getPath());
             if ( location_index == NOTFOUND );
                 // TODO:: do something
