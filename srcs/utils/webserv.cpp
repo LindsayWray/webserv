@@ -7,7 +7,20 @@
 //  * serverMap[ fd ].first = listeningSocket;
 //  * serverMap[ fd ].second = httpData;
 
-void webserv::processEvent( webserv::serverData &serverData, struct kevent &event ) {
+void	registerResponse(webserv::serverData& serverData, int current_fd, HTTPResponseMessage& response){
+	serverData.responses[current_fd] = response.toString();
+	serverData.requests.erase( current_fd );
+	printf( "  register respond event - %d\n", current_fd );
+	struct kevent new_socket_change;
+	EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
+	int ret = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
+	if ( ret == ERROR ) {
+		perror( "  kqueue() failed" );
+		exit( EXIT_FAILURE );
+	}
+}
+
+void webserv::processEvent( webserv::serverData& serverData, struct kevent& event ) {
     int current_fd = event.ident;
 
     if ( event.flags & EV_EOF ) {  // check if it's an eof event, client disconnected
@@ -57,20 +70,17 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
                     std::cerr << "we have to handle this error" << std::endl;
             } else {
                 HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd], location );
-                serverData.responses[current_fd] = response.toString();
-                serverData.requests.erase( current_fd );
-                printf( "  register respond event - %d\n", current_fd );
-                struct kevent new_socket_change;
-                EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
-                int ret = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
-                if ( ret == ERROR ) {
-                    perror( "  kqueue() failed" );
-                    exit( EXIT_FAILURE );
-                }
+				registerResponse(serverData, current_fd, response);
             }
         }
         catch ( webserv::Request::IncorrectRequestException &e ) {        // catches parsing errors from request
-            std::cout << e.what() << std::endl;
+			HTTPResponseMessage response;
+			std::string body = serverData.clientSockets[current_fd]->error_page[400];
+			    response.addStatus( HTTPResponseMessage::BAD_REQUEST )
+            		.addLength( body.size() )
+            		.addBody( body );
+			registerResponse(serverData, current_fd, response);
+            std::cerr << e.what() << std::endl;
         }
    }
 }
