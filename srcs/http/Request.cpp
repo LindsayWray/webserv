@@ -97,8 +97,6 @@ void	webserv::Request::parseChunk(char* chunk, int len){
 			_contentLength = 0; 
 		else 
 			_contentLength = std::stoi(_headers["Content-Length"]);
-
-		//std::cout << "CL" << _contentLength << std::endl;
 		
 		int current_position = ss.tellg();
 		_body = _rawRequest.substr(current_position, _rawRequest.size() - current_position );

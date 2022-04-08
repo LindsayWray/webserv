@@ -20,7 +20,6 @@ namespace webserv {
         webserv::kqConData kqData;
         SERVER_MAP serverMap;
 
-        // std::map<int, std::string> requests;
 		std::map<int, webserv::Request> requests;
         std::map<int, std::string> responses;
         std::map<int, webserv::httpData *> clientSockets;
