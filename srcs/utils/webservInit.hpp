@@ -22,7 +22,7 @@ namespace webserv {
 
 		std::map<int, webserv::Request> requests;
         std::map<int, std::string> responses;
-        std::map<int, webserv::httpData *> clientSockets;
+        std::map<int, webserv::httpData*> clientSockets;
 		std::map<int, cgi_response> cgi_responses;
 
         char *buf;

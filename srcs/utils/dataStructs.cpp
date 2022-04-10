@@ -94,6 +94,8 @@ void webserv::httpData::setErrorPages( void ) {
         error_page[408] = formatErrorPage( "408 Request Timeout" );
     if ( error_page.find( 411 ) == error_page.end())
         error_page[411] = formatErrorPage( "411 Length Required" );
+	if ( error_page.find( 413 ) == error_page.end())
+        error_page[413] = formatErrorPage( "413 Payload Too Large" );
     if ( error_page.find( 414 ) == error_page.end())
         error_page[414] = formatErrorPage( "414 URI Too Long" );
     if ( error_page.find( 418 ) == error_page.end())

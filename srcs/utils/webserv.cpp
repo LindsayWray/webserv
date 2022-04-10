@@ -27,8 +27,7 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
         disconnected( current_fd, serverData.kqData.nbr_connections );
     } else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end()) {
         accepter( serverData.serverMap[current_fd], serverData.kqData, serverData.clientSockets );
-		serverData.requests[current_fd] =  webserv::Request(); //webserv::Request(serverData.clientSockets[current_fd]->max_client_body_size); 		//creates new (empty) request in map
-    } else if ( serverData.responses.find( current_fd ) != serverData.responses.end()) {
+	} else if ( serverData.responses.find( current_fd ) != serverData.responses.end()) {
         if ( responder( current_fd, serverData.responses ) == FINISHED ) {
             struct kevent deregister_socket_change;
             EV_SET( &deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
@@ -52,9 +51,20 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
 }
 
 void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
+	if(serverData.requests.find( current_fd ) == serverData.requests.end())
+		serverData.requests[current_fd] = webserv::Request(serverData.clientSockets[current_fd]->max_client_body_size); 	//creates new (empty) request in map
 	webserv::Request& request = serverData.requests[current_fd];
 
-    request.parseChunk(serverData.buf, bytesread);
+    try { request.parseChunk(serverData.buf, bytesread); }
+	catch(webserv::Request::MaxClientBodyException& e){
+		HTTPResponseMessage response;
+		std::string body = serverData.clientSockets[current_fd]->error_page[413];
+			response.addStatus( HTTPResponseMessage::PAYLOAD_TOO_LARGE )
+				.addLength( body.size() )
+				.addBody( body );
+		registerResponse(serverData, current_fd, response);
+		std::cerr << e.what() << std::endl;
+	}
 	
 	if ( request.isComplete() ) {
         try {

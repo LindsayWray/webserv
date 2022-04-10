@@ -34,9 +34,10 @@ namespace webserv {
 
 
     public:
-		Request(){};
-		//Request(int);
+		Request(){ std::cout << "BASIC CONSTRUCTOR\n"; };
+		Request(int);
 
+		Request(const Request& original);
 		Request& operator=(const Request& original);
 
         std::string getBody() const;
@@ -52,6 +53,12 @@ namespace webserv {
         public:
             const char *what() const throw() {
                 return "Request Not Valid";
+            }
+        };
+		class MaxClientBodyException : public std::exception {
+        public:
+            const char *what() const throw() {
+                return "Max Client Body Exceeded";
             }
         };
     };
