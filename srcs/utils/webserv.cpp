@@ -25,6 +25,8 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
     } else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end()) {
         accepter( serverData.serverMap[current_fd], serverData.kqData, serverData.clientSockets );
 	} else if ( serverData.responses.find( current_fd ) != serverData.responses.end()) {
+        std::cerr << "cgi uit 1 " << std::endl;
+
         if ( responder( current_fd, serverData.responses ) == FINISHED ) {
             struct kevent deregister_socket_change;
             EV_SET( &deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
@@ -33,9 +35,13 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
                 exit( EXIT_FAILURE );
         }
     } else if ( serverData.cgi_responses.find( current_fd ) != serverData.cgi_responses.end() ) {
+        std::cerr << "cgi uit 2 " << std::endl;
+
         if ( responseFromCGI( serverData, current_fd ) < 0 )
             exit( EXIT_FAILURE );
     } else {
+        std::cerr << "cgi uit 3 " << std::endl;
+
         memset( serverData.buf, 0, serverData.buflen );    //clean struct
         int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );
         if ( bytesread < 0 )
@@ -67,9 +73,16 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
             } else {
                 webserv::locationData location = serverData.clientSockets[current_fd]->locations[location_index];
                 if ( location.CGI ) {
+                    std::cerr << "cgi in 1 " << std::endl;
                     ret = CGI_register( location, serverData, serverData.clientSockets[current_fd]->env, current_fd,request );
-                    if ( ret != HTTPResponseMessage::OK )
-                        registerResponse( serverData, current_fd, errorResponse( serverData.clientSockets[current_fd], ret ) );
+                    std::cerr << "cgi in 2 " << std::endl;
+
+                    if ( ret != HTTPResponseMessage::OK ) {
+                        std::cerr << "cgi in 3 " << std::endl;
+
+                        registerResponse( serverData, current_fd,
+                                          errorResponse( serverData.clientSockets[current_fd], ret ));
+                    }
                 } else {
                     HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd], location );
                     registerResponse( serverData, current_fd, response );

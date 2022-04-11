@@ -15,18 +15,23 @@ server {
 	}
 
 	location /images/ {
-		 root	/var/www/html/resources;
-		 autoindex on;
+		root	/var/www/html/resources;
+		autoindex on;
 	}
 
 	location /time {
-		 root	/var/cgi-bin;
-		 cgi_param /ret_time.py;
+		root	/var/cgi-bin;
+		cgi_param /ret_time.py;
 	}
 
 	location /toupper {
-    		 root	/var/cgi-bin;
-    		 cgi_param /toupper.py;
+    	root	/var/cgi-bin;
+    	cgi_param /toupper.py;
+    }
+
+    location /false {
+        root	/var/cgi-bin;
+        cgi_param /false.py;
     }
 
 	location /images/limited/ {
