@@ -40,8 +40,8 @@ HTTPResponseMessage::e_responseStatusCode CGI_register( webserv::locationData lo
 	serverData.cgi_responses[pipes[0]].pid = pid;
 	free( args[0] );
     free( args[1] );
-    if ( ret != 0 )
-        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
+    if ( args[2] )
+        free( args[2] );
     return HTTPResponseMessage::OK;
 }
 
