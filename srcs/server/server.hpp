@@ -13,18 +13,12 @@
 
 void accepter( std::pair<webserv::listeningSocket *, webserv::httpData *> &serverPair,
                webserv::kqConData &kqData, std::map<int, webserv::httpData *> &clientSockets );
-
 HTTPResponseMessage handler( webserv::Request request, webserv::httpData *config, webserv::locationData location );
-
 bool responder( int fd, std::map<int, std::string> &responses );
-
 void fileNotFound( HTTPResponseMessage &response, webserv::httpData *config );
-
 void autoIndexing( std::string path, std::string directory, std::string &body );
-
-int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env );
-
-int responseFromCGI( webserv::serverData &serverData );
+int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd);
+int responseFromCGI( webserv::serverData &serverData, int pipe_fd );
 
 class DirectoryNotFoundException : public std::exception {
 public:

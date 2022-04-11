@@ -17,29 +17,37 @@ namespace webserv {
             GET, POST, DELETE
         };
     private:
-        //status line
+		std::string _rawRequest;
+		bool _headersDone;
+		int _contentLength;
+		int _max_client_body;
+
         method _method;
         std::vector<std::string> _path;
         std::string _requestPath;
         std::string _version;
-        //headers
         std::map<std::string, std::string> _headers;
-
-        //body
         std::string _body;
 
         void parse_statusline( std::string &method );
+		void setPath( std::string line );
+
 
     public:
-        Request( std::string );
+		Request(){};
+		Request(int);
+
+		Request(const Request& original);
+		Request& operator=(const Request& original);
 
         std::string getBody() const;
-
         std::vector<std::string> getPath() const;
-
         method getMethod() const;
-
         std::string getRequestPath() const;
+		std::string getRawRequest() const;
+
+		void	parseChunk(char* chunk, int len);
+		bool	isComplete() const;
 
         class IncorrectRequestException : public std::exception {
         public:
@@ -47,25 +55,12 @@ namespace webserv {
                 return "Request Not Valid";
             }
         };
-
-        void setPath( std::string line ) {
-            std::size_t i = 0, found;
-
-            if ( line[i] != '/' )
-                return;
-            while ( i < line.length()) {
-                found = line.find_first_of( "/", i );
-                if ( found == std::string::npos ) {
-                    _path.push_back( line.substr( i, line.length()));
-                    break;
-                } else {
-                    if ( i != found - i )
-                        _path.push_back( line.substr( i, found - i ));
-                    _path.push_back( line.substr( found, 1 ));
-                    i = found + 1;
-                }
+		class MaxClientBodyException : public std::exception {
+        public:
+            const char *what() const throw() {
+                return "Max Client Body Exceeded";
             }
-        }
+        };
     };
 }
 #endif

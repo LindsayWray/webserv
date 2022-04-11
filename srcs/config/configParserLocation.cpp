@@ -7,8 +7,10 @@
 static void _insertBefore( webserv::httpData *httpData, webserv::locationData &element ) {
     std::vector<webserv::locationData>::iterator it = --httpData->locations.end();
     for ( ; it >= httpData->locations.begin(); it-- ) {
-        if ( element.path.size() >= it->path.size())
+        if ( element.path.size() >= it->path.size()) {
             httpData->locations.insert( it, element );
+            break;
+        }
     }
 }
 

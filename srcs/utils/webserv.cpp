@@ -7,15 +7,27 @@
 //  * serverMap[ fd ].first = listeningSocket;
 //  * serverMap[ fd ].second = httpData;
 
-void webserv::processEvent( webserv::serverData &serverData, struct kevent &event ) {
+void	registerResponse(webserv::serverData& serverData, int current_fd, HTTPResponseMessage& response){
+	serverData.responses[current_fd] = response.toString();
+	serverData.requests.erase( current_fd );
+	printf( "  register respond event - %d\n", current_fd );
+	struct kevent new_socket_change;
+	EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
+	int ret = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
+	if ( ret == ERROR ) {
+		perror( "  kqueue() failed" );
+		exit( EXIT_FAILURE );
+	}
+}
+
+void webserv::processEvent( webserv::serverData& serverData, struct kevent& event ) {
     int current_fd = event.ident;
 
     if ( event.flags & EV_EOF ) {  // check if it's an eof event, client disconnected
         disconnected( current_fd, serverData.kqData.nbr_connections );
     } else if ( serverData.serverMap.find( current_fd ) != serverData.serverMap.end()) {
-        accepter( serverData
-                          .serverMap[current_fd], serverData.kqData, serverData.clientSockets );
-    } else if ( serverData.responses.find( current_fd ) != serverData.responses.end()) {
+        accepter( serverData.serverMap[current_fd], serverData.kqData, serverData.clientSockets );
+	} else if ( serverData.responses.find( current_fd ) != serverData.responses.end()) {
         if ( responder( current_fd, serverData.responses ) == FINISHED ) {
             struct kevent deregister_socket_change;
             EV_SET( &deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
@@ -23,8 +35,8 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
             if ( ret == ERROR )
                 exit( EXIT_FAILURE );
         }
-    } else if ( serverData.CGI == current_fd ) {
-        if ( responseFromCGI( serverData ) < 0 )
+    } else if ( serverData.cgi_responses.find( current_fd ) != serverData.cgi_responses.end() ) {
+        if ( responseFromCGI( serverData, current_fd ) < 0 )
             exit( EXIT_FAILURE );
     } else {
         memset( serverData.buf, 0, serverData.buflen );    //clean struct
@@ -34,43 +46,50 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
         else if ( bytesread == 0 )
             std::cout << "  Connection closed" << std::endl;
         else
-            takeRequest( serverData, current_fd );
+            takeRequest( serverData, current_fd, bytesread );
     }
 }
 
-void webserv::takeRequest( webserv::serverData &serverData, int current_fd ) {
-    serverData.requests[current_fd] += serverData.buf;
+void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
+	if(serverData.requests.find( current_fd ) == serverData.requests.end())
+		serverData.requests[current_fd] = webserv::Request(serverData.clientSockets[current_fd]->max_client_body_size); 	//creates new (empty) request in map
+	webserv::Request& request = serverData.requests[current_fd];
 
-    if ( serverData.requests[current_fd].find( "\r\n\r\n" ) != std::string::npos ) {
+    try { request.parseChunk(serverData.buf, bytesread); }
+	catch(webserv::Request::MaxClientBodyException& e){
+		HTTPResponseMessage response;
+		std::string body = serverData.clientSockets[current_fd]->error_page[413];
+			response.addStatus( HTTPResponseMessage::PAYLOAD_TOO_LARGE )
+				.addLength( body.size() )
+				.addBody( body );
+		registerResponse(serverData, current_fd, response);
+		std::cerr << e.what() << std::endl;
+	}
+	
+	if ( request.isComplete() ) {
         try {
-            webserv::Request request( serverData.requests[current_fd] );
-            std::cout << "made request object" << std::endl;
-            serverData.location_index = findRequestedLocation( serverData.clientSockets[current_fd], request.getPath());
-            if ( serverData.location_index == NOTFOUND )
-                ( void ) serverData.location_index; // TODO:: do something
-            webserv::locationData location = serverData.clientSockets[current_fd]->locations[serverData.location_index];
-            serverData.current_fd = current_fd;
+            int location_index = findRequestedLocation( serverData.clientSockets[current_fd], request.getPath());
+            if ( location_index == NOTFOUND );
+                // TODO:: do something
+            webserv::locationData location = serverData.clientSockets[current_fd]->locations[location_index];
             if ( location.CGI ) {
-                if ( CGI_register( location, serverData, serverData.clientSockets[serverData.current_fd]->env ) < 0 )
+                if ( CGI_register( location, serverData, serverData.clientSockets[current_fd]->env, current_fd ) < 0 )
                     std::cerr << "we have to handle this error" << std::endl;
             } else {
                 HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd], location );
-                serverData.responses[current_fd] = response.toString();
-                serverData.requests.erase( current_fd );
-                printf( "  register respond event - %d\n", current_fd );
-                struct kevent new_socket_change;
-                EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
-                int ret = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
-                if ( ret == ERROR ) {
-                    perror( "  kqueue() failed" );
-                    exit( EXIT_FAILURE );
-                }
+				registerResponse(serverData, current_fd, response);
             }
         }
         catch ( webserv::Request::IncorrectRequestException &e ) {        // catches parsing errors from request
-            std::cout << e.what() << std::endl;
+			HTTPResponseMessage response;
+			std::string body = serverData.clientSockets[current_fd]->error_page[400];
+			    response.addStatus( HTTPResponseMessage::BAD_REQUEST )
+            		.addLength( body.size() )
+            		.addBody( body );
+			registerResponse(serverData, current_fd, response);
+            std::cerr << e.what() << std::endl;
         }
-    }
+   }
 }
 
 int webserv::findRequestedLocation( webserv::httpData *config, std::vector<std::string> path ) {

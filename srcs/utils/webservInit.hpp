@@ -10,18 +10,23 @@
 
 namespace webserv {
 
+	typedef struct cgi_response {
+		int client_fd;
+		int pid;
+		std::string body;
+	} cgi_response;
+
     typedef struct serverData {
         webserv::kqConData kqData;
-        int CGI;
-        int location_index;
-        int current_fd;
 
         SERVER_MAP serverMap; //key = fd
         std::map<std::pair<int,std::string>, httpData *> host_servername; //key = port & servername
         std::map<int, httpData *> default_server; //key = port
-        std::map<int, httpData *> clientSockets;
-        std::map<int, std::string> requests;
+
+		std::map<int, webserv::Request> requests;
         std::map<int, std::string> responses;
+        std::map<int, webserv::httpData*> clientSockets;
+		std::map<int, cgi_response> cgi_responses;
 
         char *buf;
         int buflen;

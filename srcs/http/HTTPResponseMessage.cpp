@@ -19,6 +19,7 @@ const std::map<int, const std::string> HTTPResponseMessage::responseStatusMessag
 	{ 408, "Request Timeout" },
 	{ 410, "Gone" },
 	{ 411, "Length Required" },
+	{ 413, "Payload Too Large" },
 	{ 414, "URI Too Long" },
 	{ 418, "I'm a teapot" }, 
 	{ 429, "Too Many Requests" },
@@ -56,7 +57,10 @@ const std::string HTTPResponseMessage::_headerContentLengthToString( void ) cons
 }
 
 const std::string HTTPResponseMessage::_headerContentTypeToString( void ) const {
-    return "content-type: " + type + "\r\n";
+    if ( body != "" )
+        return "content-type: " + type + "\r\n";
+    else
+        return "";
 }
 
 const std::string HTTPResponseMessage::_headerDateToString( void ) const {

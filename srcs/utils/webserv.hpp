@@ -12,7 +12,7 @@
 namespace webserv{
     void disconnected( int fd, int &nbr_conn );
     int findRequestedLocation( webserv::httpData *config, std::vector<std::string> path );
-    void takeRequest( webserv::serverData &serverData, int current_fd );
+    void takeRequest( webserv::serverData &serverData, int current_fd, int bytesread );
     void processEvent( webserv::serverData &serverData, struct kevent &event );
 }
 
