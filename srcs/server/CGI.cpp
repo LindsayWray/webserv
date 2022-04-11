@@ -69,8 +69,8 @@ HTTPResponseMessage CGI_attempt( int pipe_fd, webserv::cgi_response resp, webser
     close( pipe_fd );
     if ( WIFEXITED( status ))
         ret = WIFEXITED( status );
-    std::cerr << "ret " << ret << std::endl;
-    if ( ret == 1 ) {
+    std::cerr << "ret " << ret << std::endl;// *************************** debug
+    if ( ret == 0 ) {
         response.addStatus( HTTPResponseMessage::OK )
                 .addLength( ret_str.length())
                 .addBody( ret_str )
