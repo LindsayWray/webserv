@@ -201,6 +201,8 @@ HTTPResponseMessage handler( Request request, webserv::httpData *config, webserv
         requestPath += request.getPath()[i];
     }
 
+	if ( !location.allowed_response[request.getMethod()] )
+		return errorResponse( config, HTTPResponseMessage::METHOD_NOT_ALLOWED );
     if ( config->redirect.first > 0 )
         return REDIRECT_handler( request, config );
     if ( request.getMethod() == Request::GET )

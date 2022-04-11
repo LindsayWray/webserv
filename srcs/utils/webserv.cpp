@@ -39,7 +39,7 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
             exit( EXIT_FAILURE );
     } else {
         std::cerr << "Read request " << std::endl; // ***************************
-        memset( serverData.buf, 0, serverData.buflen );    //clean struct
+        memset( serverData.buf, 0, serverData.buflen );
         int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );
         if ( bytesread < 0 )
             std::cerr << "  recv() failed" << std::endl;
