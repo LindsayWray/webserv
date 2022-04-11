@@ -5,8 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-
-int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd, webserv::Request request ) {
+HTTPResponseMessage::e_responseStatusCode CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd, webserv::Request request ) {
     int pipes[2], ret;
     std::string ret_str, reqPath = location.root;
     char *args[4] = { NULL, NULL, NULL, NULL };
@@ -17,20 +16,18 @@ int CGI_register( webserv::locationData location, webserv::serverData &serverDat
     if ( request.getMethod() == webserv::Request::POST )
         args[2] = strdup( request.getBody().c_str() );
 
-    if ( pipe( pipes ) != 0 ) {
-        std::cerr << "pipe failed" << std::endl;
-    }
+    if ( pipe( pipes ) != 0 )
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
 	serverData.cgi_responses[pipes[0]].client_fd = client_fd;
 
     struct kevent new_socket_change;
     EV_SET( &new_socket_change, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    int ret2 = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
-    if ( ret2 == ERROR )
-        return ERROR;
+    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
 
     int pid = fork();
     if ( pid < 0 ) {
-        return -1;
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
     } else if ( pid == 0 ) {
         close( pipes[0] );
         dup2( pipes[1], STDOUT_FILENO );
@@ -41,10 +38,11 @@ int CGI_register( webserv::locationData location, webserv::serverData &serverDat
     }
 	close(pipes[1]);
 	serverData.cgi_responses[pipes[0]].pid = pid;
-
 	free( args[0] );
     free( args[1] );
-    return 0;
+    if ( ret != 0 )
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
+    return HTTPResponseMessage::OK;
 }
 
 std::string CGI_attempt( int pipe_fd, webserv::cgi_response resp ) {
