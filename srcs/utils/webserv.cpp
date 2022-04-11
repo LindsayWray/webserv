@@ -73,7 +73,7 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
                 // TODO:: do something
             webserv::locationData location = serverData.clientSockets[current_fd]->locations[location_index];
             if ( location.CGI ) {
-                if ( CGI_register( location, serverData, serverData.clientSockets[current_fd]->env, current_fd ) < 0 )
+                if ( CGI_register( location, serverData, serverData.clientSockets[current_fd]->env, current_fd, request ) != 0 )
                     std::cerr << "we have to handle this error" << std::endl;
             } else {
                 HTTPResponseMessage response = handler( request, serverData.clientSockets[current_fd], location );

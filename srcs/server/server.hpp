@@ -7,6 +7,7 @@
 #include "../http/Request.hpp"
 #include "../http/HTTPResponseMessage.hpp"
 #include "../utils/webservInit.hpp"
+#include "../http/Request.hpp"
 
 #define FINISHED true
 #define NOT_FINISHED false
@@ -17,7 +18,7 @@ HTTPResponseMessage handler( webserv::Request request, webserv::httpData *config
 bool responder( int fd, std::map<int, std::string> &responses );
 void fileNotFound( HTTPResponseMessage &response, webserv::httpData *config );
 void autoIndexing( std::string path, std::string directory, std::string &body );
-int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd);
+int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd, webserv::Request request);
 int responseFromCGI( webserv::serverData &serverData, int pipe_fd );
 
 class DirectoryNotFoundException : public std::exception {
