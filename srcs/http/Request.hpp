@@ -34,7 +34,7 @@ namespace webserv {
 
 
     public:
-		Request(){ std::cout << "BASIC CONSTRUCTOR\n"; };
+		Request(){};
 		Request(int);
 
 		Request(const Request& original);

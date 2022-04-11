@@ -5,7 +5,6 @@
 webserv::Request::Request(int max_client_body){
 	_max_client_body = max_client_body;
 	_headersDone = false; 
-	std::cout << "COSTRUCTOR\n";
 };
 
 webserv::Request::Request(const Request& original){
@@ -105,10 +104,11 @@ void	webserv::Request::parseChunk(char* chunk, int len){
 			_contentLength = 0; 
 		else 
 			_contentLength = std::stoi(_headers["Content-Length"]);
-		if ( _contentLength > _max_client_body )
+		
+		std::cout << "MAX BODY " << _max_client_body << std::endl;
+		if ( _max_client_body != 0 && _contentLength > _max_client_body )
 			throw (MaxClientBodyException());
 
-		std::cout << "content length is: " << _contentLength << std::endl;
 		int current_position = ss.tellg();
 		_body = _rawRequest.substr(current_position, _rawRequest.size() - current_position );
 		_headersDone = true;
@@ -136,6 +136,6 @@ std::string webserv::Request::getRawRequest() const {
 }
 
 bool webserv::Request::isComplete() const {
-	std::cout << "Checking..." << this->_body.size() << " - " << this->_contentLength << std::endl;
+	//std::cout << "Checking..." << this->_body.size() << " - " << this->_contentLength << std::endl;
 	return _headersDone && (this->_body.size() == this->_contentLength);
 }

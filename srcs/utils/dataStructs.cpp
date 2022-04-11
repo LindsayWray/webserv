@@ -61,7 +61,7 @@ int webserv::locationData::tokenizer( std::string line ) {
  */
 
 webserv::httpData::httpData( std::string root ) : abs_path( root ), redirect( std::make_pair( -1, "" )) {
-    max_client_body_size = 1000;
+    max_client_body_size = 0;
 }
 
 webserv::httpData::~httpData() {}
