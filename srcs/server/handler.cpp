@@ -12,43 +12,35 @@ static std::string file_extension( std::string path ) {
     return path.substr( pos + 1 ); // +1 to skip the .
 }
 
-static HTTPResponseMessage responseFromFile(std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode) {
-	HTTPResponseMessage response;
-	std::string line;
-	std::string body("");
+static HTTPResponseMessage
+responseFromFile( std::ifstream &file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
+    HTTPResponseMessage response;
+    std::string line;
+    std::string body( "" );
 
-	while( std::getline( file, line ) )
-		body += (line + '\n');
-	file.close();
-	response.addStatus(statusCode)
-			.addLength(body.length())
-			.addBody(body);
-	try {
-		response.addType(HTTPResponseMessage::contentTypes.at(extension));
-	}
-	catch (...) {
-		response.addType("text/plain");   //temporary fix until directory handling 
-	}
-	return response;
+    while ( std::getline( file, line ))
+        body += ( line + '\n' );
+    file.close();
+    response.addStatus( statusCode )
+            .addLength( body.length())
+            .addBody( body );
+    try {
+        response.addType( HTTPResponseMessage::contentTypes.at( extension ));
+    }
+    catch ( ... ) {
+        response.addType( "text/plain" );   //temporary fix until directory handling
+    }
+    return response;
 }
 
-HTTPResponseMessage fileForbidden( webserv::httpData *config ) {
+HTTPResponseMessage errorResponse( webserv::httpData *config, HTTPResponseMessage::e_responseStatusCode code ) {
     HTTPResponseMessage response;
-    std::string body = config->error_page[403];
-    return response.addStatus( HTTPResponseMessage::FORBIDDEN )
+    std::string body = config->error_page[code];
+    return response.addStatus( code )
             .addLength( body.length())
             .addBody( body )
             .addType( "text/html" );
-};
-
-HTTPResponseMessage fileNotFound( webserv::httpData *config ) {
-    HTTPResponseMessage response;
-    std::string body = config->error_page[404];
-    return response.addStatus( HTTPResponseMessage::NOT_FOUND )
-            .addLength( body.length())
-            .addBody( body )
-            .addType( "text/html" );
-};
+}
 
 HTTPResponseMessage GET_handler( std::string path, webserv::httpData *config, webserv::locationData *location ) {
     std::ifstream file;
@@ -73,115 +65,115 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData *config, we
             }
             catch ( DirectoryNotFoundException &e ) {
                 std::cout << e.what() << std::endl;
-                return fileNotFound( config );
+                return errorResponse( config, HTTPResponseMessage::NOT_FOUND );
             }
             return response.addStatus( HTTPResponseMessage::OK )
                     .addBody( body )
-                    .addLength( body.length() )
+                    .addLength( body.length())
                     .addType( "text/html" );
         }
         return GET_handler( path + "index.html", config, location );
     }
 
-	struct stat buf;
-    if ( ::stat( fullPath.c_str(), &buf ) == -1 || !S_ISREG(buf.st_mode)) {
-        return fileNotFound( config );
+    struct stat buf;
+    if ( ::stat( fullPath.c_str(), &buf ) == -1 || !S_ISREG( buf.st_mode )) {
+        return errorResponse( config, HTTPResponseMessage::NOT_FOUND );
     }
     file.open( fullPath );
     if ( file.good()) {
         std::cout << "File found " << fullPath << std::endl;
         return responseFromFile( file, extension, HTTPResponseMessage::OK );
     } else {
-        return fileForbidden( config );
+        return errorResponse( config, HTTPResponseMessage::FORBIDDEN );
     }
 }
 
-HTTPResponseMessage responseWhenFileAlreadyExists( webserv::httpData* config ) {
-	HTTPResponseMessage response;
-	std::string body = config->error_page[405];
-	return response.addStatus(HTTPResponseMessage::METHOD_NOT_ALLOWED)
-			.addType( "text/html" )
-			.addLength( body.length() )
-			.addBody( body );
+HTTPResponseMessage responseWhenFileAlreadyExists( webserv::httpData *config ) {
+    HTTPResponseMessage response;
+    std::string body = config->error_page[405];
+    return response.addStatus( HTTPResponseMessage::METHOD_NOT_ALLOWED )
+            .addType( "text/html" )
+            .addLength( body.length())
+            .addBody( body );
 }
 
-HTTPResponseMessage responseWhenFileCreated( std::string& requestURL ) {
-	HTTPResponseMessage response;
-	std::string body = "<html>\
+HTTPResponseMessage responseWhenFileCreated( std::string &requestURL ) {
+    HTTPResponseMessage response;
+    std::string body = "<html>\
 						<body><h1>File created at URL: #</h1></body>\
 						</head>\
 						</html>";
     body.replace( body.find( "#" ), 1, requestURL );
-	return response.addStatus(HTTPResponseMessage::CREATED)
-			.addType( "text/html" )
-			.addLength( body.length() )
-			.addBody( body );
+    return response.addStatus( HTTPResponseMessage::CREATED )
+            .addType( "text/html" )
+            .addLength( body.length())
+            .addBody( body );
 
 }
 
-HTTPResponseMessage POST_handler( std::string& requestPath, Request request, webserv::httpData* config, webserv::locationData* location ) {
-	std::string extension = file_extension(requestPath);
-	std::cout << "EXTENSION: "  << extension << std::endl;
-	std::string fullPath = location->root + requestPath;
+HTTPResponseMessage
+POST_handler( std::string &requestPath, Request request, webserv::httpData *config, webserv::locationData *location ) {
+    std::string extension = file_extension( requestPath );
+    std::cout << "EXTENSION: " << extension << std::endl;
+    std::string fullPath = location->root + requestPath;
 
-	struct stat buf;
-	bool fileAlreadyExists = (::stat(fullPath.c_str(), &buf) != -1);
-	if (fileAlreadyExists) {
-		return responseWhenFileAlreadyExists(config);
-	}
-	else {
-		std::ofstream file;
-		file.open(fullPath, std::ios::out | std::ios::binary);
-		if (file.good()) {
-			file << request.getBody();
-			config->created_files.insert(fullPath);
-		}
-		file.close();
-		return responseWhenFileCreated(requestPath);
-	}
+    struct stat buf;
+    bool fileAlreadyExists = ( ::stat( fullPath.c_str(), &buf ) != -1 );
+    if ( fileAlreadyExists ) {
+        return responseWhenFileAlreadyExists( config );
+    } else {
+        std::ofstream file;
+        file.open( fullPath, std::ios::out | std::ios::binary );
+        if ( file.good()) {
+            file << request.getBody();
+            config->created_files.insert( fullPath );
+        }
+        file.close();
+        return responseWhenFileCreated( requestPath );
+    }
 }
 
-HTTPResponseMessage responseWhenFileDeleted( std::string& requestURL ) {
-	HTTPResponseMessage response;
-	std::string body = "<html>\
+HTTPResponseMessage responseWhenFileDeleted( std::string &requestURL ) {
+    HTTPResponseMessage response;
+    std::string body = "<html>\
 						<body><h1>File deleted at URL: #</h1></body>\
 						</head>\
 						</html>";
-	body.replace( body.find( "#" ), 1, requestURL );
-	return response.addStatus(HTTPResponseMessage::OK)
-				.addType( "text/html" )
-				.addLength( body.length() )
-				.addBody( body );
+    body.replace( body.find( "#" ), 1, requestURL );
+    return response.addStatus( HTTPResponseMessage::OK )
+            .addType( "text/html" )
+            .addLength( body.length())
+            .addBody( body );
 }
 
-HTTPResponseMessage responseWhenFileCantBeDeleted( std::string& requestURL ) {
-	HTTPResponseMessage response;
-	std::string body = "<html>\
+HTTPResponseMessage responseWhenFileCantBeDeleted( std::string &requestURL ) {
+    HTTPResponseMessage response;
+    std::string body = "<html>\
                         <body><h1>File cannot be deleted at URL: #</h1></body>\
                         </head>\
                         </html>";
-	body.replace( body.find( "#" ), 1, requestURL );
-	return response.addStatus(HTTPResponseMessage::OK)
-				.addType( "text/html" )
-				.addLength( body.length() )
-				.addBody( body );
+    body.replace( body.find( "#" ), 1, requestURL );
+    return response.addStatus( HTTPResponseMessage::OK )
+            .addType( "text/html" )
+            .addLength( body.length())
+            .addBody( body );
 }
 
-HTTPResponseMessage DELETE_handler( std::string& requestPath, Request request, webserv::httpData* config, webserv::locationData* location ) {
-	std::string fullPath = location->root + requestPath;
+HTTPResponseMessage DELETE_handler( std::string &requestPath, Request request, webserv::httpData *config,
+                                    webserv::locationData *location ) {
+    std::string fullPath = location->root + requestPath;
 
-	std::set<std::string>::iterator fileToBeDeleted = config->created_files.find(fullPath);
-	if (fileToBeDeleted != config->created_files.end()) {
-		if (std::remove(fileToBeDeleted->c_str()) == 0) {
-			config->created_files.erase(fileToBeDeleted);
-			return responseWhenFileDeleted(requestPath);
-		}
-		else {
-			return responseWhenFileCantBeDeleted(requestPath);
-		}
-	} else {
-		return responseWhenFileCantBeDeleted(requestPath);
-	}
+    std::set<std::string>::iterator fileToBeDeleted = config->created_files.find( fullPath );
+    if ( fileToBeDeleted != config->created_files.end()) {
+        if ( std::remove( fileToBeDeleted->c_str()) == 0 ) {
+            config->created_files.erase( fileToBeDeleted );
+            return responseWhenFileDeleted( requestPath );
+        } else {
+            return responseWhenFileCantBeDeleted( requestPath );
+        }
+    } else {
+        return responseWhenFileCantBeDeleted( requestPath );
+    }
 }
 
 
@@ -209,13 +201,15 @@ HTTPResponseMessage handler( Request request, webserv::httpData *config, webserv
         requestPath += request.getPath()[i];
     }
 
+	if ( !location.allowed_response[request.getMethod()] )
+		return errorResponse( config, HTTPResponseMessage::METHOD_NOT_ALLOWED );
     if ( config->redirect.first > 0 )
         return REDIRECT_handler( request, config );
     if ( request.getMethod() == Request::GET )
         return GET_handler( requestPath, config, &location );
-	else if ( request.getMethod() == Request::POST )
-		return POST_handler( requestPath, request, config, &location );
-	else if ( request.getMethod() == Request::DELETE )
-		return DELETE_handler( requestPath, request, config, &location );
-	return response;
+    else if ( request.getMethod() == Request::POST )
+        return POST_handler( requestPath, request, config, &location );
+    else if ( request.getMethod() == Request::DELETE )
+        return DELETE_handler( requestPath, request, config, &location );
+    return response;
 }

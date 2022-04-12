@@ -5,45 +5,60 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-
-int CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd ) {
+HTTPResponseMessage::e_responseStatusCode
+CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd,
+              webserv::Request request ) {
     int pipes[2], ret;
     std::string ret_str, reqPath = location.root;
+    char *args[4] = { NULL, NULL, NULL, NULL };
+    struct stat buffer;
 
     reqPath.append( location.cgi_param );
-    char *args[3] = { strdup( "/usr/bin/python" ), strdup( reqPath.c_str()), NULL };
+    args[0] = strdup( "/usr/bin/python" );
+    args[1] = strdup( reqPath.c_str());
+
+    if ( stat( args[1], &buffer ) != 0 )
+        return HTTPResponseMessage::NOT_FOUND;
+    if ( request.getMethod() == webserv::Request::POST ) {
+        args[2] = strdup( request.getBody().c_str());
+        if ( !args[2] )
+            return HTTPResponseMessage::BAD_REQUEST;
+    }
 
     if ( pipe( pipes ) != 0 )
-        std::cerr << "pipe failed" << std::endl;
-	serverData.cgi_responses[pipes[0]].client_fd = client_fd;
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
+    serverData.cgi_responses[pipes[0]].client_fd = client_fd;
 
     struct kevent new_socket_change;
     EV_SET( &new_socket_change, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    int ret2 = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
-    if ( ret2 == ERROR )
-        return -1;
+    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
 
     int pid = fork();
     if ( pid < 0 ) {
-        return -1;
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
     } else if ( pid == 0 ) {
         close( pipes[0] );
         dup2( pipes[1], STDOUT_FILENO );
         close( pipes[1] );
-        if (( ret = execve( args[0], args, env )) < 0 )
-            std::cerr << "file open went wrong" << std::endl;
+        if (( ret = execve( args[0], args, env )) != 0 )
+            std::cout << "file open went wrong" << std::endl;
         exit( ret );
     }
-	close(pipes[1]);
-	serverData.cgi_responses[pipes[0]].pid = pid;
+
+    close( pipes[1] );
+    serverData.cgi_responses[pipes[0]].pid = pid;
     free( args[0] );
-    free( args[1] );
-    return 0;
+    if ( args[1] )
+        free( args[1] );
+    if ( args[2] )
+        free( args[2] );
+    return HTTPResponseMessage::OK;
 }
 
-std::string CGI_attempt( int pipe_fd, webserv::cgi_response resp ) {
+HTTPResponseMessage CGI_attempt( int pipe_fd, webserv::cgi_response resp, webserv::httpData config ) {
     HTTPResponseMessage response;
-    int ret = EXIT_FAILURE, status;
+    int ret = SUCCES, status;
     std::string ret_str;
     struct stat sb{ };
 
@@ -54,20 +69,28 @@ std::string CGI_attempt( int pipe_fd, webserv::cgi_response resp ) {
     close( pipe_fd );
     if ( WIFEXITED( status ))
         ret = WIFEXITED( status );
-    return ret_str;
+    std::cerr << "ret " << ret << std::endl;// *************************** debug
+    if ( ret == 0 ) {
+        response.addStatus( HTTPResponseMessage::OK )
+                .addLength( ret_str.length())
+                .addBody( ret_str )
+                .addType( "text/plain" );
+    } else {
+        response.addStatus( HTTPResponseMessage::INTERNAL_SERVER_ERROR )
+                .addLength( config.error_page[HTTPResponseMessage::INTERNAL_SERVER_ERROR].length())
+                .addBody( config.error_page[HTTPResponseMessage::INTERNAL_SERVER_ERROR] )
+                .addType( "text/plain" );
+    }
+    return response;
 }
 
 int responseFromCGI( webserv::serverData &serverData, int pipe_fd ) {
     HTTPResponseMessage response;
     std::string line;
     std::string body( "" );
-	webserv::cgi_response resp = serverData.cgi_responses[pipe_fd];
+    webserv::cgi_response resp = serverData.cgi_responses[pipe_fd];
 
-    body = CGI_attempt( pipe_fd, resp );
-    response.addStatus( HTTPResponseMessage::OK )
-            .addLength( body.length())
-            .addBody( body )
-            .addType( "text/plain" );
+    response = CGI_attempt( pipe_fd, resp, *serverData.clientSockets[resp.client_fd] );
     serverData.responses[resp.client_fd] = response.toString();
     serverData.requests.erase( resp.client_fd );
     printf( "  register CGI respond event - %d\n", resp.client_fd );

@@ -15,23 +15,28 @@ server {
 	}
 
 	location /images/ {
-		 root	/var/www/html/resources;
-		 autoindex on;
+		root	/var/www/html/resources;
+		autoindex on;
 	}
 
 	location /time {
-		 root	/var/cgi-bin;
-		 cgi_param /ret_time.py;
+		root	/var/cgi-bin;
+		cgi_param /ret_time.py;
 	}
 
-	location /time2 {
-    		 root	/var/cgi-bin;
-    		 cgi_param /first_cgi.py;
+	location /toupper {
+    	root	/var/cgi-bin;
+    	cgi_param /toupper.py;
+    }
+
+    location /false {
+        root	/var/cgi-bin;
+        cgi_param /false.py;
     }
 
 	location /images/limited/ {
 		root /var/www/html/resources;
-		limit_method POST DELETE GET;
+		limit_method POST;
 	}
 		
 }
@@ -45,7 +50,7 @@ server {
 
 server {
     listen 8100;
-    server_name     webserv.com www.webserv.com;
+    server_name     webserv.com;
 
 
     location / {
@@ -53,3 +58,4 @@ server {
     	root    /var/www/html;
     }
 }
+
