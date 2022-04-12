@@ -8,20 +8,21 @@
 #define CGI_RESPONSES serverData.cgi_responses
 #define ERROR_RESPONSE( code ) registerResponse(serverData, current_fd, errorResponse( CLIENTS[current_fd], code ));
 
-void registerResponse( webserv::serverData &serverData, int current_fd, HTTPResponseMessage response ) {
-    RESPONSES[current_fd] = response.toString();
+void webserv::registerResponse( webserv::serverData &serverData, int current_fd, HTTPResponseMessage response ) {
     REQUESTS.erase( current_fd );
     printf( "  register respond event - %d\n", current_fd );
     struct kevent new_socket_change;
     EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    if ( kevent( KQ.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
-        exit( EXIT_FAILURE );
+    if ( kevent( KQ.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR ){
+        return kqueueFailure( current_fd );
+    }
+    RESPONSES[current_fd] = response.toString();
 }
 
 void webserv::processEvent( webserv::serverData &serverData, struct kevent &event ) {
     int current_fd = event.ident;
 
-    if ( event.flags & EV_EOF ) {  // check if it's an eof event, client disconnected
+    if ( event.flags & EV_EOF ) {
         disconnected( current_fd, KQ.nbr_connections );
     } else if ( SERVER_MAP.find( current_fd ) != SERVER_MAP.end()) {
         accepter( SERVER_MAP[current_fd], KQ, CLIENTS );
@@ -29,13 +30,13 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
         if ( responder( current_fd, RESPONSES ) == FINISHED ) {
             struct kevent deregister_socket_change;
             EV_SET( &deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
-            int ret = kevent( KQ.kq, &deregister_socket_change, 1, NULL, 0, NULL );
-            if ( ret == ERROR )
-                exit( EXIT_FAILURE );
+            if ( kevent( KQ.kq, &deregister_socket_change, 1, NULL, 0, NULL ) == ERROR )
+                return kqueueFailure( current_fd );
+            RESPONSES.erase( current_fd );
         }
     } else if ( CGI_RESPONSES.find( current_fd ) != CGI_RESPONSES.end()) {
         if ( responseFromCGI( serverData, current_fd ) < 0 )
-            exit( EXIT_FAILURE );
+            return ;
         CGI_RESPONSES.erase( current_fd );
     } else {
         memset( serverData.buf, 0, serverData.buflen );
@@ -52,7 +53,7 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
 void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
     if ( REQUESTS.find( current_fd ) == REQUESTS.end())
         REQUESTS[current_fd] = webserv::Request(
-                CLIENTS[current_fd]->max_client_body_size );    //creates new (empty) request in map
+                CLIENTS[current_fd]->max_client_body_size ); //creates new (empty) request in map
     webserv::Request &request = REQUESTS[current_fd];
 
     try { request.parseChunk( serverData.buf, bytesread ); }
@@ -60,10 +61,14 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
         ERROR_RESPONSE( HTTPResponseMessage::PAYLOAD_TOO_LARGE );
         std::cerr << e.what() << std::endl;
     }
+    catch ( webserv::Request::IncorrectRequestException &e ) {
+        ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
+        std::cerr << e.what() << std::endl;
+    }
 
     if ( request.isComplete()) {
         try {
-            int location_index = findRequestedLocation( CLIENTS[current_fd], request.getPath());
+            int location_index = findRequestedLocation( CLIENTS[current_fd], request.getPath() );
             HTTPResponseMessage::e_responseStatusCode ret;
             if ( location_index == NOTFOUND ) {
                 ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
@@ -79,7 +84,7 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
                 }
             }
         }
-        catch ( webserv::Request::IncorrectRequestException &e ) {        // catches parsing errors from request
+        catch ( webserv::Request::IncorrectRequestException &e ) {
             ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
             std::cerr << e.what() << std::endl;
         }
@@ -106,4 +111,9 @@ void webserv::disconnected( int fd, int &nbr_conn ) {
     std::cerr << "client disconnected" << std::endl;
     close( fd );
     nbr_conn--;
+}
+
+void webserv::kqueueFailure( int fd ) {
+    std::cerr << "Kqueue Register Failure\n"; 
+    close( fd );
 }

@@ -4,6 +4,7 @@
 #include "server.hpp"
 #include <unistd.h>
 #include <sys/stat.h>
+#include "../utils/webserv.hpp"
 
 HTTPResponseMessage::e_responseStatusCode createPath( webserv::locationData location, webserv::Request request, char **args ){
     std::string reqPath = location.root;
@@ -64,9 +65,11 @@ CGI_register( webserv::locationData location, webserv::serverData &serverData, i
 
     struct kevent new_socket_change;
     EV_SET( &new_socket_change, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
+    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR ){
+        webserv::kqueueFailure( pipes[0] );
         return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
-
+    }
+    
     ret_code = executeCmd( pipes, args, serverData.clientSockets[client_fd]->env, &serverData.cgi_responses[pipes[0]].pid);
     if ( ret_code != HTTPResponseMessage::OK )
         return ret_code;
@@ -108,13 +111,15 @@ int responseFromCGI( webserv::serverData &serverData, int pipe_fd ) {
     webserv::cgi_response resp = serverData.cgi_responses[pipe_fd];
 
     response = CGI_attempt( pipe_fd, resp, *serverData.clientSockets[resp.client_fd] );
-    serverData.responses[resp.client_fd] = response.toString();
     serverData.requests.erase( resp.client_fd );
     printf( "  register CGI respond event - %d\n", resp.client_fd );
     struct kevent new_socket_change;
     EV_SET( &new_socket_change, resp.client_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
+    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR ){
+        webserv::kqueueFailure( resp.client_fd );
         return ERROR;
+    }
+    serverData.responses[resp.client_fd] = response.toString();
     return SUCCES;
 }
  

@@ -69,8 +69,11 @@ void webserv::Request::setPath( std::string line ) {
 
 void	webserv::Request::parseChunk(char* chunk, int len){
 
-	if (_headersDone)
+	if (_headersDone){
 		_body.append(chunk, len);
+		if (_body.size() > _contentLength)
+			throw ( IncorrectRequestException() );
+	}
 	else
 		_rawRequest.append(chunk, len);
 

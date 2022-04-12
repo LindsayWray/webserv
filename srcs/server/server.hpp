@@ -21,6 +21,7 @@ void autoIndexing( std::string path, std::string directory, std::string &body );
 HTTPResponseMessage::e_responseStatusCode CGI_register( webserv::locationData location, webserv::serverData &serverData, int client_fd, webserv::Request request);
 int responseFromCGI( webserv::serverData &serverData, int pipe_fd );
 
+
 class DirectoryNotFoundException : public std::exception {
 public:
     const char *what() const throw() {

@@ -9,17 +9,11 @@
 #define CHUNK_SIZE 1024
 
 bool responder( int fd, std::map<int, std::string> &responses ) {
-    /* RESPONSE LOGGER */
-    // std::cout << response.toString();
-
-    /* FIRST ATTEMPT AT RESPONSE IMPL */
     std::cout << "sending chunk of response" << std::endl;
 
     std::string chunk = responses[fd].substr( 0, CHUNK_SIZE );
 
-    //std::cout << "responseStr " << responseStr << std::endl;
     send( fd, chunk.c_str(), chunk.length(), 0 );
-
     if ( responses[fd].length() > CHUNK_SIZE ) {
         responses[fd] = responses[fd].substr( CHUNK_SIZE, responses[fd].length());
         return NOT_FINISHED;
