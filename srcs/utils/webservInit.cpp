@@ -42,11 +42,13 @@ void initServerData( webserv::serverData &serverData, webserv::httpData* httpDat
         serverData.default_server[port] = httpData;
     for (int i = 0; i < httpData->server_name.size(); i++) {
         pair = std::make_pair( port, httpData->server_name[i] );
+//        std::cout << "port: " << pair.first << "server_name: " << pair.second << std::endl;  //************************** debug
         if ( serverData.host_servername.find( pair ) == serverData.host_servername.end() )
-            serverData.host_servername[pair] = httpData;
+            serverData.host_servername[std::make_pair( port, httpData->server_name[i] )] = httpData;
 //        else
 //            return ERROR; //duplicate servername with port
     }
+
 }
 
 int webserv::init_servers( webserv::serverData &serverData, std::string filename, char **env ) {
@@ -84,7 +86,9 @@ int webserv::init_servers( webserv::serverData &serverData, std::string filename
         std::cerr << "  kqueue() failed" << std::endl;
         return ERROR;
     }
-
+//    for ( std::map<std::pair<int,std::string>,webserv::httpData *>::iterator it = serverData.host_servername.begin(); it != serverData.host_servername.end(); it++){   //************************** debug
+//        std::cout << "host: "<< it->first.first << " server_name: " << it->first.second << std::endl;
+//    }
     struct kevent in_events[socket_vec.ports.size()];
     webserv::listeningSocket *socket_tmp;
     int i = 0;

@@ -1,5 +1,5 @@
 #include "webserv.hpp"
-
+#include "printFormatting.hpp"
 #define RESPONSES serverData.responses
 #define REQUESTS serverData.requests
 #define CLIENTS serverData.clientSockets
@@ -49,10 +49,16 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
     }
 }
 
+static webserv::httpData* findServerBlock( webserv::serverData serverData, webserv::Request request, int current_fd ){
+    std::pair<int,std::string> pairs( CLIENTS[current_fd]->port, request.getHost() );
+    if ( serverData.host_servername.find(pairs) != serverData.host_servername.end() )
+        return serverData.host_servername[pairs];
+    return CLIENTS[current_fd];
+}
+
 void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
     if ( REQUESTS.find( current_fd ) == REQUESTS.end())
-        REQUESTS[current_fd] = webserv::Request(
-                CLIENTS[current_fd]->max_client_body_size );    //creates new (empty) request in map
+        REQUESTS[current_fd] = webserv::Request( CLIENTS[current_fd]->max_client_body_size );    //creates new (empty) request in map
     webserv::Request &request = REQUESTS[current_fd];
 
     try { request.parseChunk( serverData.buf, bytesread ); }
@@ -63,12 +69,13 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
 
     if ( request.isComplete()) {
         try {
-            int location_index = findRequestedLocation( CLIENTS[current_fd], request.getPath());
+            webserv::httpData* serverblock = findServerBlock( serverData, request, current_fd );
+            int location_index = findRequestedLocation( serverblock, request.getPath());
             HTTPResponseMessage::e_responseStatusCode ret;
             if ( location_index == NOTFOUND ) {
                 ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
             } else {
-                webserv::locationData location = CLIENTS[current_fd]->locations[location_index];
+                webserv::locationData location = serverblock->locations[location_index];
                 if ( location.CGI ) {
                     ret = CGI_register( location, serverData, current_fd, request );
                     if ( ret != HTTPResponseMessage::OK )

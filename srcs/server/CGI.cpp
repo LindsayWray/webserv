@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-HTTPResponseMessage::e_responseStatusCode createPath( webserv::locationData location, webserv::Request request, char **args ){
+static HTTPResponseMessage::e_responseStatusCode createPath( webserv::locationData location, webserv::Request request, char **args ){
     std::string reqPath = location.root;
     struct stat buffer;
 
@@ -23,7 +23,7 @@ HTTPResponseMessage::e_responseStatusCode createPath( webserv::locationData loca
     return HTTPResponseMessage::OK;
 }
 
-HTTPResponseMessage::e_responseStatusCode executeCmd( int* pipes, char** args, char** env, int* pid_storage ){
+static HTTPResponseMessage::e_responseStatusCode executeCmd( int* pipes, char** args, char** env, int* pid_storage ){
     int ret, pid = fork();
     if ( pid < 0 ) {
         return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
@@ -49,27 +49,27 @@ HTTPResponseMessage::e_responseStatusCode executeCmd( int* pipes, char** args, c
 HTTPResponseMessage::e_responseStatusCode
 CGI_register( webserv::locationData location, webserv::serverData &serverData, int client_fd,
               webserv::Request request ) {
-    HTTPResponseMessage::e_responseStatusCode ret_code;
+    HTTPResponseMessage::e_responseStatusCode ret;
     int pipes[2];
     std::string ret_str;
     char *args[4] = { NULL, NULL, NULL, NULL };
 
-    ret_code = createPath( location, request, args );
-    if ( ret_code != HTTPResponseMessage::OK )
-        return ret_code;
+    ret = createPath( location, request, args );
+    if ( ret != HTTPResponseMessage::OK )
+        return ret;
 
     if ( pipe( pipes ) != 0 )
         return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
     serverData.cgi_responses[pipes[0]].client_fd = client_fd;
 
-    struct kevent new_socket_change;
-    EV_SET( &new_socket_change, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
+    struct kevent new_socket;
+    EV_SET( &new_socket, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
+    if ( kevent( serverData.kqData.kq, &new_socket, 1, NULL, 0, NULL ) == ERROR )
         return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
 
-    ret_code = executeCmd( pipes, args, serverData.clientSockets[client_fd]->env, &serverData.cgi_responses[pipes[0]].pid);
-    if ( ret_code != HTTPResponseMessage::OK )
-        return ret_code;
+    ret = executeCmd( pipes, args, serverData.clientSockets[client_fd]->env, &serverData.cgi_responses[pipes[0]].pid);
+    if ( ret != HTTPResponseMessage::OK )
+        return ret;
     return HTTPResponseMessage::OK;
 }
 
