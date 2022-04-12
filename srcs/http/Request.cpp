@@ -78,13 +78,12 @@ void	webserv::Request::appendBody(const char* chunk, int len) {
 		if (_body.size() > _contentLength)
 			throw (IncorrectRequestException());
 	else {
-		//Chunk logic
 		int size;
 		char *buf;
 
 		std::stringstream ss(chunk);
-		if (_body.empty())
-			ss >> size; // skip the first int, its weird
+		// if (_body.empty())
+		// 	ss >> size; // skip the first int, its weird
 
 		// if (_remainder) {
 		// 	buf = (char *)malloc(_remainder + 1);
@@ -100,7 +99,7 @@ void	webserv::Request::appendBody(const char* chunk, int len) {
 				_chunkedComplete = true;
 				return;
 			}
-			// std::cout << "Chunk size" << size << std::endl;
+			std::cout << "Chunk size" << size << std::endl;
 			ss.ignore(1); 
 			buf = (char *)malloc(size + 1);
 			// std::cout << ss.tellg() << std::endl;
@@ -157,7 +156,10 @@ void	webserv::Request::parseChunk(char* chunk, int len){
 			_headers[key] = _headers[key].substr( 1, _headers[key].size() - 2 );
 		}
 
-		if (_headers.find("Content-Length") == _headers.end())
+		if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == " chunked\r")
+			_chunked = true;
+
+		else if (_headers.find("Content-Length") == _headers.end())
 			_contentLength = 0; 
 		else 
 			_contentLength = std::stoi(_headers["Content-Length"]);
@@ -172,7 +174,8 @@ void	webserv::Request::parseChunk(char* chunk, int len){
 			throw (MaxClientBodyException());
 
 		int current_position = ss.tellg();
-		_body = _rawRequest.substr(current_position, _rawRequest.size() - current_position );
+		std::string rest = _rawRequest.substr(current_position, _rawRequest.size() - current_position );
+		appendBody(rest.c_str(), rest.size());
 		_headersDone = true;
 	}
 }
