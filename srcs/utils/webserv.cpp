@@ -15,8 +15,8 @@
 
 
 void registerResponse( webserv::serverData &serverData, int current_fd, HTTPResponseMessage response ) {
-    serverData.responses[current_fd] = response.toString();
-    serverData.requests.erase( current_fd );
+    RESPONSES[current_fd] = response.toString();
+    REQUESTS.erase( current_fd );
     printf( "  register respond event - %d\n", current_fd );
     struct kevent new_socket;
     EV_SET( &new_socket, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
