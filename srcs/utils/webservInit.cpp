@@ -6,7 +6,7 @@
 #include "../config/configParser.hpp"
 #include <sys/event.h>
 
-int webserv::findPWD( char **env ) {
+static int findPWD( char **env ) {
     std::string pwd = "PWD=";
     int i = 0, found;
 
@@ -24,7 +24,7 @@ int webserv::findPWD( char **env ) {
     return i;
 }
 
-std::string webserv::setFileLocation( char **env ) {
+static std::string setFileLocation( char **env ) {
     int pwd = findPWD( env );
     if ( pwd == ERROR )
         return "PWDNOTFOUND";
@@ -34,7 +34,7 @@ std::string webserv::setFileLocation( char **env ) {
     return root;
 }
 
-void initServerData( webserv::serverData &serverData, webserv::httpData* httpData ){
+static void initServerData( webserv::serverData &serverData, webserv::httpData* httpData ){
     int port = httpData->port;
     std::pair<int, std::string> pair;
 
@@ -44,14 +44,11 @@ void initServerData( webserv::serverData &serverData, webserv::httpData* httpDat
         pair = std::make_pair( port, httpData->server_name[i] );
         if ( serverData.host_servername.find( pair ) == serverData.host_servername.end() )
             serverData.host_servername[std::make_pair( port, httpData->server_name[i] )] = httpData;
-//        else
-//            return ERROR; //duplicate servername with port
     }
-
 }
 
 int webserv::init_servers( webserv::serverData &serverData, std::string filename, char **env ) {
-    std::string root = webserv::setFileLocation( env );
+    std::string root = setFileLocation( env );
     std::string configFile = root;
     configFile.append( "/var/sites_enabled/" );
     configFile.append( filename );
