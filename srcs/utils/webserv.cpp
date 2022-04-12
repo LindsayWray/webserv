@@ -1,26 +1,20 @@
-//
-// Created by Kester kas De rooij on 4/6/22.
-//
-
 #include "webserv.hpp"
 
-#define CLIENT( fd ) serverData.clientSockets[fd]
 #define RESPONSES serverData.responses
 #define REQUESTS serverData.requests
-#define SERVER_MAP serverData.serverMap
+#define CLIENTS serverData.clientSockets
 #define KQ serverData.kqData
-#define CGI_RESPONSE serverData.cgi_responses
-#define ERROR_RESPONSE( fd, co ) registerResponse( serverData, fd, errorResponse( CLIENT( fd ), co ))
-#define IS_FD( mac, fd ) mac.find( fd ) != mac.end()
-
+#define SERVER_MAP serverData.serverMap
+#define CGI_RESPONSES serverData.cgi_responses
+#define ERROR_RESPONSE( code ) registerResponse(serverData, current_fd, errorResponse( CLIENTS[current_fd], code ));
 
 void registerResponse( webserv::serverData &serverData, int current_fd, HTTPResponseMessage response ) {
     RESPONSES[current_fd] = response.toString();
     REQUESTS.erase( current_fd );
     printf( "  register respond event - %d\n", current_fd );
-    struct kevent new_socket;
-    EV_SET( &new_socket, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    if ( kevent( KQ.kq, &new_socket, 1, NULL, 0, NULL ) == ERROR )
+    struct kevent new_socket_change;
+    EV_SET( &new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
+    if ( kevent( KQ.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
         exit( EXIT_FAILURE );
 }
 
@@ -29,19 +23,20 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
 
     if ( event.flags & EV_EOF ) {  // check if it's an eof event, client disconnected
         disconnected( current_fd, KQ.nbr_connections );
-    } else if ( IS_FD( SERVER_MAP, current_fd ) ) {
-        accepter( SERVER_MAP[current_fd], KQ, serverData.clientSockets );
-    } else if ( IS_FD( RESPONSES, current_fd ) ) {
+    } else if ( SERVER_MAP.find( current_fd ) != SERVER_MAP.end()) {
+        accepter( SERVER_MAP[current_fd], KQ, CLIENTS );
+    } else if ( RESPONSES.find( current_fd ) != RESPONSES.end()) {
         if ( responder( current_fd, RESPONSES ) == FINISHED ) {
-            struct kevent deregister;
-            EV_SET( &deregister, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
-            if ( kevent( KQ.kq, &deregister, 1, NULL, 0, NULL ) == ERROR )
+            struct kevent deregister_socket_change;
+            EV_SET( &deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
+            int ret = kevent( KQ.kq, &deregister_socket_change, 1, NULL, 0, NULL );
+            if ( ret == ERROR )
                 exit( EXIT_FAILURE );
         }
-    } else if ( IS_FD( CGI_RESPONSE, current_fd ) ) {
+    } else if ( CGI_RESPONSES.find( current_fd ) != CGI_RESPONSES.end()) {
         if ( responseFromCGI( serverData, current_fd ) < 0 )
             exit( EXIT_FAILURE );
-        CGI_RESPONSE.erase( current_fd );
+        CGI_RESPONSES.erase( current_fd );
     } else {
         memset( serverData.buf, 0, serverData.buflen );
         int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );
@@ -55,37 +50,37 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
 }
 
 void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
-    if ( IS_FD( REQUESTS, current_fd ) )
+    if ( REQUESTS.find( current_fd ) == REQUESTS.end())
         REQUESTS[current_fd] = webserv::Request(
-                CLIENT( current_fd )->max_client_body_size );    //creates new (empty) request in map
+                CLIENTS[current_fd]->max_client_body_size );    //creates new (empty) request in map
     webserv::Request &request = REQUESTS[current_fd];
 
     try { request.parseChunk( serverData.buf, bytesread ); }
     catch ( webserv::Request::MaxClientBodyException &e ) {
-        ERROR_RESPONSE( current_fd, HTTPResponseMessage::PAYLOAD_TOO_LARGE );
+        ERROR_RESPONSE( HTTPResponseMessage::PAYLOAD_TOO_LARGE );
         std::cerr << e.what() << std::endl;
     }
 
     if ( request.isComplete()) {
         try {
-            int location_index = findRequestedLocation( CLIENT( current_fd ), request.getPath());
+            int location_index = findRequestedLocation( CLIENTS[current_fd], request.getPath());
             HTTPResponseMessage::e_responseStatusCode ret;
             if ( location_index == NOTFOUND ) {
-                ERROR_RESPONSE( current_fd, HTTPResponseMessage::INTERNAL_SERVER_ERROR );
+                ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
             } else {
-                webserv::locationData location = CLIENT( current_fd )->locations[location_index];
+                webserv::locationData location = CLIENTS[current_fd]->locations[location_index];
                 if ( location.CGI ) {
-                    ret = CGI_register( location, serverData, CLIENT( current_fd )->env, current_fd, request );
+                    ret = CGI_register( location, serverData, current_fd, request );
                     if ( ret != HTTPResponseMessage::OK )
-                        ERROR_RESPONSE( current_fd, ret );
+                        ERROR_RESPONSE( ret );
                 } else {
-                    HTTPResponseMessage response = handler( request, CLIENT( current_fd ), location );
+                    HTTPResponseMessage response = handler( request, CLIENTS[current_fd], location );
                     registerResponse( serverData, current_fd, response );
                 }
             }
         }
         catch ( webserv::Request::IncorrectRequestException &e ) {        // catches parsing errors from request
-            ERROR_RESPONSE( current_fd, HTTPResponseMessage::BAD_REQUEST );
+            ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
             std::cerr << e.what() << std::endl;
         }
     }
@@ -112,5 +107,3 @@ void webserv::disconnected( int fd, int &nbr_conn ) {
     close( fd );
     nbr_conn--;
 }
-
-

@@ -18,7 +18,7 @@ HTTPResponseMessage handler( webserv::Request request, webserv::httpData *config
 bool responder( int fd, std::map<int, std::string> &responses );
 HTTPResponseMessage errorResponse( webserv::httpData *config, HTTPResponseMessage::e_responseStatusCode code);
 void autoIndexing( std::string path, std::string directory, std::string &body );
-HTTPResponseMessage::e_responseStatusCode CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd, webserv::Request request);
+HTTPResponseMessage::e_responseStatusCode CGI_register( webserv::locationData location, webserv::serverData &serverData, int client_fd, webserv::Request request);
 int responseFromCGI( webserv::serverData &serverData, int pipe_fd );
 
 class DirectoryNotFoundException : public std::exception {

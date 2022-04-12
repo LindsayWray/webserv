@@ -5,12 +5,8 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-HTTPResponseMessage::e_responseStatusCode
-CGI_register( webserv::locationData location, webserv::serverData &serverData, char **env, int client_fd,
-              webserv::Request request ) {
-    int pipes[2], ret;
-    std::string ret_str, reqPath = location.root;
-    char *args[4] = { NULL, NULL, NULL, NULL };
+HTTPResponseMessage::e_responseStatusCode createPath( webserv::locationData location, webserv::Request request, char **args ){
+    std::string reqPath = location.root;
     struct stat buffer;
 
     reqPath.append( location.cgi_param );
@@ -24,17 +20,11 @@ CGI_register( webserv::locationData location, webserv::serverData &serverData, c
         if ( !args[2] )
             return HTTPResponseMessage::BAD_REQUEST;
     }
+    return HTTPResponseMessage::OK;
+}
 
-    if ( pipe( pipes ) != 0 )
-        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
-    serverData.cgi_responses[pipes[0]].client_fd = client_fd;
-
-    struct kevent new_socket_change;
-    EV_SET( &new_socket_change, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
-        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
-
-    int pid = fork();
+HTTPResponseMessage::e_responseStatusCode executeCmd( int* pipes, char** args, char** env, int* pid_storage ){
+    int ret, pid = fork();
     if ( pid < 0 ) {
         return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
     } else if ( pid == 0 ) {
@@ -46,14 +36,40 @@ CGI_register( webserv::locationData location, webserv::serverData &serverData, c
             std::cout << "file open went wrong" << std::endl;
         exit( ret );
     }
-
     close( pipes[1] );
-    serverData.cgi_responses[pipes[0]].pid = pid;
+    *pid_storage = pid;
     free( args[0] );
     if ( args[1] )
         free( args[1] );
     if ( args[2] )
         free( args[2] );
+    return HTTPResponseMessage::OK;
+}
+
+HTTPResponseMessage::e_responseStatusCode
+CGI_register( webserv::locationData location, webserv::serverData &serverData, int client_fd,
+              webserv::Request request ) {
+    HTTPResponseMessage::e_responseStatusCode ret_code;
+    int pipes[2];
+    std::string ret_str;
+    char *args[4] = { NULL, NULL, NULL, NULL };
+
+    ret_code = createPath( location, request, args );
+    if ( ret_code != HTTPResponseMessage::OK )
+        return ret_code;
+
+    if ( pipe( pipes ) != 0 )
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
+    serverData.cgi_responses[pipes[0]].client_fd = client_fd;
+
+    struct kevent new_socket_change;
+    EV_SET( &new_socket_change, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
+    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
+        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
+
+    ret_code = executeCmd( pipes, args, serverData.clientSockets[client_fd]->env, &serverData.cgi_responses[pipes[0]].pid);
+    if ( ret_code != HTTPResponseMessage::OK )
+        return ret_code;
     return HTTPResponseMessage::OK;
 }
 
