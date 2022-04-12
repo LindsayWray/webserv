@@ -37,6 +37,7 @@ void webserv::processEvent( webserv::serverData& serverData, struct kevent& even
         std::cerr << "CGI response " << std::endl; // ***************************
         if ( responseFromCGI( serverData, current_fd ) < 0 )
             exit( EXIT_FAILURE );
+        serverData.cgi_responses.erase( current_fd );
     } else {
         std::cerr << "Read request " << std::endl; // ***************************
         memset( serverData.buf, 0, serverData.buflen );
