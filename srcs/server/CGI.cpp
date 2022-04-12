@@ -80,7 +80,7 @@ HTTPResponseMessage CGI_attempt( int pipe_fd, webserv::cgi_response resp, webser
         response.addStatus( HTTPResponseMessage::INTERNAL_SERVER_ERROR )
                 .addLength( config.error_page[HTTPResponseMessage::INTERNAL_SERVER_ERROR].length())
                 .addBody( config.error_page[HTTPResponseMessage::INTERNAL_SERVER_ERROR] )
-                .addType( "text/plain" );
+                .addType( "text/html" );
     }
     return response;
 }
