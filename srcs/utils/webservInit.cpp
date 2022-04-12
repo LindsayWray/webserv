@@ -6,7 +6,7 @@
 #include "../config/configParser.hpp"
 #include <sys/event.h>
 
-int webserv::findPWD( char **env ) {
+static int findPWD( char **env ) {
     std::string pwd = "PWD=";
     int i = 0, found;
 
@@ -24,7 +24,7 @@ int webserv::findPWD( char **env ) {
     return i;
 }
 
-std::string webserv::setFileLocation( char **env ) {
+static std::string setFileLocation( char **env ) {
     int pwd = findPWD( env );
     if ( pwd == ERROR )
         return "PWDNOTFOUND";
@@ -34,7 +34,7 @@ std::string webserv::setFileLocation( char **env ) {
     return root;
 }
 
-void initServerData( webserv::serverData &serverData, webserv::httpData* httpData ){
+static void initServerData( webserv::serverData &serverData, webserv::httpData* httpData ){
     int port = httpData->port;
     std::pair<int, std::string> pair;
 
@@ -43,14 +43,12 @@ void initServerData( webserv::serverData &serverData, webserv::httpData* httpDat
     for (int i = 0; i < httpData->server_name.size(); i++) {
         pair = std::make_pair( port, httpData->server_name[i] );
         if ( serverData.host_servername.find( pair ) == serverData.host_servername.end() )
-            serverData.host_servername[pair] = httpData;
-//        else
-//            return ERROR; //duplicate servername with port
+            serverData.host_servername[std::make_pair( port, httpData->server_name[i] )] = httpData;
     }
 }
 
 int webserv::init_servers( webserv::serverData &serverData, std::string filename, char **env ) {
-    std::string root = webserv::setFileLocation( env );
+    std::string root = setFileLocation( env );
     std::string configFile = root;
     configFile.append( "/var/sites_enabled/" );
     configFile.append( filename );
@@ -84,12 +82,10 @@ int webserv::init_servers( webserv::serverData &serverData, std::string filename
         std::cerr << "  kqueue() failed" << std::endl;
         return ERROR;
     }
-
     struct kevent in_events[socket_vec.ports.size()];
     webserv::listeningSocket *socket_tmp;
     int i = 0;
     for ( int serv = 0; serv < socket_vec.ports.size(); serv++ ) {
-        std::cout << socket_vec.ports[serv] << std::endl;
         socket_tmp = new webserv::listeningSocket( socket_vec, socket_vec.ports[serv] );
         serverData.serverMap[socket_tmp->get_sock()] = std::make_pair( socket_tmp, serverData.default_server[socket_vec.ports[serv]] );
         EV_SET( &in_events[i++], socket_tmp->get_sock(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );

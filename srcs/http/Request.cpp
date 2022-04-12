@@ -25,6 +25,7 @@ webserv::Request& webserv::Request::operator=(const webserv::Request& original){
 	this->_chunked = original._chunked;
 	this->_chunkedComplete = original._chunkedComplete;
 	this->_remainder = original._remainder;
+	this->_host = original._host;
 	return *this;
 }
 
@@ -153,13 +154,19 @@ void	webserv::Request::parseChunk(char* chunk, int len){
 				printf( "Fault in the headers\n" );
 				throw ( IncorrectRequestException());
 			}
+			_headers[key] = _headers[key].substr( 1, _headers[key].size() - 2 );
 		}
 
 		if (_headers.find("Content-Length") == _headers.end())
 			_contentLength = 0; 
 		else 
 			_contentLength = std::stoi(_headers["Content-Length"]);
-		
+
+        if (_headers.find("Host") == _headers.end())
+            _host = "NAV";
+        else
+            _host = _headers["Host"];
+
 		std::cout << "MAX BODY " << _max_client_body << std::endl;
 		if ( _max_client_body != 0 && _contentLength > _max_client_body )
 			throw (MaxClientBodyException());
@@ -189,6 +196,11 @@ webserv::Request::method webserv::Request::getMethod() const {
 std::string webserv::Request::getRawRequest() const {
     return this->_rawRequest;
 }
+
+std::string webserv::Request::getHost() const {
+    return this->_host;
+}
+
 
 bool webserv::Request::isComplete() const {
 	if (!_headersDone)

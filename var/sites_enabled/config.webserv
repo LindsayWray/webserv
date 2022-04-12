@@ -1,7 +1,7 @@
 server {
 	listen 8080;
 
-	server_name localhost www.localhost;
+	server_name www.localhost;
 
 	index   /index.html;
 
@@ -43,9 +43,19 @@ server {
 
 server {
     listen          80;
-    server_name     localhost www.localhost;
+    server_name     localhost;
 
     return 302 http://localhost:8080$uri;
+}
+
+server {
+    listen          8100;
+    server_name     banaan.org;
+
+    location / {
+        	root    /var/www/other;
+        	autoindex on;
+        }
 }
 
 server {

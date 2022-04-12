@@ -33,10 +33,6 @@ namespace webserv {
     } serverData;
 
     int init_servers( webserv::serverData &serverData, std::string filename, char **env );
-
-    std::string setFileLocation( char **env );
-    int findPWD( char **env );
-
 };
 
 #endif

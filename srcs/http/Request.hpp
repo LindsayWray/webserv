@@ -31,6 +31,7 @@ namespace webserv {
         std::string _version;
         std::map<std::string, std::string> _headers;
         std::string _body;
+        std::string _host;
 
         void parse_statusline( std::string &method );
 		void setPath( std::string line );
@@ -49,6 +50,7 @@ namespace webserv {
         method getMethod() const;
         std::string getRequestPath() const;
 		std::string getRawRequest() const;
+        std::string getHost() const;
 
 		void	parseChunk(char* chunk, int len);
 		bool	isComplete() const;
