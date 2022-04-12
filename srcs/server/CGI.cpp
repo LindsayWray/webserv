@@ -39,6 +39,7 @@ CGI_register( webserv::locationData location, webserv::serverData &serverData, c
         return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
     } else if ( pid == 0 ) {
         close( pipes[0] );
+        dup2( pipes[1], STDERR_FILENO );
         dup2( pipes[1], STDOUT_FILENO );
         close( pipes[1] );
         if (( ret = execve( args[0], args, env )) != 0 )
@@ -68,8 +69,8 @@ HTTPResponseMessage CGI_attempt( int pipe_fd, webserv::cgi_response resp, webser
     read( pipe_fd, ( char * ) ( ret_str.data()), sb.st_size );
     close( pipe_fd );
     if ( WIFEXITED( status ))
-        ret = WIFEXITED( status );
-    std::cerr << "ret " << ret << std::endl;// *************************** debug
+        ret = WEXITSTATUS( status );
+    std::cerr << "ret " << ret << std::endl;
     if ( ret == 0 ) {
         response.addStatus( HTTPResponseMessage::OK )
                 .addLength( ret_str.length())
