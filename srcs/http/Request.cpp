@@ -22,6 +22,9 @@ webserv::Request& webserv::Request::operator=(const webserv::Request& original){
 	this->_version = original._version;
 	this->_headers = original._headers;
 	this->_body = original._body;
+	this->_chunked = original._chunked;
+	this->_chunkedComplete = original._chunkedComplete;
+	this->_remainder = original._remainder;
 	return *this;
 }
 
@@ -63,6 +66,55 @@ void webserv::Request::setPath( std::string line ) {
 				_path.push_back( line.substr( i, found - i ));
 			_path.push_back( line.substr( found, 1 ));
 			i = found + 1;
+		}
+	}
+}
+
+void	webserv::Request::appendBody(const char* chunk, int len) {
+	std::cout << "appending" << _chunked << std::endl ; 
+	if (!_chunked)
+		_body.append(chunk, len);
+		if (_body.size() > _contentLength)
+			throw (IncorrectRequestException());
+	else {
+		//Chunk logic
+		int size;
+		char *buf;
+
+		std::stringstream ss(chunk);
+		if (_body.empty())
+			ss >> size; // skip the first int, its weird
+
+		// if (_remainder) {
+		// 	buf = (char *)malloc(_remainder + 1);
+		// 	ss.get(buf, _remainder + 1);
+		// 	_body.append(buf, _remainder);
+		// 	_remainder = 0;
+		// 	free(buf);
+		// }
+	
+		while (size != 0) {
+			ss >> std::hex >> size;
+			if (size == 0) {
+				_chunkedComplete = true;
+				return;
+			}
+			// std::cout << "Chunk size" << size << std::endl;
+			ss.ignore(1); 
+			buf = (char *)malloc(size + 1);
+			// std::cout << ss.tellg() << std::endl;
+			ss.get(buf, size + 1);
+			// if (strlen(buf) != size) {
+			// 	_body.append(buf, strlen(buf));
+			// 	_remainder = size - strlen(buf);
+			// 	free(buf);
+			// 	break;
+			// }
+			// std::cout << ss.tellg() << std::endl;
+			// ss.ignore(1);
+			_body.append(buf, size + 1);
+			// std::cout << _body << std::endl;
+			free(buf);
 		}
 	}
 }
@@ -139,6 +191,10 @@ std::string webserv::Request::getRawRequest() const {
 }
 
 bool webserv::Request::isComplete() const {
-	//std::cout << "Checking..." << this->_body.size() << " - " << this->_contentLength << std::endl;
-	return _headersDone && (this->_body.size() == this->_contentLength);
+	if (!_headersDone)
+		return false;
+	if (_chunked)
+		return ( _chunkedComplete );
+	std::cout << "Checking..." << this->_body.size() << " - " << this->_contentLength << std::endl;
+	return (this->_body.size() >= this->_contentLength);
 }

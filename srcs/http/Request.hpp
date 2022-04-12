@@ -20,6 +20,9 @@ namespace webserv {
 		std::string _rawRequest;
 		bool _headersDone;
 		int _contentLength;
+		bool _chunked;
+		bool _chunkedComplete;
+		int _remainder;
 		int _max_client_body;
 
         method _method;
@@ -31,6 +34,7 @@ namespace webserv {
 
         void parse_statusline( std::string &method );
 		void setPath( std::string line );
+		void appendBody(const char* chunk, int len);
 
 
     public:
