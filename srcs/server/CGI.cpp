@@ -97,9 +97,8 @@ int responseFromCGI( webserv::serverData &serverData, int pipe_fd ) {
     printf( "  register CGI respond event - %d\n", resp.client_fd );
     struct kevent new_socket_change;
     EV_SET( &new_socket_change, resp.client_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    int ret = kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL );
-    if ( ret == ERROR )
-        return -1;
-    return 0;
+    if ( kevent( serverData.kqData.kq, &new_socket_change, 1, NULL, 0, NULL ) == ERROR )
+        return ERROR;
+    return SUCCES;
 }
  
