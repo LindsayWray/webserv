@@ -1,7 +1,8 @@
-#include "utils/webservInit.hpp"
-#include "utils/webserv.hpp"
+#include "webserv/webserv.hpp"
 
-int main( int argc, char **argv, char **env ) {
+using namespace webserv;
+
+int main( int argc, char** argv, char** env ) {
 
     if ( argc > 2 ) {
         std::cout << "Incorrect program usage\n	RUN: ./webserv [configuration file]\n";
@@ -13,7 +14,7 @@ int main( int argc, char **argv, char **env ) {
     if ( init_servers( serverData, config, env ) == ERROR )
         return EXIT_FAILURE;
 
-    struct kevent *eventList = new struct kevent[MAX_EVENTS];
+    struct kevent* eventList = new struct kevent[MAX_EVENTS];
     while ( true ) {
         std::cout << "Waiting on kqueue() events..." << std::endl;
         int nev = kevent( serverData.kqData.kq, NULL, 0, eventList, MAX_EVENTS, NULL );

@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/14/22.
-//
-
 #ifndef WEBSERV_CLIENTSOCKET_HPP
 #define WEBSERV_CLIENTSOCKET_HPP
 

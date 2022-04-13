@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/16/22.
-//
-
 #ifndef WEBSERV_CONFIGPARSER_HPP
 #define WEBSERV_CONFIGPARSER_HPP
 
@@ -16,24 +12,24 @@ namespace webserv {
 
     class configParser {
 
-			enum e_configErrorCodes {
-				NONE,
-				NOFILE,
-				BADFILE,
-				EMPTYFILE,
-				SOCKET,
-				WORKERC,
-				INDEX,
-				MAXBODY,
-				LOCATION,
-				SERVERNAME,
-				ERRORPAGE,
-				REDIRECT,
-				ROOT,
-				CGIPARAM,
-				LIMITEDMETHOD,
-				AUTOINDEX
-			};
+        enum e_configErrorCodes {
+            NONE,
+            NOFILE,
+            BADFILE,
+            EMPTYFILE,
+            SOCKET,
+            WORKERC,
+            INDEX,
+            MAXBODY,
+            LOCATION,
+            SERVERNAME,
+            ERRORPAGE,
+            REDIRECT,
+            ROOT,
+            CGIPARAM,
+            LIMITEDMETHOD,
+            AUTOINDEX
+        };
 
     private:
         FileType _configFile;
@@ -42,6 +38,7 @@ namespace webserv {
         int _errorCode;
 
     public:
+// ******* configParser.cpp *******  //
         configParser( std::string config_file );
 
         ~configParser();
@@ -50,13 +47,12 @@ namespace webserv {
 
         int parseIntoPieces( socketData &socketData, httpData &httpData );
 
+// ******* configParserSetters.cpp *******  //
         int setSocket( socketData &socketData, httpData &httpData );
 
         int setIndex( httpData &httpData );
 
         int setClientMaxBodySize( webserv::httpData &httpData );
-
-        int setLocation( httpData &httpData );
 
         int setServerName( httpData &httpData );
 
@@ -64,8 +60,10 @@ namespace webserv {
 
         int setRedirect( httpData &httpData );
 
-        int setWorkerConnections( socketData &socketData );
+// ******* configParserLocation.cpp *******  //
+        int setLocation( httpData &httpData );
 
+// ******* configParserUtils.cpp *******  //
         FileType &getFile( void );
 
         TokenType getTokens( void );
@@ -73,8 +71,10 @@ namespace webserv {
         int checkErrorCode( void );
 
     private:
+// ******* configParser.cpp *******  //
         int _newToken( std::string line );
 
+// ******* configParserLocation.cpp *******  //
         int _setLocation( locationData &element );
 
         int _setRoot( locationData &element );
@@ -85,11 +85,12 @@ namespace webserv {
 
         int _setAutoindex( locationData &element );
 
+// ******* configParserUtils.cpp *******  //
         bool _isWrongInput( char * );
 
         bool _isCorrectCode( int input );
 
-        int _endOfLine( int errorcode);
+        int _endOfLine( int errorcode );
 
     };
 }
