@@ -2,38 +2,11 @@
 
 #define PORT 8080
 
-// clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp ../../srcs/sockets/clientSocket.cpp ../../srcs/sockets/parentSocket.cpp ../../srcs/utils/socketData.cpp -I. -I../../srcs/sockets -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
+/* COMMAND LINE
 
-// int RequestHandlingTest::_setUpSocket(int& sock) {
-//     struct sockaddr_in serv_addr;
+clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp ../../srcs/sockets/clientSocket.cpp ../../srcs/sockets/parentSocket.cpp ../../srcs/sockets/socketData.cpp -I. -I../../srcs/sockets -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
 
-//     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-//         printf("\n Socket creation error \n");
-//         return -1;
-//     }
- 
-//     serv_addr.sin_family = AF_INET;
-//     serv_addr.sin_port = htons(PORT);
- 
-//     // Convert IPv4 and IPv6 addresses from text to binary
-//     // form
-//     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
-//         <= 0) {
-//         printf(
-//             "\nInvalid address/ Address not supported \n");
-//         return -1;
-//     }
- 
-//     if (connect(sock, (struct sockaddr*)&serv_addr,
-//                 sizeof(serv_addr))
-//         < 0) {
-//         printf("\nConnection Failed \n");
-//         return -1;
-//     }
-//     return 0;
-// }
-
-
+*/
 
 void RequestHandlingTest::basicGETRequest(void) {
     std::string requestMessage =
@@ -57,7 +30,7 @@ void RequestHandlingTest::basicGETRequest(void) {
     valread = read(sock, buffer, 1024);
     std::cout << buffer << "\n";
 
-    std::cout << "basicGETRequest done\n";
+    std::cout << "basicGETRequest done\n\n";
     return;
 }
 
@@ -79,49 +52,31 @@ void RequestHandlingTest::basicPOSTRequest(void) {
     valread = read(sock, buffer, 1024);
     std::cout << buffer << "\n";
 
+    std::cout << "basicPOSTRequest done\n";
+    
     return;
 }
 
 void RequestHandlingTest::contentLengthSplitIntoTwoChunks(void) {
 	std::string firstChunk =
-		"POST /contentLengthSplitIntoTwoChunksTest.txt HTTP/1.1\r\n\
-		host: localhost\r\n\
-		content-length: 64\r\n\
-		\r\n\
-		the first chunk of this request\n";
+		"POST /contentLengthSplitIntoTwoChunksTest.txt HTTP/1.1\r\n"\
+		"host: localhost\r\n"\
+		"content-length: 64\r\n"\
+		"\r\n"\
+		"the first chunk of this request\n";
 
 	std::string secondChunk = 
 		"the second chunk of this request";
 
-	int sock = 0, valread;
-    struct sockaddr_in serv_addr;
-    // char* hello = "Hello from client";
-    char buffer[1024] = { 0 };
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        std::cout << "\n Socket creation error \n";
-        return;
-    }
- 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
- 
-    // Convert IPv4 and IPv6 addresses from text to binary
-    // form
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
-        <= 0) {
-        std::cout << "\nInvalid address/ Address not supported \n";
-        return;
-    }
- 
-    if (connect(sock, (struct sockaddr*)&serv_addr,
-                sizeof(serv_addr))
-        < 0) {
-        std::cout << "\nConnection Failed \n";
-        return;
-    }
+	int sock = 0;
+
     send(sock, firstChunk.c_str(), strlen(firstChunk.c_str()), 0);
+    std::cout << "contentLengthSplitIntoTwoChunks: first chunk sent\n";
     send(sock, secondChunk.c_str(), strlen(secondChunk.c_str()), 0);
-    std::cout << "contentLengthSplitIntoTwoChunks message sent\n";
+    std::cout << "contentLengthSplitIntoTwoChunks: second chunk sent\n";
+
+    int valread;
+    char buffer[1024] = { 0 };
     valread = read(sock, buffer, 1024);
     std::cout << buffer << "\n";
     return;
@@ -178,8 +133,8 @@ int main(void) {
 	RequestHandlingTest sut;
 
     sut.basicGETRequest();
-    // sut.basicPOSTRequest();
-	// sut.contentLengthSplitIntoTwoChunks();
+    sut.basicPOSTRequest();
+	sut.contentLengthSplitIntoTwoChunks();
 
 	return 0;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dataStructs.hpp"
+#include "socketData.hpp"
 #include "clientSocket.hpp"
 
 #include <string>
