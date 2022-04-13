@@ -49,8 +49,8 @@ void webserv::processEvent( webserv::serverData &serverData, struct kevent &even
     }
 }
 
-static webserv::httpData* findServerBlock( webserv::serverData serverData, webserv::Request request, int current_fd ){
-    std::pair<int,std::string> pairs( CLIENTS[current_fd]->port, request.getHost() );
+static webserv::httpData findServerBlock( webserv::serverData serverData, webserv::Request request, int current_fd ){
+    std::pair<int,std::string> pairs( CLIENTS[current_fd].port, request.getHost() );
     if ( serverData.host_servername.find(pairs) != serverData.host_servername.end() )
         return serverData.host_servername[pairs];
     return CLIENTS[current_fd];
@@ -58,7 +58,7 @@ static webserv::httpData* findServerBlock( webserv::serverData serverData, webse
 
 void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int bytesread ) {
     if ( REQUESTS.find( current_fd ) == REQUESTS.end())
-        REQUESTS[current_fd] = webserv::Request( CLIENTS[current_fd]->max_client_body_size );    //creates new (empty) request in map
+        REQUESTS[current_fd] = webserv::Request( CLIENTS[current_fd].max_client_body_size );    //creates new (empty) request in map
     webserv::Request &request = REQUESTS[current_fd];
 
     try { request.parseChunk( serverData.buf, bytesread ); }
@@ -69,13 +69,13 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
 
     if ( request.isComplete()) {
         try {
-            webserv::httpData* serverblock = findServerBlock( serverData, request, current_fd );
+            webserv::httpData serverblock = findServerBlock( serverData, request, current_fd );
             int location_index = findRequestedLocation( serverblock, request.getPath());
             HTTPResponseMessage::e_responseStatusCode ret;
             if ( location_index == NOTFOUND ) {
                 ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
             } else {
-                webserv::locationData location = serverblock->locations[location_index];
+                webserv::locationData location = serverblock.locations[location_index];
                 if ( location.CGI ) {
                     ret = CGI_register( location, serverData, current_fd, request );
                     if ( ret != HTTPResponseMessage::OK )
@@ -93,14 +93,14 @@ void webserv::takeRequest( webserv::serverData &serverData, int current_fd, int 
     }
 }
 
-int webserv::findRequestedLocation( webserv::httpData *config, std::vector<std::string> path ) {
+int webserv::findRequestedLocation( webserv::httpData config, std::vector<std::string> path ) {
     int len;
-    for ( int i = 0; i < config->locations.size(); i++ ) {
-        len = config->locations[i].path.size();
+    for ( int i = 0; i < config.locations.size(); i++ ) {
+        len = config.locations[i].path.size();
         if ( len > path.size())
             continue;
         for ( int token = ( len - 1 ); token >= 0; token-- ) {
-            if ( config->locations[i].path[token] != path[token] )
+            if ( config.locations[i].path[token] != path[token] )
                 break;
             if ( token == 0 )
                 return i;

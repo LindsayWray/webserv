@@ -67,7 +67,7 @@ CGI_register( webserv::locationData location, webserv::serverData &serverData, i
     if ( kevent( serverData.kqData.kq, &new_socket, 1, NULL, 0, NULL ) == ERROR )
         return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
 
-    ret = executeCmd( pipes, args, serverData.clientSockets[client_fd]->env, &serverData.cgi_responses[pipes[0]].pid);
+    ret = executeCmd( pipes, args, serverData.clientSockets[client_fd].env, &serverData.cgi_responses[pipes[0]].pid);
     if ( ret != HTTPResponseMessage::OK )
         return ret;
     return HTTPResponseMessage::OK;
@@ -107,7 +107,7 @@ int responseFromCGI( webserv::serverData &serverData, int pipe_fd ) {
     std::string body( "" );
     webserv::cgi_response resp = serverData.cgi_responses[pipe_fd];
 
-    response = CGI_attempt( pipe_fd, resp, *serverData.clientSockets[resp.client_fd] );
+    response = CGI_attempt( pipe_fd, resp, serverData.clientSockets[resp.client_fd] );
     serverData.responses[resp.client_fd] = response.toString();
     serverData.requests.erase( resp.client_fd );
     printf( "  register CGI respond event - %d\n", resp.client_fd );

@@ -4,9 +4,9 @@
 
 #include "configParser.hpp"
 
-int webserv::configParser::setLocation( httpData *httpData ) {
+int webserv::configParser::setLocation( httpData &httpData ) {
     int ret = SUCCES;
-    webserv::locationData element( httpData->abs_path );
+    webserv::locationData element( httpData.abs_path );
     ret = _setLocation( element );
     if ( ret == SUCCES && *_it == "{" ) {
         while ( ++_it != _tokens.end() && *_it != "}" ) {
@@ -25,7 +25,7 @@ int webserv::configParser::setLocation( httpData *httpData ) {
         }
     } else
         return ERROR;
-    httpData->locations.push_back( element );
+    httpData.locations.push_back( element );
     return ret;
 }
 

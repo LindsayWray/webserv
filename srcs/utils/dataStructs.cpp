@@ -60,8 +60,28 @@ int webserv::locationData::tokenizer( std::string line ) {
  * httpData struct method functions
  */
 
+webserv::httpData::httpData( void ) { return; }
+
 webserv::httpData::httpData( std::string root ) : abs_path( root ), redirect( std::make_pair( -1, "" )) {
     max_client_body_size = 0;
+}
+
+webserv::httpData::httpData(const httpData& original){
+    *this = original;
+}
+
+webserv::httpData& webserv::httpData::operator=(const webserv::httpData& original){
+    this->env = original.env;
+    this->abs_path = original.abs_path;
+    this->server_name = original.server_name;
+    this->index = original.index;
+    this->error_page = original.error_page;
+    this->redirect = original.redirect;
+    this->locations = original.locations;
+    this->max_client_body_size = original.max_client_body_size;
+    this->port = original.port;
+    this->created_files = original.created_files;
+    return *this;
 }
 
 webserv::httpData::~httpData() {}

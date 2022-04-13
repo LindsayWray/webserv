@@ -1,7 +1,7 @@
 #include "server.hpp"
 
-void accepter( std::pair<webserv::listeningSocket*,webserv::httpData*>& serverPair,
-               webserv::kqConData &kqData,std::map<int,webserv::httpData*>& clientSockets) {
+void accepter( std::pair<webserv::listeningSocket*,webserv::httpData>& serverPair,
+               webserv::kqConData &kqData,std::map<int,webserv::httpData>& clientSockets) {
     struct sockaddr_in address = serverPair.first->get_address();
     int new_sd = 0;
     if ( kqData.nbr_connections < kqData.worker_connections ) {

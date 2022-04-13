@@ -61,7 +61,13 @@ namespace webserv {
         int port;
         std::set<std::string> created_files;
 
+        httpData( void );
+
         httpData( std::string root );
+
+        httpData( const httpData& original );
+
+        httpData& operator=(const httpData& original);
 
         ~httpData();
 

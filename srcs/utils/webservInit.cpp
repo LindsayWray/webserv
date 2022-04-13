@@ -34,16 +34,16 @@ static std::string setFileLocation( char **env ) {
     return root;
 }
 
-static void initServerData( webserv::serverData &serverData, webserv::httpData* httpData ){
-    int port = httpData->port;
+static void initServerData( webserv::serverData &serverData, webserv::httpData& httpData ){
+    int port = httpData.port;
     std::pair<int, std::string> pair;
 
     if ( serverData.default_server.find(port) == serverData.default_server.end() )
         serverData.default_server[port] = httpData;
-    for (int i = 0; i < httpData->server_name.size(); i++) {
-        pair = std::make_pair( port, httpData->server_name[i] );
+    for (int i = 0; i < httpData.server_name.size(); i++) {
+        pair = std::make_pair( port, httpData.server_name[i] );
         if ( serverData.host_servername.find( pair ) == serverData.host_servername.end() )
-            serverData.host_servername[std::make_pair( port, httpData->server_name[i] )] = httpData;
+            serverData.host_servername[std::make_pair( port, httpData.server_name[i] )] = httpData;
     }
 }
 
@@ -53,7 +53,7 @@ int webserv::init_servers( webserv::serverData &serverData, std::string filename
     configFile.append( "/var/sites_enabled/" );
     configFile.append( filename );
     webserv::configParser object( configFile );
-    std::vector<webserv::httpData *> http_vec;
+    std::vector<webserv::httpData> http_vec;
     webserv::socketData socket_vec;
 
     int server = 0, ret = NEOF;
@@ -64,15 +64,15 @@ int webserv::init_servers( webserv::serverData &serverData, std::string filename
     if ( object.checkErrorCode() == ERROR )
         return ERROR;
     do {
-        http_vec.push_back( new webserv::httpData( root ));
-        ret = object.parseIntoPieces( &socket_vec, http_vec[server] );
+        http_vec.push_back( webserv::httpData( root ) );
+        ret = object.parseIntoPieces( socket_vec, http_vec[server] );
         if ( object.checkErrorCode() == ERROR ){
-            for ( ; server >= 0; server-- )
-                delete http_vec[server];
+//            for ( ; server >= 0; server-- )
+//                delete http_vec[server];
             return ERROR;
         }
         initServerData( serverData, http_vec[server] );
-        http_vec.back()->env = env;
+        http_vec.back().env = env;
         server++;
     } while ( ret == NEOF );
 

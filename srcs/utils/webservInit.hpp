@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #define MAX_EVENTS 1024
-#define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData*> >
+#define SERVER_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData> >
 
 namespace webserv {
 
@@ -20,12 +20,12 @@ namespace webserv {
         webserv::kqConData kqData;
 
         SERVER_MAP serverMap; //key = fd
-        std::map<std::pair<int,std::string>, httpData *> host_servername; //key = port & servername
-        std::map<int, httpData *> default_server; //key = port
+        std::map<std::pair<int,std::string>, httpData> host_servername; //key = port & servername
+        std::map<int, httpData> default_server; //key = port
 
 		std::map<int, webserv::Request> requests;
         std::map<int, std::string> responses;
-        std::map<int, webserv::httpData*> clientSockets;
+        std::map<int, httpData> clientSockets;
 		std::map<int, cgi_response> cgi_responses;
 
         char *buf;
