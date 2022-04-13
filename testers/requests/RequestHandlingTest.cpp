@@ -2,7 +2,7 @@
 
 #define PORT 8080
 
-// clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp ../../srcs/sockets/clientSocket.cpp ../../srcs/sockets/parentSocket.cpp ../../srcs/utils/dataStructs.cpp -I. -I../../srcs/sockets -I../../srcs/utils -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
+// clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp ../../srcs/sockets/clientSocket.cpp ../../srcs/sockets/parentSocket.cpp ../../srcs/utils/socketData.cpp -I. -I../../srcs/sockets -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
 
 // int RequestHandlingTest::_setUpSocket(int& sock) {
 //     struct sockaddr_in serv_addr;
