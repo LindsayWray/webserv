@@ -37,10 +37,10 @@
 class RequestHandlingTest {
 	public:
 
-	void basicGETRequest(void);
-	void basicPOSTRequest(void);
+	void basicGETRequest(int& sock);
+	void basicPOSTRequest(int& sock);
 
-	void contentLengthSplitIntoTwoChunks(void);
+	void contentLengthSplitIntoTwoChunks(int& sock);
 	void contentLengthSplitIntoTwoChunksBodyTooSmall(void);
 	void contentLengthSplitIntoTwoChunksBodyTooLarge(void);
 
@@ -59,6 +59,5 @@ class RequestHandlingTest {
 	RequestHandlingTest() {}
 	~RequestHandlingTest() {}
 
-	private:
-	int _setUpSocket(int& sock);
+	int setUpSocket(int sock);
 };
