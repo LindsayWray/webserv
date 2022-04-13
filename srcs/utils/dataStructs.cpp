@@ -1,27 +1,6 @@
-//
-// Created by Kester kas De rooij on 4/6/22.
-//
-
 #include "dataStructs.hpp"
 
-/*
- * socketData struct method functions
- */
-
-webserv::socketData::socketData( void ) {
-    domain = AF_INET;
-    service = SOCK_STREAM;
-    protocol = 0;
-    //ports.push_back( 80 );
-    interface = INADDR_ANY;
-    backlog = 32;
-    worker_connections = 1024;
-}
-
-void webserv::socketData::addPort( int newPort ) { // start on port 80, if no port 80 is defined use other
-    if ( std::find( ports.begin(), ports.end(), newPort ) == ports.end())
-        ports.push_back( newPort );
-}
+using namespace webserv;
 
 /*
  * locationData struct method functions
@@ -41,15 +20,15 @@ int webserv::locationData::tokenizer( std::string line ) {
 
     if ( line[i++] != '/' )
         return ERROR;
-    while ( i < line.length()) {
+    while ( i < line.length() ) {
         found = line.find_first_of( "/", i );
         if ( found == std::string::npos ) {
-            path.push_back( line.substr( i, line.length()));
+            path.push_back( line.substr( i, line.length() ) );
             break;
         } else {
             if ( i != found - i )
-                path.push_back( line.substr( i, found - i ));
-            path.push_back( line.substr( found, 1 ));
+                path.push_back( line.substr( i, found - i ) );
+            path.push_back( line.substr( found, 1 ) );
             i = found + 1;
         }
     }
@@ -62,26 +41,26 @@ int webserv::locationData::tokenizer( std::string line ) {
 
 webserv::httpData::httpData( void ) { return; }
 
-webserv::httpData::httpData( std::string root ) : abs_path( root ), redirect( std::make_pair( -1, "" )) {
-    max_client_body_size = 0;
+webserv::httpData::httpData( std::string root ) : absPath( root ), redirect( std::make_pair( -1, "" ) ) {
+    maxClientBody = 0;
 }
 
-webserv::httpData::httpData(const httpData& original){
-    *this = original;
+webserv::httpData::httpData( const httpData& original ) {
+    * this = original;
 }
 
-webserv::httpData& webserv::httpData::operator=(const webserv::httpData& original){
+httpData& webserv::httpData::operator=( const httpData& original ) {
     this->env = original.env;
-    this->abs_path = original.abs_path;
-    this->server_name = original.server_name;
+    this->absPath = original.absPath;
+    this->serverName = original.serverName;
     this->index = original.index;
-    this->error_page = original.error_page;
+    this->errorPage = original.errorPage;
     this->redirect = original.redirect;
     this->locations = original.locations;
-    this->max_client_body_size = original.max_client_body_size;
+    this->maxClientBody = original.maxClientBody;
     this->port = original.port;
     this->created_files = original.created_files;
-    return *this;
+    return * this;
 }
 
 webserv::httpData::~httpData() {}
@@ -102,32 +81,32 @@ std::string webserv::httpData::formatErrorPage( std::string message ) {
 }
 
 void webserv::httpData::setErrorPages( void ) {
-    if ( error_page.find( 400 ) == error_page.end())
-        error_page[400] = formatErrorPage( "400 Bad Request" );
-    if ( error_page.find( 403 ) == error_page.end())
-        error_page[403] = formatErrorPage( "403 Forbidden" );
-    if ( error_page.find( 404 ) == error_page.end())
-        error_page[404] = formatErrorPage( "404 Not Found" );
-    if ( error_page.find( 405 ) == error_page.end())
-        error_page[405] = formatErrorPage( "405 Method Not Allowed" );
-    if ( error_page.find( 408 ) == error_page.end())
-        error_page[408] = formatErrorPage( "408 Request Timeout" );
-    if ( error_page.find( 411 ) == error_page.end())
-        error_page[411] = formatErrorPage( "411 Length Required" );
-	if ( error_page.find( 413 ) == error_page.end())
-        error_page[413] = formatErrorPage( "413 Payload Too Large" );
-    if ( error_page.find( 414 ) == error_page.end())
-        error_page[414] = formatErrorPage( "414 URI Too Long" );
-    if ( error_page.find( 418 ) == error_page.end())
-        error_page[418] = formatErrorPage( "418 I'm a Teapot" );
-    if ( error_page.find( 429 ) == error_page.end())
-        error_page[429] = formatErrorPage( "429 Too Many Requests" );
-    if ( error_page.find( 431 ) == error_page.end())
-        error_page[431] = formatErrorPage( "431 Request Header Fields Too Large" );
-    if ( error_page.find( 500 ) == error_page.end())
-        error_page[500] = formatErrorPage( "500 Internal Server Error" );
-    if ( error_page.find( 501 ) == error_page.end())
-        error_page[501] = formatErrorPage( "501 Not Implemented" );
-    if ( error_page.find( 505 ) == error_page.end())
-        error_page[505] = formatErrorPage( "505 HTTP Version Not Supported" );
+    if ( errorPage.find( 400 ) == errorPage.end() )
+        errorPage[400] = formatErrorPage( "400 Bad Request" );
+    if ( errorPage.find( 403 ) == errorPage.end() )
+        errorPage[403] = formatErrorPage( "403 Forbidden" );
+    if ( errorPage.find( 404 ) == errorPage.end() )
+        errorPage[404] = formatErrorPage( "404 Not Found" );
+    if ( errorPage.find( 405 ) == errorPage.end() )
+        errorPage[405] = formatErrorPage( "405 Method Not Allowed" );
+    if ( errorPage.find( 408 ) == errorPage.end() )
+        errorPage[408] = formatErrorPage( "408 Request Timeout" );
+    if ( errorPage.find( 411 ) == errorPage.end() )
+        errorPage[411] = formatErrorPage( "411 Length Required" );
+    if ( errorPage.find( 413 ) == errorPage.end() )
+        errorPage[413] = formatErrorPage( "413 Payload Too Large" );
+    if ( errorPage.find( 414 ) == errorPage.end() )
+        errorPage[414] = formatErrorPage( "414 URI Too Long" );
+    if ( errorPage.find( 418 ) == errorPage.end() )
+        errorPage[418] = formatErrorPage( "418 I'm a Teapot" );
+    if ( errorPage.find( 429 ) == errorPage.end() )
+        errorPage[429] = formatErrorPage( "429 Too Many Requests" );
+    if ( errorPage.find( 431 ) == errorPage.end() )
+        errorPage[431] = formatErrorPage( "431 Request Header Fields Too Large" );
+    if ( errorPage.find( 500 ) == errorPage.end() )
+        errorPage[500] = formatErrorPage( "500 Internal Server Error" );
+    if ( errorPage.find( 501 ) == errorPage.end() )
+        errorPage[501] = formatErrorPage( "501 Not Implemented" );
+    if ( errorPage.find( 505 ) == errorPage.end() )
+        errorPage[505] = formatErrorPage( "505 HTTP Version Not Supported" );
 }

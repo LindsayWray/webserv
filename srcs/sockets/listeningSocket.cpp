@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/14/22.
-//
-
 #include "listeningSocket.hpp"
 
 webserv::listeningSocket::listeningSocket( socketData input, int port ) : serverSocket( input, port ) {

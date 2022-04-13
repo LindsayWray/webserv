@@ -4,9 +4,9 @@ server{
 
 	index   index.html index.htm;
 
-    server_name;
+    serverName;
 
-    error_page 404 /error.html 303 /error.hh;
+    errorPage 404 /error.html 303 /error.hh;
 
     return 302 http://webserv.com$url;
 

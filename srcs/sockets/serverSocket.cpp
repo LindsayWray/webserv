@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/14/22.
-//
-
 #include "serverSocket.hpp"
 
 webserv::serverSocket::serverSocket( socketData input, int port )
@@ -13,20 +9,20 @@ webserv::serverSocket::serverSocket( socketData input, int port )
 }
 
 void webserv::serverSocket::connect_to_network( void ) {
-    _connection = bind( _socket, ( struct sockaddr * ) &_address, sizeof( _address ));
+    _connection = bind( _socket, ( struct sockaddr* ) & _address, sizeof( _address ) );
 }
 
 void webserv::serverSocket::set_nonblock( void ) {
     if ( fcntl( _socket, F_SETFL, O_NONBLOCK ) < 0 ) {
-        std::cerr << "Fcntl() failed: " << strerror(errno) << std::endl;
+        std::cerr << "Fcntl() failed: " << strerror( errno ) << std::endl;
         exit( EXIT_FAILURE );
     }
 }
 
 void webserv::serverSocket::set_sockt_opt( int option ) {
     int optval = 1;
-    if ( setsockopt( _socket, SOL_SOCKET, option, ( char * ) &optval, sizeof( optval )) < 0 ) {
-        std::cerr << "Setsockopt() failed: " << strerror(errno) << std::endl;
+    if ( setsockopt( _socket, SOL_SOCKET, option, ( char* ) & optval, sizeof( optval ) ) < 0 ) {
+        std::cerr << "Setsockopt() failed: " << strerror( errno ) << std::endl;
         exit( EXIT_FAILURE );
     }
     /*

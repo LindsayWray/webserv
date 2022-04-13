@@ -1,9 +1,9 @@
-#include "server.hpp"
+#include "handler.hpp"
 #include <iostream>
 #include <string>
 #include <sys/stat.h>
 
-using webserv::Request;
+using namespace webserv;
 
 static std::string file_extension( std::string path ) {
     int pos = path.find( '.' );
@@ -12,20 +12,19 @@ static std::string file_extension( std::string path ) {
     return path.substr( pos + 1 ); // +1 to skip the .
 }
 
-static HTTPResponseMessage
-responseFromFile( std::ifstream &file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
+static HTTPResponseMessage responseFromFile( std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
     HTTPResponseMessage response;
     std::string line;
     std::string body( "" );
 
-    while ( std::getline( file, line ))
+    while ( std::getline( file, line ) )
         body += ( line + '\n' );
     file.close();
     response.addStatus( statusCode )
-            .addLength( body.length())
+            .addLength( body.length() )
             .addBody( body );
     try {
-        response.addType( HTTPResponseMessage::contentTypes.at( extension ));
+        response.addType( HTTPResponseMessage::contentTypes.at( extension ) );
     }
     catch ( ... ) {
         response.addType( "text/plain" );   //temporary fix until directory handling
@@ -33,16 +32,7 @@ responseFromFile( std::ifstream &file, std::string extension, HTTPResponseMessag
     return response;
 }
 
-HTTPResponseMessage errorResponse( webserv::httpData server, HTTPResponseMessage::e_responseStatusCode code ) {
-    HTTPResponseMessage response;
-    std::string body = server.error_page[code];
-    return response.addStatus( code )
-            .addLength( body.length())
-            .addBody( body )
-            .addType( "text/html" );
-}
-
-HTTPResponseMessage GET_handler( std::string path, webserv::httpData server, webserv::locationData location ) {
+static HTTPResponseMessage GET_handler( std::string path, httpData server, locationData location ) {
     std::ifstream file;
     HTTPResponseMessage response;
     std::string extension = file_extension( path );
@@ -63,24 +53,24 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData server, web
                 concatPath += path;
                 autoIndexing( concatPath, fullPath, body );
             }
-            catch ( DirectoryNotFoundException &e ) {
+            catch ( DirectoryNotFoundException& e ) {
                 std::cout << e.what() << std::endl;
                 return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
             }
             return response.addStatus( HTTPResponseMessage::OK )
                     .addBody( body )
-                    .addLength( body.length())
+                    .addLength( body.length() )
                     .addType( "text/html" );
         }
         return GET_handler( path + "index.html", server, location );
     }
 
     struct stat buf;
-    if ( ::stat( fullPath.c_str(), &buf ) == -1 || !S_ISREG( buf.st_mode )) {
+    if ( ::stat( fullPath.c_str(), & buf ) == -1 || !S_ISREG( buf.st_mode ) ) {
         return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
     }
     file.open( fullPath );
-    if ( file.good()) {
+    if ( file.good() ) {
         std::cout << "File found " << fullPath << std::endl;
         return responseFromFile( file, extension, HTTPResponseMessage::OK );
     } else {
@@ -88,43 +78,19 @@ HTTPResponseMessage GET_handler( std::string path, webserv::httpData server, web
     }
 }
 
-HTTPResponseMessage responseWhenFileAlreadyExists( webserv::httpData server ) {
-    HTTPResponseMessage response;
-    std::string body = server.error_page[405];
-    return response.addStatus( HTTPResponseMessage::METHOD_NOT_ALLOWED )
-            .addType( "text/html" )
-            .addLength( body.length())
-            .addBody( body );
-}
-
-HTTPResponseMessage responseWhenFileCreated( std::string requestURL ) {
-    HTTPResponseMessage response;
-    std::string body = "<html>\
-						<body><h1>File created at URL: #</h1></body>\
-						</head>\
-						</html>";
-    body.replace( body.find( "#" ), 1, requestURL );
-    return response.addStatus( HTTPResponseMessage::CREATED )
-            .addType( "text/html" )
-            .addLength( body.length())
-            .addBody( body );
-
-}
-
-HTTPResponseMessage
-POST_handler( std::string requestPath, Request request, webserv::httpData server, webserv::locationData location ) {
+static HTTPResponseMessage POST_handler( std::string requestPath, Request request, httpData server, locationData location ) {
     std::string extension = file_extension( requestPath );
     std::cout << "EXTENSION: " << extension << std::endl;
     std::string fullPath = location.root + requestPath;
 
     struct stat buf;
-    bool fileAlreadyExists = ( ::stat( fullPath.c_str(), &buf ) != -1 );
+    bool fileAlreadyExists = ( ::stat( fullPath.c_str(), & buf ) != -1 );
     if ( fileAlreadyExists ) {
         return responseWhenFileAlreadyExists( server );
     } else {
         std::ofstream file;
         file.open( fullPath, std::ios::out | std::ios::binary );
-        if ( file.good()) {
+        if ( file.good() ) {
             file << request.getBody();
             server.created_files.insert( fullPath );
         }
@@ -133,41 +99,14 @@ POST_handler( std::string requestPath, Request request, webserv::httpData server
     }
 }
 
-HTTPResponseMessage responseWhenFileDeleted( std::string requestURL ) {
-    HTTPResponseMessage response;
-    std::string body = "<html>\
-						<body><h1>File deleted at URL: #</h1></body>\
-						</head>\
-						</html>";
-    body.replace( body.find( "#" ), 1, requestURL );
-    return response.addStatus( HTTPResponseMessage::OK )
-            .addType( "text/html" )
-            .addLength( body.length())
-            .addBody( body );
-}
-
-HTTPResponseMessage responseWhenFileCantBeDeleted( std::string requestURL ) {
-    HTTPResponseMessage response;
-    std::string body = "<html>\
-                        <body><h1>File cannot be deleted at URL: #</h1></body>\
-                        </head>\
-                        </html>";
-    body.replace( body.find( "#" ), 1, requestURL );
-    return response.addStatus( HTTPResponseMessage::OK )
-            .addType( "text/html" )
-            .addLength( body.length())
-            .addBody( body );
-}
-
-HTTPResponseMessage DELETE_handler( std::string requestPath, webserv::httpData server,
-                                    webserv::locationData location ) {
+static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData server, locationData location ) {
     std::string fullPath = location.root + requestPath;
 
     std::set<std::string>::iterator fileToBeDeleted = server.created_files.find( fullPath );
-    if ( fileToBeDeleted != server.created_files.end()) {
-        if ( std::remove( fileToBeDeleted->c_str()) == 0 ) {
+    if ( fileToBeDeleted != server.created_files.end() ) {
+        if ( std::remove( fileToBeDeleted->c_str() ) == 0 ) {
             server.created_files.erase( fileToBeDeleted );
-            return responseWhenFileDeleted( requestPath );
+            return webserv::responseWhenFileDeleted( requestPath );
         } else {
             return responseWhenFileCantBeDeleted( requestPath );
         }
@@ -176,8 +115,7 @@ HTTPResponseMessage DELETE_handler( std::string requestPath, webserv::httpData s
     }
 }
 
-
-HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData server ) {
+static HTTPResponseMessage REDIRECT_handler( Request request, httpData server ) {
     HTTPResponseMessage response;
     std::string requestPath;
     std::string location = server.redirect.second;
@@ -187,22 +125,21 @@ HTTPResponseMessage REDIRECT_handler( Request request, webserv::httpData server 
         for ( int i = 0; i < request.getPath().size(); i++ )
             location.append( request.getPath()[i] );
     }
-    response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(server.redirect.first))
+    response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(server.redirect.first) )
             .addLength( 0 )
             .addBody( "" )
             .addLocation( location );
     return response;
 }
 
-HTTPResponseMessage handler( Request request, webserv::httpData server, webserv::locationData location ) {
+HTTPResponseMessage webserv::handler( Request request, httpData server, locationData location ) {
     HTTPResponseMessage response;
     std::string requestPath;
-    for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ ) {
+    for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
         requestPath += request.getPath()[i];
-    }
 
-	if ( !location.allowed_response[request.getMethod()] )
-		return errorResponse( server, HTTPResponseMessage::METHOD_NOT_ALLOWED );
+    if ( !location.allowed_response[request.getMethod()] )
+        return errorResponse( server, HTTPResponseMessage::METHOD_NOT_ALLOWED );
     if ( server.redirect.first > 0 )
         return REDIRECT_handler( request, server );
     if ( request.getMethod() == Request::GET )

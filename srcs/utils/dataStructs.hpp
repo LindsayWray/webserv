@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/15/22.
-//
-
 #ifndef WEBSERV_DATASTRUCTS_HPP
 #define WEBSERV_DATASTRUCTS_HPP
 
@@ -13,27 +9,15 @@
 #include <netinet/in.h>
 #include <algorithm>
 #include "../http/Request.hpp"
+#include "../sockets/listeningSocket.hpp"
 
+#define COMPLETE_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData> >
 #define NOTFOUND -2
 #define ERROR -1
 #define SUCCES 0
 #define NEOF 1
 
 namespace webserv {
-
-    struct socketData {
-        int domain;
-        int service;
-        int protocol;
-        std::vector<int> ports;
-        u_long interface;
-        int backlog;
-        int worker_connections;
-
-        socketData( void );
-
-        void addPort( int newPort );
-    };
 
     struct locationData {
         std::vector<std::string> path;
@@ -50,14 +34,14 @@ namespace webserv {
 
     class httpData {
     public:
-        char **env;
-        std::string abs_path;
-        std::vector<std::string> server_name;
+        char** env;
+        std::string absPath;
+        std::vector<std::string> serverName;
         std::vector<std::string> index;
-        std::map<int, std::string> error_page;
+        std::map<int, std::string> errorPage;
         std::pair<int, std::string> redirect;
         std::vector<locationData> locations;
-        int max_client_body_size; // in kb
+        int maxClientBody; // in kb
         int port;
         std::set<std::string> created_files;
 
@@ -67,7 +51,7 @@ namespace webserv {
 
         httpData( const httpData& original );
 
-        httpData& operator=(const httpData& original);
+        httpData& operator=( const httpData& original );
 
         ~httpData();
 
@@ -78,110 +62,32 @@ namespace webserv {
 
     struct kqConData {
         int kq;
-        int nbr_connections;
-        int worker_connections;
+        int nbrConnections;
+        int workerConnections;
     };
 
-};
+    typedef struct cgi_response {
+        int clientFd;
+        int pid;
+        std::string body;
+    } cgi_response;
+
+    typedef struct serverData {
+        webserv::kqConData kqData;
+
+        COMPLETE_MAP serverMap; //key = fd
+        std::map<std::pair<int, std::string>, httpData> hostServername; //key = port & servername
+        std::map<int, httpData> defaultServer; //key = port
+
+        std::map<int, webserv::Request> requests;
+        std::map<int, std::string> responses;
+        std::map<int, httpData> clientSockets;
+        std::map<int, cgi_response> cgiResponses;
+
+        char* buf;
+        int buflen;
+    } serverData;
+}
 
 
 #endif //WEBSERV_DATASTRUCTS_HPP
-
-/* EXAMPLE **
- * GET /images/2022/03/04/1400x1800.jpeg HTTP/1.1
- *  pathFromHTTPRequest = /images/2022/03/04/1400x1800.jpeg
- *  Returns the filepath to the appropriate file in the internal filesystem
- *  Returns [...]/AUTOINDEX.html or [...]/index.html if path leads to directory
- *
- * if /images/ or /images is defined as a location inside
- * the appropriate server block in the config.webserv:
- *  reqPath = "/images/"
- *  reqPathInfo = "2022/03/04/1400x1800.jpeg"
- * else:
- *  reqPath = "/"
- *  reqPathInfo = "images/2022/03/04/1400x1800.jpeg"
- *
- * getRequestedFilePath() then returns
- *  filePath = root + reqPathInfo
- *  where root is defined in the appropriate location block
- *      (locationData.root)
- *  If no root is defined inside the location block in the config.webserv,
- *  the parser should assign it to be:
- *      locationData.root = httpData.abs_path + reqPath;
- *
- * ASSUMPTIONS:
- * - locationData.root and abs_path are both directory paths not ending with a slash
- * - everything with a '.' in the filepath is a file and not a directory
- */
-
-//        std::string getRequestedFilePath( std::string pathFromHTTPRequest ) {
-//            std::string filePath;
-//            std::string root;
-//            std::string reqPath = _getReqPath( pathFromHTTPRequest );
-//            std::string reqPathInfo;
-//
-//            locationData *location = _findLocationBlock( reqPath );
-//            if ( location && reqPath != "/" ) // if /resources/
-//                root = location->root;
-//            else {                          // if / or /troep/
-//                location = _findLocationBlock( "/" );
-//                if ( location )               // if '/' listed as location in config
-//                    root = location->root + reqPath;
-//                else                        // if '/' not listed as location in config
-//                    root = this->abs_path + reqPath;
-//            }
-//
-//            if ( reqPath.length() >= pathFromHTTPRequest.length())
-//                reqPathInfo = "";
-//            else
-//                reqPathInfo = pathFromHTTPRequest.substr( reqPath.length());
-//
-//            bool pathIsDirectory = ( reqPathInfo.length() == 0 || reqPathInfo.back() == '/' );
-//            if ( pathIsDirectory == false && reqPathInfo.find_last_of( '.' ) == std::string::npos ) {
-//                pathIsDirectory = true;
-//                reqPathInfo += '/';
-//            }
-//
-//            filePath = root + reqPathInfo;
-//
-//            if ( pathIsDirectory && location && location->autoindex )
-//                filePath += "AUTOINDEX.HTML";
-//            else if ( pathIsDirectory )
-//                filePath += "index.html";
-//
-//            return filePath;
-//        }
-
-// Helper functions, unprivated for testing purposes
-// private:
-//        std::string _getReqPath( std::string pathFromHTTPRequest ) {
-//            std::string reqPath;
-//
-//            std::size_t firstSlash = pathFromHTTPRequest.find_first_of( '/' );
-//            std::size_t secondSlash = pathFromHTTPRequest.find_first_of( '/', firstSlash + 1 );
-//
-//            bool pathContainsSingleSlash = ( secondSlash == std::string::npos );
-//            if ( pathContainsSingleSlash )    // /pathWithoutSecondSlashMustBeEitherFileOrDirectory(.jpg)
-//            {
-//                bool isFile = ( pathFromHTTPRequest.find( '.' ) != std::string::npos );
-//                if ( isFile )
-//                    reqPath = "/";
-//                else
-//                    reqPath = pathFromHTTPRequest + "/";
-//            } else                            // /path/contains/multiple/directories(.jpg) or /path/, either way /path/ is a directory for sure
-//                reqPath = pathFromHTTPRequest.substr( 0, secondSlash - firstSlash + 1 );
-//
-//            if ( reqPath.length() == 2 && reqPath.back() == '/' )
-//                reqPath.pop_back();
-//
-//            return reqPath;
-//        }
-
-//        locationData *_findLocationBlock( std::string locationStr ) {
-//            std::vector<locationData>::iterator it = this->locations.begin();
-//            for ( ; it != this->locations.end(); it++ ) {
-//                if ( locationStr == it->path[0] )
-//                    return &( *it );
-//            }
-//            return NULL;
-//        }

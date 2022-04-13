@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/14/22.
-//
-
 #include "clientSocket.hpp"
 
 webserv::clientSocket::clientSocket( socketData input, int port ) : parentSocket( input, port ) {
@@ -10,5 +6,5 @@ webserv::clientSocket::clientSocket( socketData input, int port ) : parentSocket
 }
 
 void webserv::clientSocket::connect_to_network( void ) {
-    _connection = connect( _socket, ( struct sockaddr * ) &_address, sizeof( _address ));
+    _connection = connect( _socket, ( struct sockaddr* ) & _address, sizeof( _address ) );
 }

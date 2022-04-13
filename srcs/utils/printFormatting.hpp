@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 4/4/22.
-//
-
 #ifndef WEBSERV_PRINTFORMATTING_HPP
 #define WEBSERV_PRINTFORMATTING_HPP
 

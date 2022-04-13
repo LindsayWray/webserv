@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/14/22.
-//
-
 #ifndef WEBSERV_PARENTSOCKET_HPP
 #define WEBSERV_PARENTSOCKET_HPP
 
@@ -9,7 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
-#include "../utils/dataStructs.hpp"
+#include "socketData.hpp"
 
 namespace webserv {
 

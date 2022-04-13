@@ -11,11 +11,11 @@ an example config file can look like this:
 
       listen 80;
   
-      server_name localhost www.localhost;
+      serverName localhost www.localhost;
   
       index   index.html index.htm;
   
-      error_page 404 /error.html;
+      errorPage 404 /error.html;
   
       return 302 http://localhost:8200$uri;
   
@@ -37,7 +37,7 @@ an example config file can look like this:
 
 * The standard port where a server will listen to is 80
 * Index will define the index if none is specified for a directory
-* Within error_page you can define custom error pages formatted as: 
+* Within errorPage you can define custom error pages formatted as: 
 > 'nbr'-'space'-'file'-'space'-...;
 * If a serverblock should redirect the return statement can be used as follows:
 > 'nbr'-'space'-'destination''$uri';  

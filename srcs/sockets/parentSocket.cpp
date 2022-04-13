@@ -1,7 +1,3 @@
-//
-// Created by Kester kas De rooij on 3/14/22.
-//
-
 #include "parentSocket.hpp"
 
 webserv::parentSocket::parentSocket( socketData input, int port ) {
@@ -14,7 +10,7 @@ webserv::parentSocket::parentSocket( socketData input, int port ) {
 
 void webserv::parentSocket::test_connection( std::string funct, int connection ) {
     if ( connection < 0 ) {
-        std::cerr << funct << " failure: " << strerror(errno) << std::endl;
+        std::cerr << funct << " failure: " << strerror( errno ) << std::endl;
         exit( 1 );
     }
 }

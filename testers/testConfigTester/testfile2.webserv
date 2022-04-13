@@ -7,8 +7,8 @@ server{
 	index   index.html index.htm;
 	index	index.hh index;
 
-    server_name     webserv.com www.webserv.com;
-    error_page 404 /error.html 303 /error.hh;
+    serverName     webserv.com www.webserv.com;
+    errorPage 404 /error.html 303 /error.hh;
     return 302 http://webserv.com$url;
     return 303 http://webserv.com$url;
 
@@ -43,8 +43,8 @@ server{
 	index   index.html index.htm;
 	index	index.hh index;
 
-    server_name     webserv.com www.webserv.com;
-    error_page 404 /error.html 303 /error.hh;
+    serverName     webserv.com www.webserv.com;
+    errorPage 404 /error.html 303 /error.hh;
     return 302 http://webserv.com$url;
     return 303 http://webserv.com$url;
 
@@ -77,8 +77,8 @@ server{
 	index   index.html index.htm;
 	index	index.hh index;
 
-    server_name     webserv.com www.webserv.com;
-    error_page 404 /error.html 303 /error.hh;
+    serverName     webserv.com www.webserv.com;
+    errorPage 404 /error.html 303 /error.hh;
     return 302 http://webserv.com$url;
     return 303 http://webserv.com$url;
 
