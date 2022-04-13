@@ -18,3 +18,5 @@ add_executable(webserv
 #add_executable(testers/testConfigTester/parentConfigTester.cpp srcs/config/configParser.cpp)
 include_directories(srcs/config srcs/CGI srcs/handler srcs/http srcs/sockets srcs/utils srcs/webserver)
 add_subdirectory(testers/catch2)
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)

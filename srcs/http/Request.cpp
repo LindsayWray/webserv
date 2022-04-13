@@ -4,7 +4,7 @@
 webserv::Request::Request( int max_client_body ) {
     _maxClientBody = max_client_body;
     _headersDone = false;
-};
+}
 
 webserv::Request::Request( const Request& original ) {
     * this = original;

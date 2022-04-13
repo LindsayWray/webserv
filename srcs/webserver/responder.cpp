@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#define CHUNK_SIZE 1024
+#define CHUNK_SIZE 8192
 
 using namespace webserv;
 

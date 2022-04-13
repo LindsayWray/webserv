@@ -17,7 +17,7 @@ static void registerResponse( serverData& serverData, int current_fd, HTTPRespon
     struct kevent new_socket_change;
     EV_SET( & new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
     if ( kevent( KQ.kq, & new_socket_change, 1, NULL, 0, NULL ) == ERROR )
-        exit( EXIT_FAILURE );
+        std::cerr << "kevent error" << std::endl;
 }
 
 static httpData findServerBlock( serverData serverData, Request request, int current_fd ) {
@@ -97,13 +97,11 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
         if ( responder( current_fd, RESPONSES ) == FINISHED ) {
             struct kevent deregister_socket_change;
             EV_SET( & deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
-            int ret = kevent( KQ.kq, & deregister_socket_change, 1, NULL, 0, NULL );
-            if ( ret == ERROR )
-                exit( EXIT_FAILURE );
+            if ( kevent( KQ.kq, & deregister_socket_change, 1, NULL, 0, NULL ) == ERROR )
+                std::cerr << "kevent error" << std::endl;
         }
     } else if ( CGI_RESPONSES.find( current_fd ) != CGI_RESPONSES.end() ) {
-        if ( responseFromCGI( serverData, current_fd ) < 0 )
-            exit( EXIT_FAILURE );
+        responseFromCGI( serverData, current_fd );
         CGI_RESPONSES.erase( current_fd );
     } else {
         memset( serverData.buf, 0, serverData.buflen );
