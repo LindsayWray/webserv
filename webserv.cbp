@@ -50,7 +50,7 @@
 					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/http"/>
 					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/sockets"/>
 					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/utils"/>
-					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/webserv"/>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/webserver"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 webserv"/>
@@ -72,7 +72,7 @@
 					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/http"/>
 					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/sockets"/>
 					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/utils"/>
-					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/webserv"/>
+					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/webserver"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 webserv/fast"/>
@@ -169,19 +169,19 @@
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/utils/dataStructs.hpp">
 			<Option target="webserv"/>
 		</Unit>
-		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserv/accepter.cpp">
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserver/accepter.cpp">
 			<Option target="webserv"/>
 		</Unit>
-		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserv/responder.cpp">
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserver/responder.cpp">
 			<Option target="webserv"/>
 		</Unit>
-		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserv/webserv.cpp">
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserver/webserv.cpp">
 			<Option target="webserv"/>
 		</Unit>
-		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserv/webserv.hpp">
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserver/webserv.hpp">
 			<Option target="webserv"/>
 		</Unit>
-		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserv/webservInit.cpp">
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/webserver/webservInit.cpp">
 			<Option target="webserv"/>
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/CMakeLists.txt">
