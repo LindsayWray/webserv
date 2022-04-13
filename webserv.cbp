@@ -122,6 +122,9 @@
 			<Option target="catchConfig"/>
 			<Option target="webserv"/>
 		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/handler/handler.hpp">
+			<Option target="webserv"/>
+		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/HTTPResponseMessage.cpp">
 			<Option target="webserv"/>
 		</Unit>
