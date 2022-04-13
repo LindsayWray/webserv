@@ -37,9 +37,9 @@
 
 void RequestHandlingTest::basicGETRequest(void) {
     std::string requestMessage =
-		"GET / HTTP/1.1\r\n\
-		host: localhost\r\n\
-		\r\n";
+		"GET / HTTP/1.1\r\n"\
+		"host: localhost\r\n"\
+		"\r\n";
 
     webserv::socketData sockData;
     sockData.ports.push_back(8080);
@@ -50,34 +50,34 @@ void RequestHandlingTest::basicGETRequest(void) {
     int sock = clientSock.get_sock();
 
     send(sock, requestMessage.c_str(), strlen(requestMessage.c_str()), 0);
-    printf("basicGETRequest message sent\n");
+    std::cout << "basicGETRequest message sent\n";
 
     int valread;
     char buffer[1024] = { 0 };
     valread = read(sock, buffer, 1024);
-    printf("%s\n", buffer);
+    std::cout << buffer << "\n";
 
-    printf("basicGETRequest done\n");
+    std::cout << "basicGETRequest done\n";
     return;
 }
 
 void RequestHandlingTest::basicPOSTRequest(void) {
 	std::string requestMessage =
-		"POST /basicPOSTRequest.txt HTTP/1.1\r\n\
-		host: localhost\r\n\
-		content-length: 24\r\n\
-		\r\n\
-		the body of this request";
+		"POST /basicPOSTRequest.txt HTTP/1.1\r\n"\
+		"content-length: 24\r\n"\
+		"host: localhost\r\n"\
+		"\r\n"\
+		"the body of this request";
 
     int sock = 0;
 
     send(sock, requestMessage.c_str(), strlen(requestMessage.c_str()), 0);
-    printf("basicPOSTRequest message sent\n");
+    std::cout << "basicPOSTRequest message sent\n";
     
     int valread;
     char buffer[1024] = { 0 };
     valread = read(sock, buffer, 1024);
-    printf("%s\n", buffer);
+    std::cout << buffer << "\n";
 
     return;
 }
@@ -98,7 +98,7 @@ void RequestHandlingTest::contentLengthSplitIntoTwoChunks(void) {
     // char* hello = "Hello from client";
     char buffer[1024] = { 0 };
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
+        std::cout << "\n Socket creation error \n";
         return;
     }
  
@@ -109,22 +109,21 @@ void RequestHandlingTest::contentLengthSplitIntoTwoChunks(void) {
     // form
     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
         <= 0) {
-        printf(
-            "\nInvalid address/ Address not supported \n");
+        std::cout << "\nInvalid address/ Address not supported \n";
         return;
     }
  
     if (connect(sock, (struct sockaddr*)&serv_addr,
                 sizeof(serv_addr))
         < 0) {
-        printf("\nConnection Failed \n");
+        std::cout << "\nConnection Failed \n";
         return;
     }
     send(sock, firstChunk.c_str(), strlen(firstChunk.c_str()), 0);
     send(sock, secondChunk.c_str(), strlen(secondChunk.c_str()), 0);
-    printf("contentLengthSplitIntoTwoChunks message sent\n");
+    std::cout << "contentLengthSplitIntoTwoChunks message sent\n";
     valread = read(sock, buffer, 1024);
-    printf("%s\n", buffer);
+    std::cout << buffer << "\n";
     return;
 }
 
