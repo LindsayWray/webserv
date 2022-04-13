@@ -4,28 +4,31 @@
 
 #include "configParser.hpp"
 
-int webserv::configParser::setSocket( socketData *socketData ) {
+int webserv::configParser::setSocket( socketData &socketData, httpData &httpData ) {
+    int port;
     if ( _isWrongInput( NULL )){
         _errorCode = SOCKET;
         return ERROR;
     }
     try {
-        socketData->addPort( stoi( *_it++ ));
+        port = stoi( *_it++ );
     } catch ( std::exception &e ) { // TODO:: test to see if "iterator out of bounds" will be catched properly;
         std::cerr << "configParser::setSocket " << *_it << " " << e.what() << std::endl;
         _errorCode = SOCKET;
         return ERROR;
     }
+    socketData.addPort( port);
+    httpData.port = port;
     return _endOfLine( SOCKET );
 }
 
-int webserv::configParser::setWorkerConnections( socketData *socketData ) {
+int webserv::configParser::setWorkerConnections( socketData &socketData ) {
     if ( _isWrongInput( NULL )){
         _errorCode = WORKERC;
         return ERROR;
     }
     try {
-        socketData->worker_connections = stoi( *( ++_it ));
+        socketData.worker_connections = stoi( *( ++_it ));
     } catch ( std::exception &e ) {
         std::cerr << "configParser::setWorkerConnections " << *_it << " " << e.what() << std::endl;
         _errorCode = WORKERC;
@@ -34,34 +37,32 @@ int webserv::configParser::setWorkerConnections( socketData *socketData ) {
     return _endOfLine( WORKERC );
 }
 
-int webserv::configParser::setIndex(
-        httpData *httpData ) {
+int webserv::configParser::setIndex( httpData &httpData ) {
     if ( _isWrongInput( NULL )){
         _errorCode = INDEX;
         return ERROR;
     }
-    httpData->index.push_back( *_it++ );
+    httpData.index.push_back( *_it++ );
     return _endOfLine( INDEX );
 }
 
-int webserv::configParser::setServerName(
-        httpData *httpData ) { // TODO:: iterating untill ";" will give false positive in case of no ";" in file
+int webserv::configParser::setServerName( httpData &httpData ) { // TODO:: iterating untill ";" will give false positive in case of no ";" in file
     if ( _isWrongInput( NULL )){
         _errorCode = SERVERNAME;
         return ERROR;
     }
     for ( ; _it != _tokens.end() && *_it != ";"; _it++ )
-        httpData->server_name.push_back( *_it );
+        httpData.server_name.push_back( *_it );
     return _endOfLine( SERVERNAME );
 }
 
-int webserv::configParser::setRedirect( httpData *httpData ) {
+int webserv::configParser::setRedirect( httpData &httpData ) {
     int code;
     if ( _isWrongInput( NULL )){
         _errorCode = REDIRECT;
         return ERROR;
     }
-    if ( httpData->redirect.first != -1 ){
+    if ( httpData.redirect.first != -1 ){
         _errorCode = REDIRECT;
         return ERROR;
     }
@@ -77,16 +78,16 @@ int webserv::configParser::setRedirect( httpData *httpData ) {
         _errorCode = REDIRECT;
         return ERROR;
     }
-    httpData->redirect = std::make_pair( code, ( *_it++ ));
-    if ( httpData->redirect.second.find( "$uri" ) != std::string::npos )
-        if ( httpData->redirect.second.find( "$uri" ) + 4 < httpData->redirect.second.size()){
+    httpData.redirect = std::make_pair( code, ( *_it++ ));
+    if ( httpData.redirect.second.find( "$uri" ) != std::string::npos )
+        if ( httpData.redirect.second.find( "$uri" ) + 4 < httpData.redirect.second.size()){
             _errorCode = REDIRECT;
             return ERROR;
         }
     return _endOfLine( REDIRECT );
 }
 
-int webserv::configParser::setErrorPage( httpData *httpData ) {
+int webserv::configParser::setErrorPage( httpData &httpData ) {
     int error_code;
     std::string filepath, line, body;
     std::ifstream file;
@@ -96,7 +97,7 @@ int webserv::configParser::setErrorPage( httpData *httpData ) {
         return ERROR;
     }
     for ( ; _it != _tokens.end() && *_it != ";"; _it++ ) {
-        filepath = httpData->abs_path;
+        filepath = httpData.abs_path;
         try {
             error_code = std::stoi( *_it );
         } catch ( std::exception &e ) {
@@ -120,24 +121,24 @@ int webserv::configParser::setErrorPage( httpData *httpData ) {
             _errorCode = ERRORPAGE;
             return ERROR;
         }
-        httpData->error_page.insert( std::make_pair( error_code, body));
+        httpData.error_page.insert( std::make_pair( error_code, body));
     }
     return _endOfLine( ERRORPAGE );
 }
 
-int webserv::configParser::setClientMaxBodySize( webserv::httpData *httpData ) {
+int webserv::configParser::setClientMaxBodySize( webserv::httpData &httpData ) {
     if ( _isWrongInput( NULL )){
         _errorCode = MAXBODY;
         return ERROR;
     }
     try {
-        httpData->max_client_body_size = stoi( *_it++ );
+        httpData.max_client_body_size = stoi( *_it++ );
     } catch ( std::exception &e ) {
         std::cerr << "configParser::setClientMaxBodySize " << *_it << " " << e.what() << std::endl;
         _errorCode = MAXBODY;
         return ERROR;
     }
-    if ( httpData->max_client_body_size <= 0 || httpData->max_client_body_size >= 1000000 ){
+    if ( httpData.max_client_body_size <= 0 || httpData.max_client_body_size >= 1000000 ){
         _errorCode = MAXBODY;
         return ERROR;
     }

@@ -18,6 +18,7 @@ bool webserv::configParser::_isCorrectCode( int input ){
         case 404: return true;
         case 408: return true;
         case 411: return true;
+		case 413: return true;
         case 414: return true;
         case 418: return true;
         case 429: return true;

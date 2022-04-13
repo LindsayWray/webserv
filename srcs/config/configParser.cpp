@@ -52,7 +52,11 @@ int webserv::configParser::_newToken( std::string line ) {
     return --i;
 }
 
-int webserv::configParser::parseIntoPieces( socketData *socketData, httpData *httpData ) {
+int sortLocation(webserv::locationData& lhs, webserv::locationData& rhs) {
+	return lhs.path.size() > rhs.path.size();
+}
+
+int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& httpData ) {
     TokenType::iterator it = _tokens.begin();
     int ret;
 
@@ -60,9 +64,7 @@ int webserv::configParser::parseIntoPieces( socketData *socketData, httpData *ht
         return ERROR;
     while ( ++_it != _tokens.end() && *_it != "}" ) {
         if ( *_it == "listen" )
-            ret = setSocket( socketData );
-        else if ( *_it == "worker_connections" )
-            ret = setWorkerConnections( socketData );
+            ret = setSocket( socketData, httpData );
         else if ( *_it == "index" )
             ret = setIndex( httpData );
         else if ( *_it == "location" )
@@ -80,9 +82,10 @@ int webserv::configParser::parseIntoPieces( socketData *socketData, httpData *ht
         if ( ret == ERROR )
             return ret;
     }
-    if ( httpData->locations.size() == 0 )
-        httpData->locations.push_back( webserv::locationData( httpData->abs_path ));
-    httpData->setErrorPages();
+	std::sort(httpData.locations.begin(), httpData.locations.end(), sortLocation);
+    if ( httpData.locations.size() == 0 )
+        httpData.locations.push_back( webserv::locationData( httpData.abs_path ));
+    httpData.setErrorPages();
     if ( *( _it++ ) == "}" && _it != _tokens.end())
         return NEOF;
     return SUCCES;

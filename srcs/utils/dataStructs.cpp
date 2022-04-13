@@ -60,8 +60,28 @@ int webserv::locationData::tokenizer( std::string line ) {
  * httpData struct method functions
  */
 
+webserv::httpData::httpData( void ) { return; }
+
 webserv::httpData::httpData( std::string root ) : abs_path( root ), redirect( std::make_pair( -1, "" )) {
-    max_client_body_size = 1000;
+    max_client_body_size = 0;
+}
+
+webserv::httpData::httpData(const httpData& original){
+    *this = original;
+}
+
+webserv::httpData& webserv::httpData::operator=(const webserv::httpData& original){
+    this->env = original.env;
+    this->abs_path = original.abs_path;
+    this->server_name = original.server_name;
+    this->index = original.index;
+    this->error_page = original.error_page;
+    this->redirect = original.redirect;
+    this->locations = original.locations;
+    this->max_client_body_size = original.max_client_body_size;
+    this->port = original.port;
+    this->created_files = original.created_files;
+    return *this;
 }
 
 webserv::httpData::~httpData() {}
@@ -94,6 +114,8 @@ void webserv::httpData::setErrorPages( void ) {
         error_page[408] = formatErrorPage( "408 Request Timeout" );
     if ( error_page.find( 411 ) == error_page.end())
         error_page[411] = formatErrorPage( "411 Length Required" );
+	if ( error_page.find( 413 ) == error_page.end())
+        error_page[413] = formatErrorPage( "413 Payload Too Large" );
     if ( error_page.find( 414 ) == error_page.end())
         error_page[414] = formatErrorPage( "414 URI Too Long" );
     if ( error_page.find( 418 ) == error_page.end())

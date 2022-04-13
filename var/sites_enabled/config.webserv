@@ -1,7 +1,7 @@
 server {
 	listen 8080;
 
-	server_name localhost www.localhost;
+	server_name www.localhost;
 
 	index   /index.html;
 
@@ -15,37 +15,52 @@ server {
 	}
 
 	location /images/ {
-		 root	/var/www/html/resources;
-		 autoindex on;
+		root	/var/www/html/resources;
+		autoindex on;
 	}
 
 	location /time {
-		 root	/var/cgi-bin;
-		 cgi_param /ret_time.py;;;;
+		root	/var/cgi-bin;
+		cgi_param /ret_time.py;
 	}
 
-	location /time2 {
-    		 root	/var/cgi-bin;
-    		 cgi_param /first_cgi.py;
+	location /toupper {
+    	root	/var/cgi-bin;
+    	cgi_param /toupper.py;
+    }
+
+    location /false {
+        root	/var/cgi-bin;
+        cgi_param /false.py;
     }
 
 	location /images/limited/ {
 		root /var/www/html/resources;
-		limit_method POST DELETE GET;
+		limit_method POST;
 	}
 		
 }
 
 server {
     listen          80;
-    server_name     localhost www.localhost;
+    server_name     localhost;
 
     return 302 http://localhost:8080$uri;
 }
 
 server {
+    listen          8100;
+    server_name     banaan.org;
+
+    location / {
+        	root    /var/www/other;
+        	autoindex on;
+        }
+}
+
+server {
     listen 8100;
-    server_name     webserv.com www.webserv.com;
+    server_name     webserv.com;
 
 
     location / {
@@ -53,3 +68,4 @@ server {
     	root    /var/www/html;
     }
 }
+

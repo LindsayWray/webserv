@@ -58,9 +58,16 @@ namespace webserv {
         std::pair<int, std::string> redirect;
         std::vector<locationData> locations;
         int max_client_body_size; // in kb
+        int port;
         std::set<std::string> created_files;
 
+        httpData( void );
+
         httpData( std::string root );
+
+        httpData( const httpData& original );
+
+        httpData& operator=(const httpData& original);
 
         ~httpData();
 

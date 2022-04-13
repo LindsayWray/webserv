@@ -48,23 +48,23 @@ namespace webserv {
 
         void tokenizer( void );
 
-        int parseIntoPieces( socketData *socketData, httpData *httpData );
+        int parseIntoPieces( socketData &socketData, httpData &httpData );
 
-        int setSocket( socketData *socketData );
+        int setSocket( socketData &socketData, httpData &httpData );
 
-        int setIndex( httpData *httpData );
+        int setIndex( httpData &httpData );
 
-        int setClientMaxBodySize( webserv::httpData *httpData );
+        int setClientMaxBodySize( webserv::httpData &httpData );
 
-        int setLocation( httpData *httpData );
+        int setLocation( httpData &httpData );
 
-        int setServerName( httpData *httpData );
+        int setServerName( httpData &httpData );
 
-        int setErrorPage( httpData *httpData );
+        int setErrorPage( httpData &httpData );
 
-        int setRedirect( httpData *httpData );
+        int setRedirect( httpData &httpData );
 
-        int setWorkerConnections( socketData *socketData );
+        int setWorkerConnections( socketData &socketData );
 
         FileType &getFile( void );
 

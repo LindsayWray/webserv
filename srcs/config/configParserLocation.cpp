@@ -4,19 +4,9 @@
 
 #include "configParser.hpp"
 
-static void _insertBefore( webserv::httpData *httpData, webserv::locationData &element ) {
-    std::vector<webserv::locationData>::iterator it = --httpData->locations.end();
-    for ( ; it >= httpData->locations.begin(); it-- ) {
-        if ( element.path.size() >= it->path.size()) {
-            httpData->locations.insert( it, element );
-            break;
-        }
-    }
-}
-
-int webserv::configParser::setLocation( httpData *httpData ) {
+int webserv::configParser::setLocation( httpData &httpData ) {
     int ret = SUCCES;
-    webserv::locationData element( httpData->abs_path );
+    webserv::locationData element( httpData.abs_path );
     ret = _setLocation( element );
     if ( ret == SUCCES && *_it == "{" ) {
         while ( ++_it != _tokens.end() && *_it != "}" ) {
@@ -35,10 +25,7 @@ int webserv::configParser::setLocation( httpData *httpData ) {
         }
     } else
         return ERROR;
-    if ( httpData->locations.size() > 0 && element.path.size() > httpData->locations.back().path.size())
-        _insertBefore( httpData, element );
-    else
-        httpData->locations.push_back( element );
+    httpData.locations.push_back( element );
     return ret;
 }
 
@@ -78,6 +65,8 @@ int webserv::configParser::_setLimitedMethod( locationData &element ) {
         _errorCode = LIMITEDMETHOD;
         return ERROR;
     }
+	memset( element.allowed_response, false, 3 );
+
     for ( int i = 0; i < 3 && *_it != ";" ; i++ ){
         if ( *_it == "GET" )
             element.allowed_response[webserv::Request::GET] = true;

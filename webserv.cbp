@@ -37,38 +37,6 @@
 					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="parentConfigTester">
-				<Option output="/Users/kde-rooi/Documents/webserv/parentConfigTester" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 parentConfigTester"/>
-					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="parentConfigTester/fast">
-				<Option output="/Users/kde-rooi/Documents/webserv/parentConfigTester" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/Users/kde-rooi/Documents/webserv/srcs/config"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 parentConfigTester/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/Users/kde-rooi/Documents/webserv/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 			<Target title="catchConfig">
 				<Option output="/Users/kde-rooi/Documents/webserv/catchConfig" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/kde-rooi/Documents/webserv"/>
@@ -135,12 +103,10 @@
 			</Target>
 		</Build>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParser.cpp">
-			<Option target="parentConfigTester"/>
 			<Option target="catchConfig"/>
 			<Option target="webserv"/>
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParser.hpp">
-			<Option target="parentConfigTester"/>
 			<Option target="catchConfig"/>
 			<Option target="webserv"/>
 		</Unit>
@@ -154,6 +120,9 @@
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/config/configParserUtils.cpp">
 			<Option target="catchConfig"/>
+			<Option target="webserv"/>
+		</Unit>
+		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/handler/handler.hpp">
 			<Option target="webserv"/>
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/srcs/http/HTTPResponseMessage.cpp">
@@ -249,7 +218,6 @@
 			<Option target="catchConfig"/>
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/testConfigTester/parentConfigTester.cpp">
-			<Option target="parentConfigTester"/>
 			<Option target="catchConfig"/>
 		</Unit>
 		<Unit filename="/Users/kde-rooi/Documents/webserv/testers/testConfigTester/testConfigParser.hpp">
