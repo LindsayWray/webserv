@@ -30,7 +30,7 @@ static HTTPResponseMessage CGIAttempt( int pipe_fd, cgi_response resp, httpData 
     return response;
 }
 
-int webserv::responseFromCGI( serverData& serverData, int pipe_fd ) {
+void webserv::responseFromCGI( serverData& serverData, int pipe_fd ) {
     HTTPResponseMessage response;
     std::string line;
     std::string body( "" );
@@ -43,6 +43,5 @@ int webserv::responseFromCGI( serverData& serverData, int pipe_fd ) {
     struct kevent new_socket_change;
     EV_SET( & new_socket_change, resp.clientFd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
     if ( kevent( serverData.kqData.kq, & new_socket_change, 1, NULL, 0, NULL ) == ERROR )
-        return ERROR;
-    return SUCCES;
+        std::cerr << "kevent error" << std::endl;
 }
