@@ -1,5 +1,8 @@
 #pragma once
 
+#include "dataStructs.hpp"
+#include "clientSocket.hpp"
+
 #include <string>
 
 #include <arpa/inet.h>

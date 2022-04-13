@@ -2,36 +2,38 @@
 
 #define PORT 8080
 
-// clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
+// clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp ../../srcs/sockets/clientSocket.cpp ../../srcs/sockets/parentSocket.cpp ../../srcs/utils/dataStructs.cpp -I. -I../../srcs/sockets -I../../srcs/utils -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
 
-int RequestHandlingTest::_setUpSocket(int& sock) {
-    struct sockaddr_in serv_addr;
+// int RequestHandlingTest::_setUpSocket(int& sock) {
+//     struct sockaddr_in serv_addr;
 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
-        return -1;
-    }
+//     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+//         printf("\n Socket creation error \n");
+//         return -1;
+//     }
  
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+//     serv_addr.sin_family = AF_INET;
+//     serv_addr.sin_port = htons(PORT);
  
-    // Convert IPv4 and IPv6 addresses from text to binary
-    // form
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
-        <= 0) {
-        printf(
-            "\nInvalid address/ Address not supported \n");
-        return -1;
-    }
+//     // Convert IPv4 and IPv6 addresses from text to binary
+//     // form
+//     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
+//         <= 0) {
+//         printf(
+//             "\nInvalid address/ Address not supported \n");
+//         return -1;
+//     }
  
-    if (connect(sock, (struct sockaddr*)&serv_addr,
-                sizeof(serv_addr))
-        < 0) {
-        printf("\nConnection Failed \n");
-        return -1;
-    }
-    return 0;
-}
+//     if (connect(sock, (struct sockaddr*)&serv_addr,
+//                 sizeof(serv_addr))
+//         < 0) {
+//         printf("\nConnection Failed \n");
+//         return -1;
+//     }
+//     return 0;
+// }
+
+
 
 void RequestHandlingTest::basicGETRequest(void) {
     std::string requestMessage =
@@ -39,10 +41,13 @@ void RequestHandlingTest::basicGETRequest(void) {
 		host: localhost\r\n\
 		\r\n";
 
-    int sock = 0;
+    webserv::socketData sockData;
+    sockData.ports.push_back(8080);
 
-    if (_setUpSocket(sock) == -1)
-        return;
+    webserv::clientSocket clientSock(sockData, 8080);
+    clientSock.connect_to_network();
+
+    int sock = clientSock.get_sock();
 
     send(sock, requestMessage.c_str(), strlen(requestMessage.c_str()), 0);
     printf("basicGETRequest message sent\n");
@@ -52,8 +57,8 @@ void RequestHandlingTest::basicGETRequest(void) {
     valread = read(sock, buffer, 1024);
     printf("%s\n", buffer);
 
+    printf("basicGETRequest done\n");
     return;
-
 }
 
 void RequestHandlingTest::basicPOSTRequest(void) {
