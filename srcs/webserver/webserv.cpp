@@ -53,6 +53,10 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
         ERROR_RESPONSE( HTTPResponseMessage::PAYLOAD_TOO_LARGE );
         std::cerr << e.what() << std::endl;
     }
+	catch ( webserv::Request::IncorrectRequestException &e ) {
+		ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
+		std::cerr << e.what() << std::endl;
+	}
 
     if ( request.isComplete() ) {
         try {
@@ -73,10 +77,6 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
                 }
             }
         }
-		catch ( webserv::Request::MaxClientBodyException &e ) {
-			ERROR_RESPONSE( HTTPResponseMessage::PAYLOAD_TOO_LARGE );
-			std::cerr << e.what() << std::endl;
-		}
 		catch ( webserv::Request::IncorrectRequestException &e ) {
 			ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
 			std::cerr << e.what() << std::endl;

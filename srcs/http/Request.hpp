@@ -9,6 +9,11 @@
 # include <sys/socket.h>
 # include <sstream>
 
+// ******* headers *******  //
+#define TRANSFER_ENCODING "transfer-encoding"
+#define CONTENT_LENGTH "content-length"
+#define HOST "host"
+
 namespace webserv {
 
     class Request {

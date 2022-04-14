@@ -1,17 +1,19 @@
 #include "Request.hpp"
 #include "../utils/printFormatting.hpp"
-#include <fstream> 
+#include <fstream>
 
-webserv::Request::Request(int max_client_body){
+using namespace webserv;
+
+Request::Request(int max_client_body){
 	_maxClientBody = max_client_body;
-	_headersDone = false; 
+	_remainder = 0;
 };
 
-webserv::Request::Request(const Request& original){
+Request::Request(const Request& original){
 	*this = original;
 }
 
-webserv::Request& webserv::Request::operator=(const webserv::Request& original){
+Request& Request::operator=(const Request& original){
 	this->_rawRequest = original._rawRequest;
 	this->_headersDone = original._headersDone;
 	this->_contentLength = original._contentLength;
@@ -29,7 +31,7 @@ webserv::Request& webserv::Request::operator=(const webserv::Request& original){
 	return *this;
 }
 
-void webserv::Request::parse_statusline( std::string &method ) {
+void Request::parse_statusline( std::string &method ) {
     if ( method == "GET" )
         _method = GET;
     else if ( method == "POST" )
@@ -52,7 +54,7 @@ void webserv::Request::parse_statusline( std::string &method ) {
     }
 }
 
-void webserv::Request::setPath( std::string line ) {
+void Request::setPath( std::string line ) {
 	std::size_t i = 0, found;
 
 	if ( line[i] != '/' )
@@ -71,8 +73,7 @@ void webserv::Request::setPath( std::string line ) {
 	}
 }
 
-void	webserv::Request::appendBody(const char* chunk, int len) {
-	std::cout << "appending" << _chunked << std::endl ; 
+void	Request::appendBody(const char* chunk, int len) {
 	if (!_chunked) {
 		_body.append(chunk, len);
 		if (_body.size() > _contentLength)
@@ -82,44 +83,44 @@ void	webserv::Request::appendBody(const char* chunk, int len) {
 		char *buf;
 
 		std::stringstream ss(chunk);
-		// if (_body.empty())
-		// 	ss >> size; // skip the first int, its weird
 
-		// if (_remainder) {
-		// 	buf = (char *)malloc(_remainder + 1);
-		// 	ss.get(buf, _remainder + 1);
-		// 	_body.append(buf, _remainder);
-		// 	_remainder = 0;
-		// 	free(buf);
-		// }
+		std::cout << "Remaining" << _remainder << std::endl;
+
+		if (_remainder != 0) {
+			buf = (char *)malloc(_remainder);
+			int charsRead = ss.readsome(buf, _remainder);
+			_body.append(buf, charsRead);
+			_remainder -= charsRead;
+			free(buf);
+		}
+		if (_remainder != 0)
+			return;
 	
-		while (size != 0) {
+		while (!ss.eof() ) {
+			size = 0;
 			ss >> std::hex >> size;
-			if (size == 0) {
+			if (size == 0 ) {
 				_chunkedComplete = true;
 				return;
 			}
-			std::cout << "Chunk size" << size << std::endl;
-			ss.ignore(1); 
+			// std::cout << "Chunk size" << size << std::endl;
+			ss.ignore(2); 
 			buf = (char *)malloc(size + 1);
-			// std::cout << ss.tellg() << std::endl;
-			ss.get(buf, size + 1);
-			// if (strlen(buf) != size) {
-			// 	_body.append(buf, strlen(buf));
-			// 	_remainder = size - strlen(buf);
-			// 	free(buf);
-			// 	break;
-			// }
-			// std::cout << ss.tellg() << std::endl;
-			// ss.ignore(1);
-			_body.append(buf, size + 1);
-			// std::cout << _body << std::endl;
+			int charsRead = ss.readsome(buf, size + 1);
+			_body.append(buf, charsRead);
 			free(buf);
+
+			if (charsRead < size) {
+				// std::cout << "Not enough chars found " << charsRead << "  of " << size << std::endl;
+				_remainder = size - charsRead;
+				_chunkedComplete = false;
+				return;
+			}
 		}
 	}
 }
 
-void	webserv::Request::decodePath() {
+void	Request::decodePath() {
 	while(true) {
 		int pos = _requestPath.find("%20");
 		if (pos == std::string::npos)
@@ -128,7 +129,14 @@ void	webserv::Request::decodePath() {
 	}
 }
 
-void	webserv::Request::parseChunk(char* chunk, int len){
+static std::string lowercase(std::string str) {
+	for(int i = 0; i < str.size(); i++) {
+		str[i] = tolower(str[i]);
+	}
+	return str;
+}
+
+void	Request::parseChunk(char* chunk, int len){
 
 	if (_headersDone)
 		appendBody(chunk, len);
@@ -160,25 +168,26 @@ void	webserv::Request::parseChunk(char* chunk, int len){
 				printf( "Fault in the headers\n" );
 				throw ( IncorrectRequestException());
 			}
-			_headers[key] = _headers[key].substr( 1, _headers[key].size() - 2 );
+			_headers[lowercase(key)] = _headers[key].substr( 1, _headers[key].size() - 2 );
 		}
 
-		if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == " chunked\r")
+		if (_headers.find(TRANSFER_ENCODING) != _headers.end() && _headers[TRANSFER_ENCODING] == "chunked")
 			_chunked = true;
-
-		else if (_headers.find("Content-Length") == _headers.end())
+		else if (_headers.find(CONTENT_LENGTH) == _headers.end())
 			_contentLength = 0; 
 		else 
-			_contentLength = std::stoi(_headers["Content-Length"]);
+			_contentLength = std::stoi(_headers[CONTENT_LENGTH]);
 
-        if (_headers.find("Host") == _headers.end())
+        if (_headers.find(HOST) == _headers.end())
             _host = "NAV";
         else
-            _host = _headers["Host"];
+            _host = _headers[HOST];
 
-		std::cout << _chunked << _headers["Transfer-Encoding"] << std::endl;
+		std::cout << "Content Length " << _contentLength << std::endl;
+		std::cout << "Chunked" << std::boolalpha << _chunked << std::endl;
+
 		std::cout << "MAX BODY " << _maxClientBody << std::endl;
-		if ( _maxClientBody != 0 && _contentLength > _maxClientBody )
+		if ( !_chunked && _maxClientBody != 0 && _contentLength > _maxClientBody )
 			throw (MaxClientBodyException());
 
 		int current_position = ss.tellg();
@@ -188,32 +197,32 @@ void	webserv::Request::parseChunk(char* chunk, int len){
 	}
 }
 
-std::string webserv::Request::getBody() const {
+std::string Request::getBody() const {
     return this->_body;
 }
 
-std::vector<std::string> webserv::Request::getPath() const {
+std::vector<std::string> Request::getPath() const {
     return this->_path;
 }
 
-std::string webserv::Request::getRequestPath() const {
+std::string Request::getRequestPath() const {
     return this->_requestPath;
 }
 
-webserv::Request::method webserv::Request::getMethod() const {
+Request::method Request::getMethod() const {
     return this->_method;
 }
 
-std::string webserv::Request::getRawRequest() const {
+std::string Request::getRawRequest() const {
     return this->_rawRequest;
 }
 
-std::string webserv::Request::getHost() const {
+std::string Request::getHost() const {
     return this->_host;
 }
 
 
-bool webserv::Request::isComplete() const {
+bool Request::isComplete() const {
 	if (!_headersDone)
 		return false;
 	if (_chunked)
