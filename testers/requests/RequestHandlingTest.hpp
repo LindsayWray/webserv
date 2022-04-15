@@ -47,16 +47,16 @@ class RequestHandlingTest {
 
 	void transferEncodingNoContentLength(int& sock);
 	void transferEncoding(int& sock);
-	void transferEncodingInvalidFormatting(void);
-	void transferEncodingLastChunkMissing(void);
-	void transferEncodingLastChunkTooSmall(void);
-	void transferEncodingLastChunkTooBig(void);
+	void transferEncodingInvalidFormatting(int& sock);
+	void transferEncodingLastChunkMissing(int& sock);
+	void transferEncodingLastChunkTooSmall(int& sock);
+	void transferEncodingLastChunkTooBig(int& sock);
 
-	void contentLengthBodyLargerThanMaxBodySize(void);
-	void transferEncodingBodyLargerThanMaxBodySize(void);
+	void contentLengthBodyLargerThanMaxBodySize(int& sock);
+	void transferEncodingBodyLargerThanMaxBodySize(int& sock);
 
-	void urlTooLarge(void);
-	void headersTooLarge(void);
+	void urlTooLarge(int& sock);
+	void headersTooLarge(int& sock);
 
 	RequestHandlingTest() {}
 	~RequestHandlingTest() {}
