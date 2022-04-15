@@ -188,7 +188,7 @@ int main(void) {
     sut.basicGETRequest(sock);
     sut.basicPOSTRequest(sock);
 	sut.contentLengthSplitIntoTwoChunks(sock);
-    // sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock);
+    sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock);
     sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock);
 
 	return 0;
