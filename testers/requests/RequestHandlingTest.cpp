@@ -9,6 +9,9 @@ clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp ../../srcs/sockets/clientS
 Run from root:
 clang++ -Wall -Werror -Wextra testers/requests/RequestHandlingTest.cpp srcs/sockets/clientSocket.cpp srcs/sockets/parentSocket.cpp srcs/sockets/socketData.cpp -Itesters/requests -Isrcs/sockets -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
 
+Remove test output files: 
+clang++ -Wall -Werror -Wextra testers/requests/RequestHandlingTest.cpp srcs/sockets/clientSocket.cpp srcs/sockets/parentSocket.cpp srcs/sockets/socketData.cpp -Itesters/requests -Isrcs/sockets -o testRequestHandling && ./testRequestHandling clean && rm testRequestHandling
+
 */
 
 void RequestHandlingTest::basicGETRequest(int& sock) {
@@ -138,11 +141,7 @@ void RequestHandlingTest::transferEncodingNoContentLength(int& sock) {
         "host: localhost\r\n"\
         "transfer-encoding: chunked\r\n"\
         "\r\n"\
-<<<<<<< HEAD
-        "32\r\n"\
-=======
         "20\r\n"\
->>>>>>> lindsay
         "the first chunk of this request\n\r\n";
 
     std::string secondChunk =
@@ -258,20 +257,30 @@ int RequestHandlingTest::setUpSocket(int port) {
     return clientSock.get_sock();
 }
 
-int main(void) {
+void RequestHandlingTest::clean(void) {
+    std::remove( "var/www/html/basicPOSTRequest.txt" );
+    std::remove( "var/www/html/transferEncodingNoContentLengthTest.txt" );
+    std::remove( "var/www/html/transferEncodingTest.txt" );
+
+    std::cout << "Cleaned previously generated test files\n\n";
+}
+
+int main(int argc, char** argv) {
 	RequestHandlingTest sut;
+    sut.clean();
 
-    int sock = sut.setUpSocket(8080);
+    if (argc == 1 || std::strcmp(argv[1], "clean") != 0) {
+        int sock = sut.setUpSocket(8080);
 
-    sut.basicGETRequest(sock);
-    sut.basicPOSTRequest(sock);
+        sut.basicGETRequest(sock);
+        sut.basicPOSTRequest(sock);
 
-	// sut.contentLengthSplitIntoTwoChunks(sock);
-    // // sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock);
-    // sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock);
+        // sut.contentLengthSplitIntoTwoChunks(sock);
+        // // sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock);
+        // sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock);
 
-    // sut.transferEncodingNoContentLength(sock);
-    sut.transferEncoding(sock);
-
+        sut.transferEncodingNoContentLength(sock);
+        sut.transferEncoding(sock);
+    }
 	return 0;
 }

@@ -62,4 +62,5 @@ class RequestHandlingTest {
 	~RequestHandlingTest() {}
 
 	int setUpSocket(int sock);
+	void clean(void);
 };
