@@ -106,8 +106,8 @@ void	Request::appendBody(const char* chunk, int len) {
 			}
 			// std::cout << "Chunk size" << size << std::endl;
 			ss.ignore(2); 
-			buf = (char *)malloc(size + 1);
-			int charsRead = ss.readsome(buf, size + 1);
+			buf = (char *)malloc(size);
+			int charsRead = ss.readsome(buf, size);
 			_body.append(buf, charsRead);
 			free(buf);
 
