@@ -88,8 +88,9 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
     }
 }
 
-static void disconnected( int fd, int& nbr_conn ) {
+static void disconnected( int fd, int& nbr_conn, serverData& serverData ) {
     std::cerr << "client disconnected" << std::endl;
+	REQUESTS.erase( fd );
     close( fd );
     nbr_conn--;
 }
@@ -98,7 +99,7 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
     int current_fd = event.ident;
 
     if ( event.flags & EV_EOF ) {
-        disconnected( current_fd, KQ.nbrConnections );
+        disconnected( current_fd, KQ.nbrConnections, serverData );
     } else if ( SERVER_MAP.find( current_fd ) != SERVER_MAP.end() ) {
         accepter( SERVER_MAP[current_fd], KQ, CLIENTS );
     } else if ( RESPONSES.find( current_fd ) != RESPONSES.end() ) {
