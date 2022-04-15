@@ -98,6 +98,8 @@ static HTTPResponseMessage POST_handler( std::string requestPath, Request reques
         if ( file.good() ) {
             file << request.getBody();
             server.created_files.insert( fullPath );
+        } else {
+            // responseWhenFileCreationFails( requestPath );
         }
         file.close();
         return responseWhenFileCreated( requestPath );
