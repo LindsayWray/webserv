@@ -14,11 +14,12 @@ static std::string file_extension( std::string path ) {
 
 static HTTPResponseMessage responseFromFile( std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
     HTTPResponseMessage response;
-    std::string line;
     std::string body( "" );
+	std::stringstream buffer;
 
-    while ( std::getline( file, line ) )
-        body += ( line + '\n' );
+	buffer << file.rdbuf();
+	body += buffer.str(); // get the whole file contents at once
+
     file.close();
     response.addStatus( statusCode )
             .addLength( body.length() )
@@ -138,6 +139,7 @@ HTTPResponseMessage webserv::handler( Request request, httpData server, location
     for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
         requestPath += request.getPath()[i];
 
+	std::cout << "METHOD " << location.allowed_response[request.getMethod()] << std::endl;
     if ( !location.allowed_response[request.getMethod()] )
         return errorResponse( server, HTTPResponseMessage::METHOD_NOT_ALLOWED );
     if ( server.redirect.first > 0 )

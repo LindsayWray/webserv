@@ -44,5 +44,5 @@ void webserv::responseFromCGI( serverData& serverData, int pipe_fd ) {
     EV_SET( & new_socket_change, resp.clientFd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
     if ( kevent( serverData.kqData.kq, & new_socket_change, 1, NULL, 0, NULL ) == ERROR )
         return webserv::kqueueFailure( resp.clientFd );
-	serverData.responses[resp.clientFd] = response.toString();
+	serverData.responses[resp.clientFd] = std::make_pair(response.toString(), 0);
 }
