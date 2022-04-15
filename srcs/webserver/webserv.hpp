@@ -16,6 +16,7 @@
 namespace webserv {
 // ******* webserv.cpp *******  //
     void processEvent( serverData& serverData, struct kevent& event );
+	void kqueueFailure( int fd );
 
 // ******* webservInit.cpp *******  //
     int init_servers( webserv::serverData& serverData, std::string filename, char** env );

@@ -27,7 +27,7 @@ static HTTPResponseMessage responseFromFile( std::ifstream& file, std::string ex
         response.addType( HTTPResponseMessage::contentTypes.at( extension ) );
     }
     catch ( ... ) {
-        response.addType( "text/plain" );   //temporary fix until directory handling
+        response.addType( "text/plain" );
     }
     return response;
 }

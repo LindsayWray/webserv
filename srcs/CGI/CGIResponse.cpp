@@ -1,4 +1,5 @@
 #include "CGI.hpp"
+#include "../webserver/webserv.hpp"
 
 using namespace webserv;
 
@@ -37,11 +38,11 @@ void webserv::responseFromCGI( serverData& serverData, int pipe_fd ) {
     cgi_response resp = serverData.cgiResponses[pipe_fd];
 
     response = CGIAttempt( pipe_fd, resp, serverData.clientSockets[resp.clientFd] );
-    serverData.responses[resp.clientFd] = response.toString();
     serverData.requests.erase( resp.clientFd );
     printf( "  register CGI respond event - %d\n", resp.clientFd );
     struct kevent new_socket_change;
     EV_SET( & new_socket_change, resp.clientFd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
     if ( kevent( serverData.kqData.kq, & new_socket_change, 1, NULL, 0, NULL ) == ERROR )
-        std::cerr << "kevent error" << std::endl;
+        return webserv::kqueueFailure( resp.clientFd );
+	serverData.responses[resp.clientFd] = response.toString();
 }

@@ -9,6 +9,11 @@
 # include <sys/socket.h>
 # include <sstream>
 
+// ******* headers *******  //
+#define TRANSFER_ENCODING "transfer-encoding"
+#define CONTENT_LENGTH "content-length"
+#define HOST "host"
+
 namespace webserv {
 
     class Request {
@@ -17,10 +22,13 @@ namespace webserv {
             GET, POST, DELETE
         };
     private:
-        std::string _rawRequest;
-        bool _headersDone;
-        int _contentLength;
-        int _maxClientBody;
+		std::string _rawRequest;
+		bool _headersDone;
+		int _contentLength;
+		bool _chunked;
+		bool _chunkedComplete;
+		int _remainder;
+		int _maxClientBody;
 
         method _method;
         std::vector<std::string> _path;
@@ -30,46 +38,38 @@ namespace webserv {
         std::string _body;
         std::string _host;
 
-        void parse_statusline( std::string& method );
-
-        void setPath( std::string line );
+        void parse_statusline( std::string &method );
+		void setPath( std::string line );
+		void appendBody(const char* chunk, int len);
+		void decodePath();
 
 
     public:
-        Request() {};
+		Request(){};
+		Request(int);
 
-        Request( int );
-
-        Request( const Request& original );
-
-        Request& operator=( const Request& original );
+		Request(const Request& original);
+		Request& operator=(const Request& original);
 
         std::string getBody() const;
-
         std::vector<std::string> getPath() const;
-
         method getMethod() const;
-
         std::string getRequestPath() const;
-
-        std::string getRawRequest() const;
-
+		std::string getRawRequest() const;
         std::string getHost() const;
 
-        void parseChunk( char* chunk, int len );
-
-        bool isComplete() const;
+		void	parseChunk(char* chunk, int len);
+		bool	isComplete() const;
 
         class IncorrectRequestException : public std::exception {
         public:
-            const char* what() const throw() {
+            const char *what() const throw() {
                 return "Request Not Valid";
             }
         };
-
-        class MaxClientBodyException : public std::exception {
+		class MaxClientBodyException : public std::exception {
         public:
-            const char* what() const throw() {
+            const char *what() const throw() {
                 return "Max Client Body Exceeded";
             }
         };
