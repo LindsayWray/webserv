@@ -138,12 +138,12 @@ void RequestHandlingTest::transferEncodingNoContentLength(int& sock) {
         "host: localhost\r\n"\
         "transfer-encoding: chunked\r\n"\
         "\r\n"\
-        "20\r\n"\
-        "the first chunk of this request\n";
+        "32\r\n"\
+        "the first chunk of this request\n\r\n";
 
     std::string secondChunk =
         "20\r\n"\
-		"the second chunk of this request";
+		"the second chunk of this request\r\n";
 
     std::string terminatingChunk =
         "0\r\n"\
@@ -175,15 +175,15 @@ void RequestHandlingTest::transferEncoding(int& sock) {
     std::string firstChunk =
         "POST /transferEncodingTest.txt HTTP/1.1\r\n"\
         "host: localhost\r\n"\
-        "content-Length: 64\r\n"\
+        "content-length: 64\r\n"\
         "transfer-encoding: chunked\r\n"\
         "\r\n"\
         "20\r\n"\
-        "the first chunk of this request\n";
+        "the first chunk of this request\n\r\n";
 
     std::string secondChunk =
         "20\r\n"\
-		"the second chunk of this request";
+		"the second chunk of this request\r\n";
 
     std::string terminatingChunk =
         "0\r\n"\
