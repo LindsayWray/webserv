@@ -21,17 +21,18 @@
 	#4 With content length, no transfer encoding, split into two chunks, body too small
 	#5 With content length, no transfer encoding, split into two chunks, body too large
 
-	#6 With content length, and transfer encoding, and transfer encoding formatting
-	#7 With content length, and transfer encoding, with no transfer encoding formatting
-	#8 With content length, and transfer encoding, and transfer encoding formatting, last chunk missing
-	#9 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too small
-	#10 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too big
+	#6 Without content length, with transfer encoding, and transfer encoding formatting
+	#7 With content length, and transfer encoding, and transfer encoding formatting
+	#8 With content length, and transfer encoding, with no transfer encoding formatting
+	#9 With content length, and transfer encoding, and transfer encoding formatting, last chunk missing
+	#10 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too small
+	#11 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too big
 
-	#11 With content length, body longer than max body size
-	#12 With transfer encoding, body longer than max body size
+	#12 With content length, body longer than max body size
+	#13 With transfer encoding, body longer than max body size
 
-	#13 With URL too large
-	#14 With Headers too large
+	#14 With URL too large
+	#15 With Headers too large
 */
 
 class RequestHandlingTest {
@@ -44,7 +45,8 @@ class RequestHandlingTest {
 	void contentLengthSplitIntoTwoChunksBodyTooSmall(int& sock);
 	void contentLengthSplitIntoTwoChunksBodyTooLarge(int& sock);
 
-	void transferEncoding(void);
+	void transferEncodingNoContentLength(int& sock);
+	void transferEncoding(int& sock);
 	void transferEncodingInvalidFormatting(void);
 	void transferEncodingLastChunkMissing(void);
 	void transferEncodingLastChunkTooSmall(void);
