@@ -139,11 +139,11 @@ void RequestHandlingTest::transferEncodingNoContentLength(int& sock) {
         "transfer-encoding: chunked\r\n"\
         "\r\n"\
         "20\r\n"\
-        "the first chunk of this request\n";
+        "the first chunk of this request\n\r\n";
 
     std::string secondChunk =
         "20\r\n"\
-		"the second chunk of this request";
+		"the second chunk of this request\r\n";
 
     std::string terminatingChunk =
         "0\r\n"\
@@ -179,11 +179,11 @@ void RequestHandlingTest::transferEncoding(int& sock) {
         "transfer-encoding: chunked\r\n"\
         "\r\n"\
         "20\r\n"\
-        "the first chunk of this request\n";
+        "the first chunk of this request\n\r\n";
 
     std::string secondChunk =
         "20\r\n"\
-		"the second chunk of this request";
+		"the second chunk of this request\r\n";
 
     std::string terminatingChunk =
         "0\r\n"\
@@ -266,7 +266,7 @@ int main(void) {
     // // sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock);
     // sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock);
 
-    sut.transferEncodingNoContentLength(sock);
+    // sut.transferEncodingNoContentLength(sock);
     sut.transferEncoding(sock);
 
 	return 0;

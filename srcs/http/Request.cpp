@@ -98,8 +98,9 @@ void	Request::appendBody(const char* chunk, int len) {
 	
 		while (!ss.eof() ) {
 			size = 0;
+			//std::cout << "PEEK " << ss.peek() << std::endl;
 			ss >> std::hex >> size;
-			if (size == 0 ) {
+			if (size == 0 && !ss.eof()) {
 				_chunkedComplete = true;
 				return;
 			}
