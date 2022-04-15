@@ -41,8 +41,8 @@ class RequestHandlingTest {
 	void basicPOSTRequest(int& sock);
 
 	void contentLengthSplitIntoTwoChunks(int& sock);
-	void contentLengthSplitIntoTwoChunksBodyTooSmall(void);
-	void contentLengthSplitIntoTwoChunksBodyTooLarge(void);
+	void contentLengthSplitIntoTwoChunksBodyTooSmall(int& sock);
+	void contentLengthSplitIntoTwoChunksBodyTooLarge(int& sock);
 
 	void transferEncoding(void);
 	void transferEncodingInvalidFormatting(void);

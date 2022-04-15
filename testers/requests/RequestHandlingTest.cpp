@@ -3,8 +3,11 @@
 #define PORT 8080
 
 /* COMMAND LINE
-
+Run from root/testers/requests/:
 clang++ -Wall -Werror -Wextra RequestHandlingTest.cpp ../../srcs/sockets/clientSocket.cpp ../../srcs/sockets/parentSocket.cpp ../../srcs/sockets/socketData.cpp -I. -I../../srcs/sockets -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
+
+Run from root:
+clang++ -Wall -Werror -Wextra testers/requests/RequestHandlingTest.cpp srcs/sockets/clientSocket.cpp srcs/sockets/parentSocket.cpp srcs/sockets/socketData.cpp -Itesters/requests -Isrcs/sockets -o testRequestHandling && ./testRequestHandling && rm testRequestHandling
 
 */
 
@@ -60,6 +63,9 @@ void RequestHandlingTest::contentLengthSplitIntoTwoChunks(int& sock) {
 
     send(sock, firstChunk.c_str(), strlen(firstChunk.c_str()), 0);
     std::cout << "contentLengthSplitIntoTwoChunks: first chunk sent\n";
+
+    sleep(1);
+
     send(sock, secondChunk.c_str(), strlen(secondChunk.c_str()), 0);
     std::cout << "contentLengthSplitIntoTwoChunks: second chunk sent\n";
 
@@ -71,12 +77,58 @@ void RequestHandlingTest::contentLengthSplitIntoTwoChunks(int& sock) {
     return;
 }
 
-void RequestHandlingTest::contentLengthSplitIntoTwoChunksBodyTooSmall(void) {
+void RequestHandlingTest::contentLengthSplitIntoTwoChunksBodyTooSmall(int& sock) {
+    std::string firstChunk =
+    "POST /contentLengthSplitIntoTwoChunksBodyTooSmallTest.txt HTTP/1.1\r\n"\
+    "Host: localhost\r\n"\
+    "Content-Length: 64\r\n"\
+    "\r\n"\
+    "the first chunk of this request\n";
 
+	std::string secondChunk = 
+		"the second chu...";
+
+    send(sock, firstChunk.c_str(), strlen(firstChunk.c_str()), 0);
+    std::cout << "contentLengthSplitIntoTwoChunksBodyTooSmall: first chunk sent\n";
+
+    sleep(3);
+
+    send(sock, secondChunk.c_str(), strlen(secondChunk.c_str()), 0);
+    std::cout << "contentLengthSplitIntoTwoChunksBodyTooSmall: second chunk sent\n";
+
+    int valread;
+    char buffer[1024] = { 0 };
+    valread = read(sock, buffer, 1024);
+    std::cout << buffer << "\n";
+
+    return;
 }
 
-void RequestHandlingTest::contentLengthSplitIntoTwoChunksBodyTooLarge(void) {
+void RequestHandlingTest::contentLengthSplitIntoTwoChunksBodyTooLarge(int& sock) {
+    std::string firstChunk =
+    "POST /contentLengthSplitIntoTwoChunksBodyTooLargeTest.txt HTTP/1.1\r\n"\
+    "Host: localhost\r\n"\
+    "Content-Length: 64\r\n"\
+    "\r\n"\
+    "the first chunk of this request\n";
 
+	std::string secondChunk = 
+		"the second chunk of this request is too large";
+
+    send(sock, firstChunk.c_str(), strlen(firstChunk.c_str()), 0);
+    std::cout << "contentLengthSplitIntoTwoChunksBodyTooLarge: first chunk sent\n";
+
+    sleep(3);
+
+    send(sock, secondChunk.c_str(), strlen(secondChunk.c_str()), 0);
+    std::cout << "contentLengthSplitIntoTwoChunksBodyTooLarge: second chunk sent\n";
+
+    int valread;
+    char buffer[1024] = { 0 };
+    valread = read(sock, buffer, 1024);
+    std::cout << buffer << "\n";
+
+    return;
 }
 
 
@@ -136,6 +188,8 @@ int main(void) {
     sut.basicGETRequest(sock);
     sut.basicPOSTRequest(sock);
 	sut.contentLengthSplitIntoTwoChunks(sock);
+    // sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock);
+    sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock);
 
 	return 0;
 }
