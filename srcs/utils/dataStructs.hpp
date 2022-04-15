@@ -80,7 +80,7 @@ namespace webserv {
         std::map<int, httpData> defaultServer; //key = port
 
         std::map<int, webserv::Request> requests;
-        std::map<int, std::string> responses;
+        std::map<int, std::pair<std::string, long> > responses;
         std::map<int, httpData> clientSockets;
         std::map<int, cgi_response> cgiResponses;
 

@@ -26,7 +26,7 @@ namespace webserv {
                    std::map<int, httpData>& clientSockets );
 
 // ******* responder.cpp *******  //
-    bool responder( int fd, std::map<int, std::string>& responses );
+    bool responder( int fd, std::map<int, std::pair<std::string, long> >& responses );
 }
 
 #endif //WEBSERV_WEBSERV_HPP

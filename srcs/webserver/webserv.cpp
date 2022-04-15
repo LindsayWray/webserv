@@ -17,7 +17,7 @@ static void registerResponse( serverData& serverData, int current_fd, HTTPRespon
     EV_SET( & new_socket_change, current_fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL );
     if ( kevent( KQ.kq, & new_socket_change, 1, NULL, 0, NULL ) == ERROR )
         return kqueueFailure( current_fd );
-	RESPONSES[current_fd] = response.toString();
+	RESPONSES[current_fd] = std::make_pair(response.toString(), 0);
 }
 
 static httpData findServerBlock( serverData serverData, Request request, int current_fd ) {
@@ -55,6 +55,10 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
     }
 	catch ( webserv::Request::IncorrectRequestException &e ) {
 		ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
+		std::cerr << e.what() << std::endl;
+	}
+	catch ( webserv::Request::MethodNotAllowedException &e ) {
+		ERROR_RESPONSE( HTTPResponseMessage::METHOD_NOT_ALLOWED );
 		std::cerr << e.what() << std::endl;
 	}
 

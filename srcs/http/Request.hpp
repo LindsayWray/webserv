@@ -61,6 +61,13 @@ namespace webserv {
 		void	parseChunk(char* chunk, int len);
 		bool	isComplete() const;
 
+
+        class MethodNotAllowedException : public std::exception {
+        public:
+            const char *what() const throw() {
+                return "Method Not Allowed";
+            }
+        };
         class IncorrectRequestException : public std::exception {
         public:
             const char *what() const throw() {

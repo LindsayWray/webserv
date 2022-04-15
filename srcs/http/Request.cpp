@@ -40,7 +40,7 @@ void Request::parse_statusline( std::string &method ) {
         _method = DELETE;
     else {
         printf( "Fault in the statusline, (method)\n" );
-        throw ( IncorrectRequestException());
+        throw ( MethodNotAllowedException());
     }
 
     if ( _path[0] != "/" ) {

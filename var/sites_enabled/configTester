@@ -1,0 +1,46 @@
+server {
+	listen 9000;
+
+	serverName www.localhost;
+
+	index   /youpi.bad_extension;
+
+	errorPage 404 error404.html 403 error403.html;
+
+	client_max_body_size 100;
+
+	location / {
+		autoindex on;
+		root    /var/www/html;
+		limit_method GET;
+	}
+
+	location /put_test/ {
+		root	/var/www/html/resources;
+		autoindex on;
+	}
+
+	location /.bla {
+		root	/var/cgi-bin;
+		cgi_param /cgi_tester;
+		limit_method POST;
+	}
+
+	location /post_body {
+    	root	/var/cgi-bin;
+    	cgi_param /toupper.py;
+    }
+
+    location /directory/ {
+        root    /var/www/html/YoupiBanane;
+		limit_method GET;
+    }
+
+	location /images/limited/ {
+		root /var/www/html/resources;
+		limit_method POST;
+	}
+		
+}
+
+
