@@ -138,7 +138,11 @@ void RequestHandlingTest::transferEncodingNoContentLength(int& sock) {
         "host: localhost\r\n"\
         "transfer-encoding: chunked\r\n"\
         "\r\n"\
+<<<<<<< HEAD
         "32\r\n"\
+=======
+        "20\r\n"\
+>>>>>>> lindsay
         "the first chunk of this request\n\r\n";
 
     std::string secondChunk =
@@ -266,7 +270,7 @@ int main(void) {
     // // sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock);
     // sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock);
 
-    sut.transferEncodingNoContentLength(sock);
+    // sut.transferEncodingNoContentLength(sock);
     sut.transferEncoding(sock);
 
 	return 0;

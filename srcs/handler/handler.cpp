@@ -41,8 +41,14 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
     std::string fullPath = location.root + path;
 
     std::cout << location.root << " " << path << " " << fullPath << "\n";
+	
+	struct stat buf;
+    if ( ::stat( fullPath.c_str(), & buf ) == -1 ) {
+        return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
+    }
 
-    if ( path.back() == '/' ) {
+	if (S_ISDIR( buf.st_mode ) ){
+    //if ( path.back() == '/' ) {
         std::cout << "Is a directory " << path << std::endl;
         if ( location.autoindex ) {
             std::string body;
@@ -66,10 +72,8 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
         return GET_handler( path + "index.html", server, location );
     }
 
-    struct stat buf;
-    if ( ::stat( fullPath.c_str(), & buf ) == -1 || !S_ISREG( buf.st_mode ) ) {
+    if ( !S_ISREG( buf.st_mode ) )
         return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
-    }
     file.open( fullPath );
     if ( file.good() ) {
         std::cout << "File found " << fullPath << std::endl;
@@ -139,7 +143,6 @@ HTTPResponseMessage webserv::handler( Request request, httpData server, location
     for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
         requestPath += request.getPath()[i];
 
-	std::cout << "METHOD " << location.allowed_response[request.getMethod()] << std::endl;
     if ( !location.allowed_response[request.getMethod()] )
         return errorResponse( server, HTTPResponseMessage::METHOD_NOT_ALLOWED );
     if ( server.redirect.first > 0 )
