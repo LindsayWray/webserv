@@ -13,8 +13,8 @@ HTTPResponseMessage webserv::errorResponse( httpData server, HTTPResponseMessage
 
 HTTPResponseMessage webserv::responseWhenFileAlreadyExists( httpData server ) {
     HTTPResponseMessage response;
-    std::string body = server.errorPage[405];
-    return response.addStatus( HTTPResponseMessage::METHOD_NOT_ALLOWED )
+    std::string body = server.errorPage[403];
+    return response.addStatus( HTTPResponseMessage::FORBIDDEN )
             .addType( "text/html" )
             .addLength( body.length() )
             .addBody( body );

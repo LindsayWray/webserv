@@ -31,7 +31,7 @@ server {
     	cgi_param /toupper.py;
     }
 
-    location /directory {
+    location /directory/ {
         root    /var/www/html/YoupiBanane;
 		limit_method GET;
     }

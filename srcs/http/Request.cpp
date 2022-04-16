@@ -38,6 +38,8 @@ void Request::parse_statusline( std::string &method ) {
         _method = POST;
     else if ( method == "DELETE" )
         _method = DELETE;
+	// else if ( method == "PUT" )
+		// _method = POST;
     else {
         printf( "Fault in the statusline, (method)\n" );
         throw ( MethodNotAllowedException());
@@ -79,7 +81,7 @@ void	Request::appendBody(const char* chunk, int len) {
 		if (_body.size() > _contentLength)
 			throw (IncorrectRequestException());
 	} else {
-		int size;
+		long size;
 		char *buf;
 
 		std::stringstream ss(chunk);
@@ -98,14 +100,21 @@ void	Request::appendBody(const char* chunk, int len) {
 	
 		while (!ss.eof() ) {
 			size = 0;
-			//std::cout << "PEEK " << ss.peek() << std::endl;
-			ss >> std::hex >> size;
-			if (size == 0 && !ss.eof()) {
+			if (ss.peek() == '0'){
 				_chunkedComplete = true;
 				return;
 			}
-			// std::cout << "Chunk size" << size << std::endl;
-			ss.ignore(2); 
+			std::string sizeStr;
+			ss >> sizeStr;
+			std::cout << "chunk size string " << sizeStr << std::endl;
+			size = std::stoi(sizeStr, NULL, 16);
+
+			if (size == 0 && !ss.eof() ) {
+				_chunkedComplete = true;
+				return;
+			}
+			std::cout << "Chunk size" << size << std::endl;
+			ss.ignore(2);
 			buf = (char *)malloc(size);
 			int charsRead = ss.readsome(buf, size);
 			_body.append(buf, charsRead);
@@ -185,7 +194,7 @@ void	Request::parseChunk(char* chunk, int len){
             _host = _headers[HOST];
 
 		std::cout << "Content Length " << _contentLength << std::endl;
-		std::cout << "Chunked" << std::boolalpha << _chunked << std::endl;
+		std::cout << "Chunked " << std::boolalpha << _chunked << std::endl;
 
 		std::cout << "MAX BODY " << _maxClientBody << std::endl;
 		if ( !_chunked && _maxClientBody != 0 && _contentLength > _maxClientBody )

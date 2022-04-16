@@ -27,18 +27,38 @@ static httpData findServerBlock( serverData serverData, Request request, int cur
     return CLIENTS[current_fd];
 }
 
+bool	pathIsMatch( std::vector<std::string> requestPath, std::vector<std::string> locationPath ){
+	int len = locationPath.size();
+	if ( len > requestPath.size() && !( locationPath.back() == "/" && len == requestPath.size() + 1 ) )
+		return false;
+	if (locationPath.back() == "/" && len != 1)
+		len--;
+	std::cout << "PATH: ";
+	for(int j = 0; j < locationPath.size(); j++){
+		std::cout << locationPath[j];
+	}
+	std::cout << std::endl;
+
+	std::cout << "request PATH: ";
+	for(int j = 0; j < requestPath.size(); j++){
+		std::cout << requestPath[j];
+	}
+	std::cout << std::endl;
+	
+	for ( int token = ( len - 1 ); token >= 0; token-- ) {
+		if ( locationPath[token] != requestPath[token] )
+			break;
+		if ( token == 0 )
+			return true;
+	}
+	std::cout << "no match\n";
+	return false;
+}
+
 static int findRequestedLocation( httpData config, std::vector<std::string> path ) {
-    int len;
     for ( int i = 0; i < config.locations.size(); i++ ) {
-        len = config.locations[i].path.size();
-        if ( len > path.size() )
-            continue;
-        for ( int token = ( len - 1 ); token >= 0; token-- ) {
-            if ( config.locations[i].path[token] != path[token] )
-                break;
-            if ( token == 0 )
-                return i;
-        }
+		if ( pathIsMatch(path, config.locations[i].path) )
+			return i;
     }
     return NOTFOUND;
 }
@@ -65,6 +85,7 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
     if ( request.isComplete() ) {
         try {
             httpData serverblock = findServerBlock( serverData, request, current_fd );
+			std::cout << "FIND LOCATION: " << std::endl;
             int location_index = findRequestedLocation( serverblock, request.getPath() );
             HTTPResponseMessage::e_responseStatusCode ret;
             if ( location_index == NOTFOUND ) {

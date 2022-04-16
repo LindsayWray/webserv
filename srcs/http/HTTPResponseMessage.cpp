@@ -76,10 +76,10 @@ HTTPResponseMessage& HTTPResponseMessage::addLocation( const std::string locatio
 }
 
 const std::string HTTPResponseMessage::_headerContentLengthToString( void ) const {
-    if ( body != "" )
+    // if ( body != "" )
         return "content-length: " + std::to_string( length ) + "\r\n";
-    else
-        return "";
+    // else
+    //     return "";
 }
 
 const std::string HTTPResponseMessage::_headerContentTypeToString( void ) const {

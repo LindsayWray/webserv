@@ -69,7 +69,7 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
                     .addLength( body.length() )
                     .addType( "text/html" );
         }
-        return GET_handler( path + "index.html", server, location );
+        return GET_handler( path + server.index[0], server, location );
     }
 
     if ( !S_ISREG( buf.st_mode ) )
