@@ -99,7 +99,7 @@ static HTTPResponseMessage POST_handler( std::string requestPath, Request reques
             file << request.getBody();
             server.created_files.insert( fullPath );
         } else {
-            // responseWhenFileCreationFails( requestPath );
+            responseWhenFileCreationFails( server );
         }
         file.close();
         return responseWhenFileCreated( requestPath );
@@ -115,10 +115,10 @@ static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData ser
             server.created_files.erase( fileToBeDeleted );
             return webserv::responseWhenFileDeleted( requestPath );
         } else {
-            return responseWhenFileCantBeDeleted( requestPath );
+            return responseWhenFileCantBeDeleted( server );
         }
     } else {
-        return responseWhenFileCantBeDeleted( requestPath );
+        return responseWhenFileCantBeDeleted( server );
     }
 }
 
