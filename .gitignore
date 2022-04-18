@@ -7,5 +7,3 @@ cmake_install.cmake
 CMakeCache.txt
 CMakeFiles
 .vscode/
-outfile1
-outfile2
