@@ -105,11 +105,16 @@ const std::string HTTPResponseMessage::_headerServerToString( void ) const {
 }
 
 std::string HTTPResponseMessage::_getDateStr() const {
-    auto now = std::chrono::system_clock::now();
-    std::time_t end_time = std::chrono::system_clock::to_time_t( now );
+    time_t rawTime;
+    struct tm* timeInfo;
+    char buffer[128];
 
-    std::string output = std::ctime( & end_time );
-    output.pop_back();    /* removes terminating newline */
+    time(&rawTime);
+    timeInfo = gmtime(&rawTime);
+
+    strftime(buffer, 128,"%a, %d %b %G %T GMT", timeInfo);
+    
+    std::string output = static_cast<std::string>(buffer);
 
     return output;
 }
