@@ -52,6 +52,8 @@ namespace webserv {
 
         std::string getRequestPath() const;
 
+        void setRequestPath( std::string line );
+
         std::string getRawRequest() const;
 
         std::string getHost() const;

@@ -133,6 +133,11 @@ std::string webserv::Request::getRequestPath() const {
     return this->_requestPath;
 }
 
+void webserv::Request::setRequestPath( std::string line ) {
+    _requestPath.clear();
+    _requestPath = line;
+}
+
 webserv::Request::method webserv::Request::getMethod() const {
     return this->_method;
 }

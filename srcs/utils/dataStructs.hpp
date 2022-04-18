@@ -16,20 +16,23 @@
 #define ERROR -1
 #define SUCCES 0
 #define NEOF 1
+#define CGI_SIGN 2
 
 namespace webserv {
 
     struct locationData {
         std::vector<std::string> path;
         std::string root;
-        std::string cgi_param;
+        std::vector<std::string> cgi_param;
         bool allowed_response[3];
         bool autoindex;
         bool CGI;
 
         locationData( std::string _root );
 
-        int tokenizer( std::string line );
+        int pathTokenizer( std::string line );
+
+        int cgiTokenizer( std::string line );
     };
 
     class httpData {
@@ -54,6 +57,8 @@ namespace webserv {
         httpData& operator=( const httpData& original );
 
         ~httpData();
+
+        void organizeLocations( void );
 
         std::string formatErrorPage( std::string message );
 

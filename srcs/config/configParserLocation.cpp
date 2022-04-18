@@ -21,8 +21,25 @@ int webserv::configParser::setLocation( httpData& httpData ) {
             if ( ret )
                 return ret;
         }
-    } else
+    } else if ( ret == CGI_SIGN && * _it == "{" ){
+        while ( ++_it != _tokens.end() && * _it != "}" ) {
+            if ( * _it == "root" )
+                ret = _setRoot( element );
+            else if ( * _it == "limit_method" )
+                ret = _setLimitedMethod( element );
+            else if ( * _it == "autoindex" )
+                ret = _setAutoindex( element );
+            else if ( * _it == "cgi_param" )
+                ret = _setCgiParam( element );//element.tokenizer( * (_it + 1) ) == SUCCES ? _setCgiParam( element ) : ERROR;
+            else
+                ret = ERROR;
+            if ( ret )
+                return ret;
+        }
+    } else if ( ret == ERROR ){
+        _errorCode = LOCATION;
         return ERROR;
+    }
     httpData.locations.push_back( element );
     return ret;
 }
@@ -32,7 +49,16 @@ int webserv::configParser::_setLocation( locationData& element ) {
         _errorCode = LOCATION;
         return ERROR;
     }
-    return element.tokenizer( * _it++ );
+    if ( (*_it)[0] == '\\' ){
+        if ( *_it++ != "\\.py$" ) {
+            _errorCode = LOCATION;
+            return ERROR;
+        }
+        element.path.push_back( "\\.py$" );
+        element.CGI = true;
+        return CGI_SIGN;
+    }
+    return element.pathTokenizer( * _it++ );
 }
 
 int webserv::configParser::_setRoot( locationData& element ) {
@@ -49,11 +75,11 @@ int webserv::configParser::_setCgiParam( locationData& element ) {
         _errorCode = CGIPARAM;
         return ERROR;
     }
-    if ( element.cgi_param != "NONE" ) {
+    if ( !element.cgi_param.empty() ) {
         _errorCode = CGIPARAM;
         return ERROR;
     }
-    element.cgi_param = * _it++;
+    element.cgiTokenizer( * _it++ );
     element.CGI = true;
     return _endOfLine( LIMITEDMETHOD );
 }

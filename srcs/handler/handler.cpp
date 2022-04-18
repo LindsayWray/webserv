@@ -135,9 +135,9 @@ static HTTPResponseMessage REDIRECT_handler( Request request, httpData server ) 
 HTTPResponseMessage webserv::handler( Request request, httpData server, locationData location ) {
     HTTPResponseMessage response;
     std::string requestPath;
+
     for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
         requestPath += request.getPath()[i];
-
     if ( !location.allowed_response[request.getMethod()] )
         return errorResponse( server, HTTPResponseMessage::METHOD_NOT_ALLOWED );
     if ( server.redirect.first > 0 )

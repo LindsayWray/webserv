@@ -19,6 +19,11 @@ server {
 		autoindex on;
 	}
 
+	location /bla/ {
+    		root	/var;
+    		autoindex on;
+    }
+
 	location /time {
 		root	/var/cgi-bin;
 		cgi_param /ret_time.py;
@@ -38,7 +43,12 @@ server {
 		root /var/www/html/resources;
 		limit_method POST;
 	}
-		
+
+	location \.py$ {
+		root /var/www/html;
+		cgi_param /cgi-dir/;
+		autoindex on;
+	}
 }
 
 server {
