@@ -188,8 +188,8 @@ void	Request::parseChunk(char* chunk, int len){
 		if (_headers.find(TRANSFER_ENCODING) != _headers.end() && _headers[TRANSFER_ENCODING] == "chunked")
 			_chunked = true;
 		else if (_headers.find(CONTENT_LENGTH) == _headers.end())
-			_contentLength = 0; 
-		else 
+			_contentLength = 0;
+		else
 			_contentLength = std::stoi(_headers[CONTENT_LENGTH]);
 
         if (_headers.find(HOST) == _headers.end())

@@ -50,9 +50,6 @@ int webserv::configParser::_newToken( std::string line ) {
     return --i;
 }
 
-static int sortLocation( locationData& lhs, locationData& rhs ) {
-    return lhs.path.size() > rhs.path.size();
-}
 
 int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& httpData ) {
     TokenType::iterator it = _tokens.begin();
@@ -80,9 +77,7 @@ int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& ht
         if ( ret == ERROR )
             return ret;
     }
-    std::sort( httpData.locations.begin(), httpData.locations.end(), sortLocation );
-    if ( httpData.locations.size() == 0 )
-        httpData.locations.push_back( locationData( httpData.absPath ) );
+    httpData.organizeLocations();
     httpData.setErrorPages();
     if ( * ( _it++ ) == "}" && _it != _tokens.end() )
         return NEOF;

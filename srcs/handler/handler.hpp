@@ -21,9 +21,11 @@ namespace webserv {
 
     HTTPResponseMessage responseWhenFileCreated( std::string requestURL );
 
+    HTTPResponseMessage responseWhenFileCreationFails( httpData server );
+
     HTTPResponseMessage responseWhenFileDeleted( std::string requestURL );
 
-    HTTPResponseMessage responseWhenFileCantBeDeleted( std::string requestURL );
+    HTTPResponseMessage responseWhenFileCantBeDeleted( httpData server );
 
 // ******* exception *******  //
     class DirectoryNotFoundException : public std::exception {

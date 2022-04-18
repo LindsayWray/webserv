@@ -6,7 +6,7 @@
 #define KQ serverData.kqData
 #define SERVER_MAP serverData.serverMap
 #define CGI_RESPONSES serverData.cgiResponses
-#define ERROR_RESPONSE( code ) registerResponse(serverData, current_fd, errorResponse( CLIENTS[current_fd], code ));
+#define ERROR_RESPONSE( code ) registerResponse(serverData, current_fd, errorResponse( CLIENTS[current_fd], code ))
 
 using namespace webserv;
 
@@ -63,6 +63,42 @@ int findRequestedLocation( httpData config, std::vector<std::string> path ) {
     return NOTFOUND;
 }
 
+static void disconnected( int fd, int& nbr_conn ) {
+    std::cerr << "client disconnected" << std::endl;
+    close( fd );
+    nbr_conn--;
+}
+
+static bool isCGI( httpData serverblock, int& default_i, Request request ){
+    int pos = request.getPath().back().find(".py");
+    locationData default_loc = serverblock.locations[default_i];
+
+    if ( pos == std::string::npos )
+        return false;
+    if ( pos != request.getPath().back().size() - 3 )
+        return false;
+    if ( default_loc.CGI )
+        return true;
+    int len = default_loc.path.size();
+    for ( int location_i = 0; location_i < serverblock.locations.size(); location_i++ ){
+        if ( location_i == default_i )
+            continue;
+        if ( serverblock.locations[location_i].path.back() != "\\.py$" )
+            continue;
+        if ( default_loc.root != serverblock.locations[location_i].root )
+            continue;
+        for ( int param_i = 1; param_i < request.getPath().size(); param_i++ ) {
+            if ( request.getPath()[len + param_i - 1] != serverblock.locations[location_i].cgi_param[param_i] )
+                break;
+            if ( serverblock.locations[location_i].cgi_param.size() - 1 == param_i ){
+                default_i = location_i;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 static void takeRequest( serverData& serverData, int current_fd, int bytesread ) {
     if ( REQUESTS.find( current_fd ) == REQUESTS.end() )
         REQUESTS[current_fd] = Request( CLIENTS[current_fd].maxClientBody );    //creates new (empty) request in map
@@ -92,7 +128,7 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
                 ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
             } else {
                 locationData location = serverblock.locations[location_index];
-                if ( location.CGI ) {
+                if ( location.CGI || isCGI( serverblock, location_index, request ) ) {
                     ret = CGIRegister( location, serverData, current_fd, request );
                     if ( ret != HTTPResponseMessage::OK )
                         ERROR_RESPONSE( ret );
@@ -147,6 +183,6 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
 }
 
 void webserv::kqueueFailure( int fd ) {
-    std::cerr << "Kqueue Register Failure\n"; 
+    std::cerr << "Kqueue Register Failure\n";
     close( fd );
 }

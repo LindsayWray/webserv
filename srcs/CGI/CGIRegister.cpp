@@ -7,7 +7,12 @@ static HTTPResponseMessage::e_responseStatusCode createPath( locationData locati
     std::string reqPath = location.root;
     struct stat buffer;
 
-    reqPath.append( location.cgi_param );
+    if ( location.CGI )
+        for ( int i = 0; i < location.cgi_param.size(); i++ )
+            reqPath.append( location.cgi_param[i] );
+    else
+        for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
+            reqPath += request.getPath()[i];
     args[0] = strdup( "/usr/bin/python" );
     args[1] = strdup( reqPath.c_str() );
 

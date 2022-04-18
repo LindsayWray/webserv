@@ -16,7 +16,6 @@ static HTTPResponseMessage CGIAttempt( int pipe_fd, cgi_response resp, httpData 
     close( pipe_fd );
     if ( WIFEXITED( status ) )
         ret = WEXITSTATUS( status );
-    std::cerr << "ret " << ret << std::endl;
     if ( ret == 0 ) {
         response.addStatus( HTTPResponseMessage::OK )
                 .addLength( ret_str.length() )

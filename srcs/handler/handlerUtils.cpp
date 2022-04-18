@@ -20,6 +20,16 @@ HTTPResponseMessage webserv::responseWhenFileAlreadyExists( httpData server ) {
             .addBody( body );
 }
 
+HTTPResponseMessage webserv::responseWhenFileCreationFails( httpData server ) {
+    HTTPResponseMessage response;
+    std::string body = server.errorPage[403];
+    return response.addStatus( HTTPResponseMessage::FORBIDDEN )
+            .addType( "text/html" )
+            .addLength( body.length() )
+            .addBody( body );
+
+}
+
 HTTPResponseMessage webserv::responseWhenFileCreated( std::string requestURL ) {
     HTTPResponseMessage response;
     std::string body = "<html>\
@@ -47,14 +57,10 @@ HTTPResponseMessage webserv::responseWhenFileDeleted( std::string requestURL ) {
             .addBody( body );
 }
 
-HTTPResponseMessage webserv::responseWhenFileCantBeDeleted( std::string requestURL ) {
+HTTPResponseMessage webserv::responseWhenFileCantBeDeleted( httpData server ) {
     HTTPResponseMessage response;
-    std::string body = "<html>\
-                        <body><h1>File cannot be deleted at URL: #</h1></body>\
-                        </head>\
-                        </html>";
-    body.replace( body.find( "#" ), 1, requestURL );
-    return response.addStatus( HTTPResponseMessage::OK )
+    std::string body = server.errorPage[403];
+    return response.addStatus( HTTPResponseMessage::FORBIDDEN )
             .addType( "text/html" )
             .addLength( body.length() )
             .addBody( body );

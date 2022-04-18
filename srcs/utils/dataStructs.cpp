@@ -9,16 +9,15 @@ using namespace webserv;
 webserv::locationData::locationData( std::string _root ) {
     path.push_back( "/" );
     root = _root;
-    cgi_param = "NONE";
     memset( allowed_response, true, 3 );
     autoindex = false;
     CGI = false;
 }
 
-int webserv::locationData::tokenizer( std::string line ) {
+int webserv::locationData::pathTokenizer( std::string line ) {
     std::size_t i = 0, found;
 
-    if ( line[i++] != '/' )
+    if ( !line[i] || line[i++] != '/' )
         return ERROR;
     while ( i < line.length() ) {
         found = line.find_first_of( "/", i );
@@ -29,6 +28,27 @@ int webserv::locationData::tokenizer( std::string line ) {
             if ( i != found - i )
                 path.push_back( line.substr( i, found - i ) );
             path.push_back( line.substr( found, 1 ) );
+            i = found + 1;
+        }
+    }
+    return SUCCES;
+}
+
+int webserv::locationData::cgiTokenizer( std::string line ) {
+    std::size_t i = 0, found;
+
+    if ( !line[i] || line[i++] != '/' )
+        return ERROR;
+    cgi_param.push_back( "/" );
+    while ( i < line.length() ) {
+        found = line.find_first_of( "/", i );
+        if ( found == std::string::npos ) {
+            cgi_param.push_back( line.substr( i, line.length() ) );
+            break;
+        } else {
+            if ( i != found - i )
+                cgi_param.push_back( line.substr( i, found - i ) );
+            cgi_param.push_back( line.substr( found, 1 ) );
             i = found + 1;
         }
     }
@@ -66,6 +86,16 @@ httpData& webserv::httpData::operator=( const httpData& original ) {
 webserv::httpData::~httpData() {}
 
 std::map<std::string, std::string> created_files;
+
+static int sortLocation( locationData& lhs, locationData& rhs ) {
+    return lhs.path.size() > rhs.path.size();
+}
+
+void webserv::httpData::organizeLocations( void ){
+    std::sort( locations.begin(), locations.end(), sortLocation );
+    if ( !locations.empty() )
+        locations.push_back( locationData( absPath ) );
+}
 
 std::string webserv::httpData::formatErrorPage( std::string message ) {
     std::string page = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\

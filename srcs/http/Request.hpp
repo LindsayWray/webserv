@@ -55,7 +55,11 @@ namespace webserv {
         std::vector<std::string> getPath() const;
         method getMethod() const;
         std::string getRequestPath() const;
-		std::string getRawRequest() const;
+
+        void setRequestPath( std::string line );
+
+        std::string getRawRequest() const;
+
         std::string getHost() const;
 
 		void	parseChunk(char* chunk, int len);
