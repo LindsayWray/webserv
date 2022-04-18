@@ -58,6 +58,8 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
                     concatPath += location.path[i];
                 }
                 concatPath += path;
+				if (concatPath.back() != '/')
+					concatPath += '/';
                 autoIndexing( concatPath, fullPath, body );
             }
             catch ( DirectoryNotFoundException& e ) {
