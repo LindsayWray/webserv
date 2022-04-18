@@ -8,8 +8,7 @@ using namespace webserv;
 
 
 bool webserv::responder( int fd, std::map<int, std::pair<std::string, long> >& responses ) {
-	static int count = 0;
-    std::cout << "sending chunk of response" << ++count << std::endl;
+    std::cout << "sending chunk of response" << std::endl;
 
     std::string chunk = responses[fd].first.substr( responses[fd].second, CHUNK_SIZE );
 

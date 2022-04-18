@@ -507,18 +507,18 @@ int main(int argc, char** argv) {
         sut.basicPOSTRequest(sock);
 
         sut.contentLengthSplitIntoTwoChunks(sock);
-        // sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock); // causes the webserver to crash upon sequential requests
-        // sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock); // segfaults the webserver
+        //sut.contentLengthSplitIntoTwoChunksBodyTooSmall(sock); // causes the webserver to crash upon sequential requests
+        sut.contentLengthSplitIntoTwoChunksBodyTooLarge(sock); // segfaults the webserver
 
         sut.transferEncodingNoContentLength(sock);
         sut.transferEncoding(sock);
-        // sut.transferEncodingInvalidFormatting(sock); // creates file and returns OK causes sequential requests to return a 405
-        // sut.transferEncodingLastChunkMissing(sock); // causes the webserver to segfault upon sequential requests
-        // sut.transferEncodingLastChunkTooSmall(sock); // causes the webserver to segfault upon sequential requests
+        //sut.transferEncodingInvalidFormatting(sock); // creates file and returns OK causes sequential requests to return a 405
+        //sut.transferEncodingLastChunkMissing(sock); // causes the webserver to segfault upon sequential requests
+        //sut.transferEncodingLastChunkTooSmall(sock); // causes the webserver to segfault upon sequential requests
         // sut.transferEncodingLastChunkTooBig(sock); // creates file and returns OK but causes sequential requests to return a 405
 
         sut.contentLengthBodyLargerThanMaxBodySize(sock);
-        // sut.transferEncodingBodyLargerThanMaxBodySize(sock); // hangs 
+        sut.transferEncodingBodyLargerThanMaxBodySize(sock); // hangs 
     }
 	return 0;
 }

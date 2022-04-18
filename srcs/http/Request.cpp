@@ -82,47 +82,51 @@ void	Request::appendBody(const char* chunk, int len) {
 			throw (IncorrectRequestException());
 	} else {
 		long size;
-		char *buf;
+		int i = 0;
 
-		std::stringstream ss(chunk);
-
-		std::cout << "Remaining" << _remainder << std::endl;
-
+		//std::cout << "Remaining" << _remainder << std::endl;
 		if (_remainder != 0) {
-			buf = (char *)malloc(_remainder);
-			int charsRead = ss.readsome(buf, _remainder);
-			_body.append(buf, charsRead);
-			_remainder -= charsRead;
-			free(buf);
+			if (_remainder > len)
+			{
+				_body.append(chunk, len);
+				_remainder -= len;
+				return;
+			} else {
+				_body.append(chunk, _remainder);
+				i = _remainder;
+				i += 2; // \r\n
+				_remainder = 0;
+			}
 		}
-		if (_remainder != 0)
-			return;
 	
-		while (!ss.eof() ) {
+		while (i < len ) {
+			//std::cout << "PEEK " << (int)chunk[i] << std::endl;
 			size = 0;
-			if (ss.peek() == '0'){
+			if (chunk[i] == '0'){
 				_chunkedComplete = true;
 				return;
 			}
-			std::string sizeStr;
-			ss >> sizeStr;
-			std::cout << "chunk size string " << sizeStr << std::endl;
-			size = std::stoi(sizeStr, NULL, 16);
+			char* end;
+			size = strtol( chunk + i, &end, 16 );
 
-			if (size == 0 && !ss.eof() ) {
-				_chunkedComplete = true;
-				return;
-			}
-			std::cout << "Chunk size" << size << std::endl;
-			ss.ignore(2);
-			buf = (char *)malloc(size);
-			int charsRead = ss.readsome(buf, size);
-			_body.append(buf, charsRead);
-			free(buf);
+			//std::cout << "Chunk size" << size << std::endl;
+			int hexLength = (end - (chunk + i));
+			i += hexLength;
+			i += 2; // \r\n
 
-			if (charsRead < size) {
-				// std::cout << "Not enough chars found " << charsRead << "  of " << size << std::endl;
-				_remainder = size - charsRead;
+			if ( _maxClientBody != 0 && _body.size() + size > _maxClientBody )
+				throw (MaxClientBodyException());
+
+			int charsLeft = len - i;
+			//std::cout << "Chars left" << charsLeft << std::endl;
+
+			if (charsLeft > size) {
+				_body.append(chunk + i, size);
+				i += size;
+				i += 2; // \r\n
+			} else {
+				_body.append(chunk + i, charsLeft);
+				_remainder = size - charsLeft;
 				_chunkedComplete = false;
 				return;
 			}
@@ -193,10 +197,6 @@ void	Request::parseChunk(char* chunk, int len){
         else
             _host = _headers[HOST];
 
-		std::cout << "Content Length " << _contentLength << std::endl;
-		std::cout << "Chunked " << std::boolalpha << _chunked << std::endl;
-
-		std::cout << "MAX BODY " << _maxClientBody << std::endl;
 		if ( !_chunked && _maxClientBody != 0 && _contentLength > _maxClientBody )
 			throw (MaxClientBodyException());
 
@@ -237,6 +237,6 @@ bool Request::isComplete() const {
 		return false;
 	if (_chunked)
 		return ( _chunkedComplete );
-	std::cout << "Checking..." << this->_body.size() << " - " << this->_contentLength << std::endl;
+	//std::cout << "Checking..." << this->_body.size() << " - " << this->_contentLength << std::endl;
 	return (this->_body.size() >= this->_contentLength);
 }

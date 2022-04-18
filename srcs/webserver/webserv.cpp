@@ -55,7 +55,7 @@ bool	pathIsMatch( std::vector<std::string> requestPath, std::vector<std::string>
 	return false;
 }
 
-static int findRequestedLocation( httpData config, std::vector<std::string> path ) {
+int findRequestedLocation( httpData config, std::vector<std::string> path ) {
     for ( int i = 0; i < config.locations.size(); i++ ) {
 		if ( pathIsMatch(path, config.locations[i].path) )
 			return i;
@@ -70,16 +70,16 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
 
     try { request.parseChunk( serverData.buf, bytesread ); }
     catch ( Request::MaxClientBodyException& e ) {
-        ERROR_RESPONSE( HTTPResponseMessage::PAYLOAD_TOO_LARGE );
-        std::cerr << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
+        return ERROR_RESPONSE( HTTPResponseMessage::PAYLOAD_TOO_LARGE );
     }
 	catch ( webserv::Request::IncorrectRequestException &e ) {
-		ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
 		std::cerr << e.what() << std::endl;
+		return ERROR_RESPONSE( HTTPResponseMessage::BAD_REQUEST );
 	}
 	catch ( webserv::Request::MethodNotAllowedException &e ) {
-		ERROR_RESPONSE( HTTPResponseMessage::METHOD_NOT_ALLOWED );
 		std::cerr << e.what() << std::endl;
+		return ERROR_RESPONSE( HTTPResponseMessage::METHOD_NOT_ALLOWED );
 	}
 
     if ( request.isComplete() ) {
