@@ -6,15 +6,23 @@
 
 using namespace webserv;
 
-bool webserv::responder( int fd, std::map<int, std::string>& responses ) {
-    std::cout << "sending chunk of response" << std::endl;
 
-    std::string chunk = responses[fd].substr( 0, CHUNK_SIZE );
+bool webserv::responder( int fd, std::map<int, std::pair<std::string, long> >& responses ) {
+	static int count = 0;
+    std::cout << "sending chunk of response" << ++count << std::endl;
 
-    send( fd, chunk.c_str(), chunk.length(), 0 );
+    std::string chunk = responses[fd].first.substr( responses[fd].second, CHUNK_SIZE );
 
-    if ( responses[fd].length() > CHUNK_SIZE ) {
-        responses[fd] = responses[fd].substr( CHUNK_SIZE, responses[fd].length() );
+    int ret = send( fd, chunk.c_str(), chunk.length(), 0 );
+	if (ret < 0) {
+		responses.erase( fd );
+		std::cerr << "failed to send response to client" << std::endl;
+        return FINISHED;
+	}
+
+	responses[fd].second += ret;
+	// std::cout << responses[fd].second << "/" << responses[fd].first.length() << std::endl;
+    if ( responses[fd].second < responses[fd].first.length()) {
         return NOT_FINISHED;
     } else {
         responses.erase( fd );

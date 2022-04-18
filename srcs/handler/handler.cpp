@@ -14,11 +14,12 @@ static std::string file_extension( std::string path ) {
 
 static HTTPResponseMessage responseFromFile( std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
     HTTPResponseMessage response;
-    std::string line;
     std::string body( "" );
+	std::stringstream buffer;
 
-    while ( std::getline( file, line ) )
-        body += ( line + '\n' );
+	buffer << file.rdbuf();
+	body += buffer.str(); // get the whole file contents at once
+
     file.close();
     response.addStatus( statusCode )
             .addLength( body.length() )
@@ -27,7 +28,7 @@ static HTTPResponseMessage responseFromFile( std::ifstream& file, std::string ex
         response.addType( HTTPResponseMessage::contentTypes.at( extension ) );
     }
     catch ( ... ) {
-        response.addType( "text/plain" );   //temporary fix until directory handling
+        response.addType( "text/plain" );
     }
     return response;
 }
@@ -40,8 +41,14 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
     std::string fullPath = location.root + path;
 
     std::cout << location.root << " " << path << " " << fullPath << "\n";
+	
+	struct stat buf;
+    if ( ::stat( fullPath.c_str(), & buf ) == -1 ) {
+        return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
+    }
 
-    if ( path.back() == '/' ) {
+	if (S_ISDIR( buf.st_mode ) ){
+    //if ( path.back() == '/' ) {
         std::cout << "Is a directory " << path << std::endl;
         if ( location.autoindex ) {
             std::string body;
@@ -65,10 +72,8 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
         return GET_handler( path + "index.html", server, location );
     }
 
-    struct stat buf;
-    if ( ::stat( fullPath.c_str(), & buf ) == -1 || !S_ISREG( buf.st_mode ) ) {
+    if ( !S_ISREG( buf.st_mode ) )
         return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
-    }
     file.open( fullPath );
     if ( file.good() ) {
         std::cout << "File found " << fullPath << std::endl;
@@ -93,6 +98,8 @@ static HTTPResponseMessage POST_handler( std::string requestPath, Request reques
         if ( file.good() ) {
             file << request.getBody();
             server.created_files.insert( fullPath );
+        } else {
+            // responseWhenFileCreationFails( requestPath );
         }
         file.close();
         return responseWhenFileCreated( requestPath );

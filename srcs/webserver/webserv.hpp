@@ -16,6 +16,7 @@
 namespace webserv {
 // ******* webserv.cpp *******  //
     void processEvent( serverData& serverData, struct kevent& event );
+	void kqueueFailure( int fd );
 
 // ******* webservInit.cpp *******  //
     int init_servers( webserv::serverData& serverData, std::string filename, char** env );
@@ -25,7 +26,7 @@ namespace webserv {
                    std::map<int, httpData>& clientSockets );
 
 // ******* responder.cpp *******  //
-    bool responder( int fd, std::map<int, std::string>& responses );
+    bool responder( int fd, std::map<int, std::pair<std::string, long> >& responses );
 }
 
 #endif //WEBSERV_WEBSERV_HPP

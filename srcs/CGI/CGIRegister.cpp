@@ -1,4 +1,5 @@
 #include "CGI.hpp"
+#include "../webserver/webserv.hpp"
 
 using namespace webserv;
 
@@ -64,8 +65,11 @@ HTTPResponseMessage::e_responseStatusCode webserv::CGIRegister( locationData loc
 
     struct kevent new_socket;
     EV_SET( & new_socket, pipes[0], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
-    if ( kevent( serverData.kqData.kq, & new_socket, 1, NULL, 0, NULL ) == ERROR )
-        return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
+    if ( kevent( serverData.kqData.kq, & new_socket, 1, NULL, 0, NULL ) == ERROR ){
+		webserv::kqueueFailure( pipes[0] );
+		serverData.cgiResponses.erase(pipes[0]);
+		return HTTPResponseMessage::INTERNAL_SERVER_ERROR;
+	}
 
     ret = executeCmd( pipes, args, serverData.clientSockets[client_fd].env, & serverData.cgiResponses[pipes[0]].pid );
     if ( ret != HTTPResponseMessage::OK )

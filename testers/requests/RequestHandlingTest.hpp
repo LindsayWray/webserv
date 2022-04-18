@@ -21,44 +21,46 @@
 	#4 With content length, no transfer encoding, split into two chunks, body too small
 	#5 With content length, no transfer encoding, split into two chunks, body too large
 
-	#6 With content length, and transfer encoding, and transfer encoding formatting
-	#7 With content length, and transfer encoding, with no transfer encoding formatting
-	#8 With content length, and transfer encoding, and transfer encoding formatting, last chunk missing
-	#9 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too small
-	#10 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too big
+	#6 Without content length, with transfer encoding, and transfer encoding formatting
+	#7 With content length, and transfer encoding, and transfer encoding formatting
+	#8 With content length, and transfer encoding, with no transfer encoding formatting
+	#9 With content length, and transfer encoding, and transfer encoding formatting, last chunk missing
+	#10 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too small
+	#11 With content length, and transfer encoding, and transfer encoding formatting, with last chunk info too big
 
-	#11 With content length, body longer than max body size
-	#12 With transfer encoding, body longer than max body size
+	#12 With content length, body longer than max body size
+	#13 With transfer encoding, body longer than max body size
 
-	#13 With URL too large
-	#14 With Headers too large
+	#14 With URL too large
+	#15 With Headers too large
 */
 
 class RequestHandlingTest {
 	public:
 
-	void basicGETRequest(void);
-	void basicPOSTRequest(void);
+	void basicGETRequest(int& sock);
+	void basicPOSTRequest(int& sock);
 
-	void contentLengthSplitIntoTwoChunks(void);
-	void contentLengthSplitIntoTwoChunksBodyTooSmall(void);
-	void contentLengthSplitIntoTwoChunksBodyTooLarge(void);
+	void contentLengthSplitIntoTwoChunks(int& sock);
+	void contentLengthSplitIntoTwoChunksBodyTooSmall(int& sock);
+	void contentLengthSplitIntoTwoChunksBodyTooLarge(int& sock);
 
-	void transferEncoding(void);
-	void transferEncodingInvalidFormatting(void);
-	void transferEncodingLastChunkMissing(void);
-	void transferEncodingLastChunkTooSmall(void);
-	void transferEncodingLastChunkTooBig(void);
+	void transferEncodingNoContentLength(int& sock);
+	void transferEncoding(int& sock);
+	void transferEncodingInvalidFormatting(int& sock);
+	void transferEncodingLastChunkMissing(int& sock);
+	void transferEncodingLastChunkTooSmall(int& sock);
+	void transferEncodingLastChunkTooBig(int& sock);
 
-	void contentLengthBodyLargerThanMaxBodySize(void);
-	void transferEncodingBodyLargerThanMaxBodySize(void);
+	void contentLengthBodyLargerThanMaxBodySize(int& sock);
+	void transferEncodingBodyLargerThanMaxBodySize(int& sock);
 
-	void urlTooLarge(void);
-	void headersTooLarge(void);
+	void urlTooLarge(int& sock);
+	void headersTooLarge(int& sock);
 
 	RequestHandlingTest() {}
 	~RequestHandlingTest() {}
 
-	private:
-	int _setUpSocket(int& sock);
+	int setUpSocket(int sock);
+	void clean(void);
 };
