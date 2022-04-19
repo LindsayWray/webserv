@@ -202,6 +202,7 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
         else
             takeRequest( serverData, current_fd, bytesread );
     }
+
 }
 
 void webserv::kqueueFailure( int fd ) {

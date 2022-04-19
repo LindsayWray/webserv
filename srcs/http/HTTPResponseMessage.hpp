@@ -2,7 +2,7 @@
 
 #include <string>
 #include <map>
-#include <time.h>   
+#include <time.h>
 
 class HTTPResponseMessage {
 public:

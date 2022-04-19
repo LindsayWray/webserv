@@ -93,7 +93,7 @@ const std::string HTTPResponseMessage::_headerConnection( void ) const {
 
 const std::string HTTPResponseMessage::_headerContentLengthToString( void ) const {
     // if ( body != "" )
-        return "content-length: " + std::to_string( length ) + "\r\n";
+    return "content-length: " + std::to_string( length ) + "\r\n";
     // else
     //     return "";
 }
@@ -129,7 +129,7 @@ std::string HTTPResponseMessage::_getDateStr() const {
     timeInfo = gmtime(&rawTime);
 
     strftime(buffer, 128,"%a, %d %b %G %T GMT", timeInfo);
-    
+
     std::string output = static_cast<std::string>(buffer);
 
     return output;

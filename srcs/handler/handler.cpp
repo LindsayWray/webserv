@@ -15,10 +15,10 @@ static std::string file_extension( std::string path ) {
 static HTTPResponseMessage responseFromFile( std::ifstream& file, std::string extension, HTTPResponseMessage::e_responseStatusCode statusCode ) {
     HTTPResponseMessage response;
     std::string body( "" );
-	std::stringstream buffer;
+    std::stringstream buffer;
 
-	buffer << file.rdbuf();
-	body += buffer.str(); // get the whole file contents at once
+    buffer << file.rdbuf();
+    body += buffer.str(); // get the whole file contents at once
 
     file.close();
     response.addStatus( statusCode )
@@ -41,13 +41,13 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
     std::string fullPath = location.root + path;
 
     std::cout << location.root << " " << path << " " << fullPath << "\n";
-	
-	struct stat buf;
+
+    struct stat buf;
     if ( ::stat( fullPath.c_str(), & buf ) == -1 ) {
         return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
     }
 
-	if (S_ISDIR( buf.st_mode ) ){
+    if (S_ISDIR( buf.st_mode ) ){
         std::cout << "Is a directory " << path << std::endl;
         if ( location.autoindex ) {
             std::string body;
@@ -57,8 +57,8 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
                     concatPath += location.path[i];
                 }
                 concatPath += path;
-				if (concatPath.back() != '/')
-					concatPath += '/';
+                if (concatPath.back() != '/')
+                    concatPath += '/';
                 autoIndexing( concatPath, fullPath, body );
             }
             catch ( DirectoryNotFoundException& e ) {
@@ -112,7 +112,7 @@ static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData& se
 
     std::set<std::string>::iterator fileToBeDeleted = server.created_files.find( fullPath );
     if ( fileToBeDeleted != server.created_files.end() ) {
-        if ( std::remove( fileToBeDeleted->c_str() ) == 0 ) {     
+        if ( std::remove( fileToBeDeleted->c_str() ) == 0 ) {
             server.created_files.erase( fileToBeDeleted );
             return webserv::responseWhenFileDeleted( requestPath );
         } else {
