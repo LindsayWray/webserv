@@ -50,8 +50,6 @@ namespace webserv {
 // ******* configParserSetters.cpp *******  //
         int setSocket( socketData &socketData, httpData &httpData );
 
-        int setIndex( httpData &httpData );
-
         int setClientMaxBodySize( webserv::httpData &httpData );
 
         int setServerName( httpData &httpData );
@@ -78,6 +76,8 @@ namespace webserv {
         int _setLocation( locationData &element );
 
         int _setRoot( locationData &element );
+
+        int _setIndex( locationData &element );
 
         int _setCgiParam( locationData &element );
 

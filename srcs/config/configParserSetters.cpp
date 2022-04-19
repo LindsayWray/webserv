@@ -20,15 +20,6 @@ int configParser::setSocket( socketData& socketData, httpData& httpData ) {
     return _endOfLine( SOCKET );
 }
 
-int configParser::setIndex( httpData& httpData ) {
-    if ( _isWrongInput( NULL ) ) {
-        _errorCode = INDEX;
-        return ERROR;
-    }
-    httpData.index.push_back( * _it++ );
-    return _endOfLine( INDEX );
-}
-
 int configParser::setServerName(
         httpData& httpData ) { // TODO:: iterating untill ";" will give false positive in case of no ";" in file
     if ( _isWrongInput( NULL ) ) {

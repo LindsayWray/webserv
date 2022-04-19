@@ -70,9 +70,7 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
                     .addLength( body.length() )
                     .addType( "text/html" );
         }
-		if (server.index.empty())
-			return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
-        return GET_handler( path + server.index[0], server, location );
+        return GET_handler( path + location.index, server, location );
     }
 
     if ( !S_ISREG( buf.st_mode ) )
