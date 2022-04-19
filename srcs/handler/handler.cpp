@@ -86,7 +86,7 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
     }
 }
 
-static HTTPResponseMessage POST_handler( std::string requestPath, Request request, httpData server, locationData location ) {
+static HTTPResponseMessage POST_handler( std::string requestPath, Request request, httpData& server, locationData location ) {
     std::string extension = file_extension( requestPath );
     std::cout << "EXTENSION: " << extension << std::endl;
     std::string fullPath = location.root + requestPath;
@@ -109,12 +109,12 @@ static HTTPResponseMessage POST_handler( std::string requestPath, Request reques
     }
 }
 
-static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData server, locationData location ) {
+static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData& server, locationData location ) {
     std::string fullPath = location.root + requestPath;
 
     std::set<std::string>::iterator fileToBeDeleted = server.created_files.find( fullPath );
     if ( fileToBeDeleted != server.created_files.end() ) {
-        if ( std::remove( fileToBeDeleted->c_str() ) == 0 ) {
+        if ( std::remove( fileToBeDeleted->c_str() ) == 0 ) {     
             server.created_files.erase( fileToBeDeleted );
             return webserv::responseWhenFileDeleted( requestPath );
         } else {
@@ -127,7 +127,7 @@ static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData ser
 
 
 
-HTTPResponseMessage webserv::handler( Request request, httpData server, locationData location ) {
+HTTPResponseMessage webserv::handler( Request request, httpData& server, locationData location ) {
     HTTPResponseMessage response;
     std::string requestPath;
 

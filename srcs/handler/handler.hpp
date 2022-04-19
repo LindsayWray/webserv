@@ -9,7 +9,7 @@
 
 namespace webserv {
 // ******* handler.cpp *******  //
-    HTTPResponseMessage handler( Request request, httpData config, locationData location );
+    HTTPResponseMessage handler( Request request, httpData& server, locationData location );
 
 // ******* autoindexing.cpp *******  //
     void autoIndexing( std::string path, std::string directory, std::string& body );
