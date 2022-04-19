@@ -90,41 +90,43 @@ void	Request::appendBody(const char* chunk, int len) {
 		int i = 0;
 
 		if (_chunkEndsWithHex) {
-			if (chunk[i] == '\r') {
-				i += 2;
-				_chunkEndsWithHex = false;
+			while (chunk[i] != '\r') {
+				if (chunk[i] >= '0' && chunk[i] <= '9')
+					_remainder = _remainder * 16 + chunk[i] - '0';
+				else if (chunk[i] >= 'a' && chunk[i] <= 'f')
+					_remainder = _remainder * 16 + chunk[i] - 'a' + 10;
+				else if (chunk[i] >= 'A' && chunk[i] <= 'F')
+					_remainder = _remainder * 16 + chunk[i] - 'A' + 10;
+				i++;
 			}
-			else {
-				char *hexTailEnd;
-				long hexTail = strtol( chunk, &hexTailEnd, 16 );
-				int hexTailSize = hexTailEnd - chunk;
-				_remainder = _remainder * pow(16, hexTailSize) + hexTail;
-				i += hexTailSize + 2; 
-				_chunkEndsWithHex = false;
-			}
+			i += 2;
+			_chunkEndsWithHex = false;
 		} else if (_chunkEndsWithSeparatedCRLF) {
 			i += 1;
 			_chunkEndsWithSeparatedCRLF = false;
 		}
+
 		//std::cout << "Remaining" << _remainder << std::endl;
 		if (_remainder != 0) {
-			if (_remainder > len)
+			if (_remainder > len - i)
 			{
-				_body.append(chunk, len);
-				_remainder -= len;
+				_body.append(chunk + i, len - i);
+				_remainder -= (len - i);
 				return;
-			} else if (_remainder + 1 > len) {
-				_body.append(chunk, _remainder);
+			} else if (_remainder + 1 > len - i) {
+				_body.append(chunk + i, _remainder);
+				_remainder = 0;
 				_chunkEndsWithHex = true;
 				return;
-			} else if (_remainder + 2 > len) {
-				_body.append(chunk, _remainder);
+			} else if (_remainder + 2 >= len - i) {
+				_body.append(chunk + i, _remainder);
+				_remainder = 0;
 				_chunkEndsWithSeparatedCRLF = true;
 				return;
 			}
 			else {
-				_body.append(chunk, _remainder);
-				i = _remainder;
+				_body.append(chunk + i, _remainder);
+				i += _remainder;
 				i += 2; // \r\n
 				_remainder = 0;
 			}
@@ -143,8 +145,8 @@ void	Request::appendBody(const char* chunk, int len) {
 			//std::cout << "Chunk size" << size << std::endl;
 			int hexLength = (end - (chunk + i));
 
-			_chunkEndsWithHex = (i + hexLength + 1 == len);
-			_chunkEndsWithSeparatedCRLF = (i + hexLength + 2 == len);
+			_chunkEndsWithHex = (i + hexLength == len);
+			_chunkEndsWithSeparatedCRLF = (i + hexLength + 1 == len);
 			if (_chunkEndsWithHex) {					// e.g. "...0x7AF\0"
 				_remainder = size;
 				return;
@@ -166,11 +168,24 @@ void	Request::appendBody(const char* chunk, int len) {
 			int charsLeft = len - i;
 			//std::cout << "Chars left" << charsLeft << std::endl;
 
-			if (charsLeft > size) {
+			if (charsLeft >= size + 2) {
 				_body.append(chunk + i, size);
 				i += size;
 				i += 2; // \r\n
-			} else {
+			} else if (charsLeft >= size + 1) {
+				_body.append(chunk + i, size);
+				_remainder = 0;
+				_chunkedComplete = false;
+				_chunkEndsWithSeparatedCRLF = true;
+				return;
+			} else if (charsLeft >= size) {
+				_body.append(chunk + i, size);
+				_remainder = 0;
+				_chunkedComplete = false;
+				_chunkEndsWithHex = true;
+				return;
+			}
+			else {
 				_body.append(chunk + i, charsLeft);
 				_remainder = size - charsLeft;
 				_chunkedComplete = false;
