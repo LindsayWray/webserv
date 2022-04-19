@@ -1,12 +1,15 @@
 #include "Request.hpp"
 #include "../utils/printFormatting.hpp"
 #include <fstream>
+#include <cmath> //added for transfer encoding: pow();
 
 using namespace webserv;
 
 Request::Request(int max_client_body){
 	_maxClientBody = max_client_body;
 	_remainder = 0;
+	_chunkEndsWithHex = false;
+	_chunkEndsWithSeparatedCRLF = false;
 };
 
 Request::Request(const Request& original){
@@ -26,6 +29,8 @@ Request& Request::operator=(const Request& original){
 	this->_body = original._body;
 	this->_chunked = original._chunked;
 	this->_chunkedComplete = original._chunkedComplete;
+	this->_chunkEndsWithHex = original._chunkEndsWithHex;
+	this->_chunkEndsWithSeparatedCRLF = original._chunkEndsWithSeparatedCRLF;
 	this->_remainder = original._remainder;
 	this->_host = original._host;
 	return *this;
@@ -84,6 +89,23 @@ void	Request::appendBody(const char* chunk, int len) {
 		long size;
 		int i = 0;
 
+		if (_chunkEndsWithHex) {
+			if (chunk[i] == '\r') {
+				i += 2;
+				_chunkEndsWithHex = false;
+			}
+			else {
+				char *hexTailEnd;
+				long hexTail = strtol( chunk, &hexTailEnd, 16 );
+				int hexTailSize = hexTailEnd - chunk;
+				_remainder = _remainder * pow(16, hexTailSize) + hexTail;
+				i += hexTailSize + 2; 
+				_chunkEndsWithHex = false;
+			}
+		} else if (_chunkEndsWithSeparatedCRLF) {
+			i += 1;
+			_chunkEndsWithSeparatedCRLF = false;
+		}
 		//std::cout << "Remaining" << _remainder << std::endl;
 		if (_remainder != 0) {
 			if (_remainder > len)
@@ -91,7 +113,12 @@ void	Request::appendBody(const char* chunk, int len) {
 				_body.append(chunk, len);
 				_remainder -= len;
 				return;
-			} else {
+			}
+			// } else if (_remainder + 2 > len) {
+			// 	_body.append(chunk, _remainder);
+				
+			// }
+			else {
 				_body.append(chunk, _remainder);
 				i = _remainder;
 				i += 2; // \r\n
@@ -111,8 +138,23 @@ void	Request::appendBody(const char* chunk, int len) {
 
 			//std::cout << "Chunk size" << size << std::endl;
 			int hexLength = (end - (chunk + i));
-			i += hexLength;
-			i += 2; // \r\n
+
+			_chunkEndsWithHex = (i + hexLength + 1 == len);
+			_chunkEndsWithSeparatedCRLF = (i + hexLength + 2 == len);
+			if (_chunkEndsWithHex) {					// e.g. "...0x7AF\0"
+				_remainder = size;
+				return;
+				// hex possibly not fully in chunk, save hex string digits for next chunk
+			}
+			else if ( _chunkEndsWithSeparatedCRLF ) { 	// e.g. "...0x7AF\r\0"
+				_remainder = size;
+				return;
+				// skip first character of next chunk
+			}
+			else {
+				i += hexLength;
+				i += 2; // \r\n
+			}
 
 			if ( _maxClientBody != 0 && _body.size() + size > _maxClientBody )
 				throw (MaxClientBodyException());

@@ -27,6 +27,8 @@ namespace webserv {
 		int _contentLength;
 		bool _chunked;
 		bool _chunkedComplete;
+        bool _chunkEndsWithHex;
+        bool _chunkEndsWithSeparatedCRLF;
 		long _remainder;
 		int _maxClientBody;
 
