@@ -123,8 +123,6 @@ static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData ser
     }
 }
 
-
-
 HTTPResponseMessage webserv::handler( Request request, httpData server, locationData location ) {
     HTTPResponseMessage response;
     std::string requestPath;

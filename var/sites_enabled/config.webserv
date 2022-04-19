@@ -80,18 +80,18 @@ server {
     server_name     banaan.org;
 
     location / {
-		root    /var/www/other;
+        root    /var/www/html;
 		autoindex off;
 	}
 }
 
 server {
     listen 8100;
-    server_name     webserv.com;
+    server_name     webserv.com blabla;
 
     location / {
 		autoindex off;
-    	root    /var/www/html;
+    	root    /var/www/other;
     }
 }
 
