@@ -4,6 +4,10 @@ using namespace webserv;
 
 HTTPResponseMessage webserv::errorResponse( httpData server, HTTPResponseMessage::e_responseStatusCode code ) {
     HTTPResponseMessage response;
+
+	// for (std::map<int, std::string>::iterator it = server.errorPage.begin(); it != server.errorPage.end(); it++) {
+	// 	std::cout << it->first << " = " << it->second << std::endl;
+	// }
     std::string body = server.errorPage[code];
     return response.addStatus( code )
             .addLength( body.length() )

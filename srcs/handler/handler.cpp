@@ -48,7 +48,6 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
     }
 
 	if (S_ISDIR( buf.st_mode ) ){
-    //if ( path.back() == '/' ) {
         std::cout << "Is a directory " << path << std::endl;
         if ( location.autoindex ) {
             std::string body;
@@ -71,6 +70,8 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
                     .addLength( body.length() )
                     .addType( "text/html" );
         }
+		if (server.index.empty())
+			return errorResponse( server, HTTPResponseMessage::NOT_FOUND );
         return GET_handler( path + server.index[0], server, location );
     }
 

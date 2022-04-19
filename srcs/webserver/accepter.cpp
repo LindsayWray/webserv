@@ -17,7 +17,7 @@ void webserv::accepter( std::pair<listeningSocket*, httpData>& serverPair, kqCon
         }
         printf( "  New incoming connection - %d\n", new_sd );
         struct kevent new_socket_change;
-        EV_SET( & new_socket_change, new_sd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
+        EV_SET( &new_socket_change, new_sd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );
         if ( kevent( kqData.kq, & new_socket_change, 1, NULL, 0, NULL ) ==  ERROR )
 			return webserv::kqueueFailure( new_sd );
         clientSockets[new_sd] = serverPair.second;

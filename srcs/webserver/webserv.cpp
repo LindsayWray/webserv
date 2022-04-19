@@ -63,8 +63,9 @@ int findRequestedLocation( httpData config, std::vector<std::string> path ) {
     return NOTFOUND;
 }
 
-static void disconnected( int fd, int& nbr_conn ) {
+static void disconnected( int fd, int& nbr_conn, serverData& serverData ) {
     std::cerr << "client disconnected" << std::endl;
+	REQUESTS.erase( fd );
     close( fd );
     nbr_conn--;
 }
@@ -145,13 +146,6 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
     }
 }
 
-static void disconnected( int fd, int& nbr_conn, serverData& serverData ) {
-    std::cerr << "client disconnected" << std::endl;
-	REQUESTS.erase( fd );
-    close( fd );
-    nbr_conn--;
-}
-
 void webserv::processEvent( serverData& serverData, struct kevent& event ) {
     int current_fd = event.ident;
 
@@ -173,10 +167,14 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
     } else {
         memset( serverData.buf, 0, serverData.buflen );
         int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );
-        if ( bytesread < 0 )
-            std::cerr << "  recv() failed" << std::endl;
-        else if ( bytesread == 0 )
-            std::cout << "  Connection closed" << std::endl;
+        if ( bytesread < 0 ){
+			std::cerr << "  recv() failed" << std::endl;
+			disconnected( current_fd, KQ.nbrConnections, serverData ); // removes client from kq
+		}
+        else if ( bytesread == 0 ){
+			std::cout << "  Connection closed" << std::endl;
+			disconnected( current_fd, KQ.nbrConnections, serverData );
+		}
         else
             takeRequest( serverData, current_fd, bytesread );
     }

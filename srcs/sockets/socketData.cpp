@@ -5,7 +5,7 @@ webserv::socketData::socketData( void ) {
     service = SOCK_STREAM;
     protocol = 0;
     interface = INADDR_ANY;
-    backlog = 32;
+    backlog = 1024;
     workerConnections = 1024;
 }
 

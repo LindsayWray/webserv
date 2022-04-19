@@ -1,11 +1,11 @@
 server {
 	listen 8080;
 
-	serverName www.localhost;
+	server_name www.localhost;
 
 	index   /index.html;
 
-	errorPage 404 error404.html 403 error403.html;
+	error_page 404 error404.html 403 error403.html;
 
 	client_max_body_size 100;
 
@@ -20,8 +20,8 @@ server {
 	}
 
 	location /bla/ {
-    		root	/var;
-    		autoindex on;
+		root	/var;
+		autoindex on;
     }
 
 	location /time {
@@ -53,24 +53,36 @@ server {
 
 server {
     listen          80;
-    serverName     localhost;
+    server_name     localhost;
 
     return 302 http://localhost:8080$uri;
 }
 
 server {
+    listen         80;
+    server_name     example.com;
+
+	index   /index.html;
+
+	location / {
+		autoindex on;
+		root    /var/www/html;
+	}
+}
+
+server {
     listen          8100;
-    serverName     banaan.org;
+    server_name     banaan.org;
 
     location / {
-        	root    /var/www/other;
-        	autoindex on;
-        }
+		root    /var/www/other;
+		autoindex on;
+	}
 }
 
 server {
     listen 8100;
-    serverName     webserv.com;
+    server_name     webserv.com;
 
 
     location / {
