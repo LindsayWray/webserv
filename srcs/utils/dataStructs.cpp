@@ -73,7 +73,6 @@ httpData& webserv::httpData::operator=( const httpData& original ) {
     this->env = original.env;
     this->absPath = original.absPath;
     this->serverName = original.serverName;
-    this->index = original.index;
     this->errorPage = original.errorPage;
     this->redirect = original.redirect;
     this->locations = original.locations;

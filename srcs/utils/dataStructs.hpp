@@ -25,6 +25,7 @@ namespace webserv {
         std::vector<std::string> path;
         std::string root;
         std::vector<std::string> cgi_param;
+        std::string index;
         bool allowed_response[3];
         bool autoindex;
         bool CGI;
@@ -41,7 +42,6 @@ namespace webserv {
         char** env;
         std::string absPath;
         std::vector<std::string> serverName;
-        std::vector<std::string> index;
         std::map<int, std::string> errorPage;
         std::pair<int, std::string> redirect;
         std::vector<locationData> locations;
@@ -64,6 +64,7 @@ namespace webserv {
         std::string formatErrorPage( std::string message );
 
         void setErrorPages( void );
+
     };
 
     struct kqConData {

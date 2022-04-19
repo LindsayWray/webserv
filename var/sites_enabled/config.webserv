@@ -39,6 +39,11 @@ server {
         cgi_param /false.py;
     }
 
+    location /delay {
+        root	/var/cgi-bin;
+        cgi_param /endless.py;
+    }
+
 	location /images/limited/ {
 		root /var/www/html/resources;
 		limit_method POST;
@@ -75,19 +80,28 @@ server {
     server_name     banaan.org;
 
     location / {
-		root    /var/www/other;
-		autoindex on;
+        root    /var/www/html;
+		autoindex off;
 	}
 }
 
 server {
     listen 8100;
-    server_name     webserv.com;
-
+    server_name     webserv.com blabla;
 
     location / {
 		autoindex off;
-    	root    /var/www/html;
+    	root    /var/www/other;
+    }
+}
+
+server {
+    listen 8100;
+    server_name     clapserv.com;
+
+    location / {
+		autoindex off;
+    	root    /var/www/other2;
     }
 }
 
