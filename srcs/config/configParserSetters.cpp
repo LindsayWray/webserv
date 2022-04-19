@@ -106,6 +106,7 @@ int configParser::setErrorPage( httpData& httpData ) {
             return ERROR;
         }
         httpData.errorPage.insert( std::make_pair( error_code, body ) );
+        body.clear();
     }
     return _endOfLine( ERRORPAGE );
 }
