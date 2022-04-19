@@ -62,6 +62,7 @@ int webserv::locationData::cgiTokenizer( std::string line ) {
 webserv::httpData::httpData( void ) { return; }
 
 webserv::httpData::httpData( std::string root ) : absPath( root ), redirect( std::make_pair( -1, "" ) ) {
+    port = 0;
     maxClientBody = 0;
 }
 

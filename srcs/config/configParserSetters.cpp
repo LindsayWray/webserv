@@ -4,7 +4,7 @@ using namespace webserv;
 
 int configParser::setSocket( socketData& socketData, httpData& httpData ) {
     int port;
-    if ( _isWrongInput( NULL ) ) {
+    if ( _isWrongInput( NULL ) || httpData.port ) {
         _errorCode = SOCKET;
         return ERROR;
     }
@@ -12,6 +12,10 @@ int configParser::setSocket( socketData& socketData, httpData& httpData ) {
         port = stoi( * _it++ );
     } catch ( std::exception& e ) { // TODO:: test to see if "iterator out of bounds" will be catched properly;
         std::cerr << "configParser::setSocket " << * _it << " " << e.what() << std::endl;
+        _errorCode = SOCKET;
+        return ERROR;
+    }
+    if ( port <= 0 || port > 65535 ){
         _errorCode = SOCKET;
         return ERROR;
     }
