@@ -12,6 +12,8 @@ int webserv::configParser::setLocation( httpData& httpData ) {
                 ret = _setRoot( element );
             else if ( * _it == "limit_method" )
                 ret = _setLimitedMethod( element );
+            else if ( * _it == "index" )
+                ret = _setIndex( element );
             else if ( * _it == "autoindex" )
                 ret = _setAutoindex( element );
             else if ( * _it == "cgi_param" )
@@ -27,6 +29,8 @@ int webserv::configParser::setLocation( httpData& httpData ) {
                 ret = _setRoot( element );
             else if ( * _it == "limit_method" )
                 ret = _setLimitedMethod( element );
+            else if ( * _it == "index" )
+                ret = _setIndex( element );
             else if ( * _it == "autoindex" )
                 ret = _setAutoindex( element );
             else if ( * _it == "cgi_param" )
@@ -40,6 +44,8 @@ int webserv::configParser::setLocation( httpData& httpData ) {
         _errorCode = LOCATION;
         return ERROR;
     }
+    if ( element.index.empty() )
+        element.index = "index.html";
     httpData.locations.push_back( element );
     return ret;
 }
@@ -59,6 +65,15 @@ int webserv::configParser::_setLocation( locationData& element ) {
         return CGI_SIGN;
     }
     return element.pathTokenizer( * _it++ );
+}
+
+int webserv::configParser::_setIndex( locationData& element ) {
+    if ( _isWrongInput( ";" ) ) {
+        _errorCode = INDEX;
+        return ERROR;
+    }
+    element.index = * _it++;
+    return _endOfLine( INDEX );
 }
 
 int webserv::configParser::_setRoot( locationData& element ) {

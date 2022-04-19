@@ -20,15 +20,6 @@ int configParser::setSocket( socketData& socketData, httpData& httpData ) {
     return _endOfLine( SOCKET );
 }
 
-int configParser::setIndex( httpData& httpData ) {
-    if ( _isWrongInput( NULL ) ) {
-        _errorCode = INDEX;
-        return ERROR;
-    }
-    httpData.index.push_back( * _it++ );
-    return _endOfLine( INDEX );
-}
-
 int configParser::setServerName(
         httpData& httpData ) { // TODO:: iterating untill ";" will give false positive in case of no ";" in file
     if ( _isWrongInput( NULL ) ) {
@@ -106,6 +97,7 @@ int configParser::setErrorPage( httpData& httpData ) {
             return ERROR;
         }
         httpData.errorPage.insert( std::make_pair( error_code, body ) );
+        body.clear();
     }
     return _endOfLine( ERRORPAGE );
 }

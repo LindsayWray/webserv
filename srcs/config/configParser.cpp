@@ -60,8 +60,6 @@ int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& ht
     while ( ++_it != _tokens.end() && * _it != "}" ) {
         if ( * _it == "listen" )
             ret = setSocket( socketData, httpData );
-        else if ( * _it == "index" )
-            ret = setIndex( httpData );
         else if ( * _it == "location" )
             ret = setLocation( httpData );
         else if ( * _it == "server_name" )
@@ -74,6 +72,10 @@ int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& ht
             ret = setClientMaxBodySize( httpData );
         else if ( * _it == "}" )
             return SUCCES;
+        else {
+            _errorCode = SERVER;
+            ret = ERROR;
+        }
         if ( ret == ERROR )
             return ret;
     }

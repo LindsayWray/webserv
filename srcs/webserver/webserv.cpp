@@ -11,6 +11,10 @@
 using namespace webserv;
 
 static void registerResponse( serverData& serverData, int current_fd, HTTPResponseMessage response ) {
+    if ( response.getStatus() == HTTPResponseMessage::PAYLOAD_TOO_LARGE ){
+        serverData.closeConnection = true;
+        response.closeConnection();
+    }
     REQUESTS.erase( current_fd );
     printf( "  register respond event - %d\n", current_fd );
     struct kevent new_socket_change;
@@ -22,6 +26,7 @@ static void registerResponse( serverData& serverData, int current_fd, HTTPRespon
 
 static httpData findServerBlock( serverData serverData, Request request, int current_fd ) {
     std::pair<int, std::string> pairs( CLIENTS[current_fd].port, request.getHost() );
+
     if ( serverData.hostServername.find( pairs ) != serverData.hostServername.end() )
         return serverData.hostServername[pairs];
     return CLIENTS[current_fd];
@@ -66,7 +71,7 @@ int findRequestedLocation( httpData config, std::vector<std::string> path ) {
 }
 
 static void disconnected( int fd, int& nbr_conn, serverData& serverData ) {
-    std::cerr << "client disconnected" << std::endl;
+    serverData.closeConnection = false;
 	REQUESTS.erase( fd );
     close( fd );
     nbr_conn--;
@@ -90,7 +95,7 @@ static bool isCGI( httpData serverblock, int default_i, Request request ){
             continue;
         if ( default_loc.root != serverblock.locations[location_i].root )
             continue;
-        for ( int param_i = 1; param_i < request.getPath().size(); param_i++ ) {
+        for ( int param_i = 0; param_i < request.getPath().size(); param_i++ ) {
             if ( request.getPath()[len + param_i - 1] != serverblock.locations[location_i].cgi_param[param_i] )
                 break;
             if ( serverblock.locations[location_i].cgi_param.size() - 1 == param_i )
@@ -148,7 +153,9 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
                 ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
             else {
                 locationData location = serverblock.locations[location_index];
-                if ( location.CGI || isCGI( serverblock, location_index, request ) ) {
+                if ( !location.allowed_response[request.getMethod()] )
+                    registerResponse( serverData, current_fd, errorResponse( CLIENTS[current_fd], HTTPResponseMessage::METHOD_NOT_ALLOWED ) );
+                else if ( location.CGI || isCGI( serverblock, location_index, request ) ) {
                     ret = CGIRegister( location, serverData, current_fd, request );
                     if ( ret != HTTPResponseMessage::OK )
                         ERROR_RESPONSE( ret );
@@ -179,6 +186,8 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
             EV_SET( & deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
             if ( kevent( KQ.kq, & deregister_socket_change, 1, NULL, 0, NULL ) == ERROR )
                 return kqueueFailure( current_fd );
+            if ( serverData.closeConnection )
+                disconnected( current_fd, KQ.nbrConnections, serverData );
         }
     } else if ( CGI_RESPONSES.find( current_fd ) != CGI_RESPONSES.end() ) {
         responseFromCGI( serverData, current_fd );
@@ -186,17 +195,14 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
     } else {
         memset( serverData.buf, 0, serverData.buflen );
         int bytesread = recv( current_fd, serverData.buf, serverData.buflen, 0 );
-        if ( bytesread < 0 ){
-			std::cerr << "  recv() failed" << std::endl;
+        if ( bytesread < 0 )
 			disconnected( current_fd, KQ.nbrConnections, serverData ); // removes client from kq
-		}
-        else if ( bytesread == 0 ){
-			std::cout << "  Connection closed" << std::endl;
+        else if ( bytesread == 0 )
 			disconnected( current_fd, KQ.nbrConnections, serverData );
-		}
         else
             takeRequest( serverData, current_fd, bytesread );
     }
+
 }
 
 void webserv::kqueueFailure( int fd ) {

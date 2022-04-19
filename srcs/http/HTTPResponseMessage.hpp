@@ -2,7 +2,7 @@
 
 #include <string>
 #include <map>
-#include <time.h>   
+#include <time.h>
 
 class HTTPResponseMessage {
 public:
@@ -49,6 +49,7 @@ private:
     unsigned int length;        // Need From RequestHandler
     std::string type;        // Need From RequestHandler
     std::string _getDateStr() const;
+    bool _closeConnection;
 
     std::string location;
     inline static const std::string server = "Wonderkind & Co's Webserver";
@@ -57,7 +58,7 @@ private:
     std::string body;        // Need From RequestHandler
 
 public:
-    HTTPResponseMessage() : location() {};
+    HTTPResponseMessage() : location(), _closeConnection(false) {};
 
     ~HTTPResponseMessage() {};
 
@@ -80,8 +81,14 @@ public:
 
     const std::string toString() const;
 
+    HTTPResponseMessage& closeConnection();
+
+    e_responseStatusCode getStatus() const;
+
 private:
     const std::string _getStatusCodeStr() const;
+
+    const std::string _headerConnection( void ) const;
 
     const std::string _headerContentLengthToString( void ) const;
 
