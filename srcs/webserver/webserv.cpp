@@ -90,7 +90,7 @@ static bool isCGI( httpData serverblock, int default_i, Request request ){
             continue;
         if ( default_loc.root != serverblock.locations[location_i].root )
             continue;
-        for ( int param_i = 1; param_i < request.getPath().size(); param_i++ ) {
+        for ( int param_i = 0; param_i < request.getPath().size(); param_i++ ) {
             if ( request.getPath()[len + param_i - 1] != serverblock.locations[location_i].cgi_param[param_i] )
                 break;
             if ( serverblock.locations[location_i].cgi_param.size() - 1 == param_i )
