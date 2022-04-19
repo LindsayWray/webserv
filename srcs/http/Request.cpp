@@ -113,11 +113,15 @@ void	Request::appendBody(const char* chunk, int len) {
 				_body.append(chunk, len);
 				_remainder -= len;
 				return;
+			} else if (_remainder + 1 > len) {
+				_body.append(chunk, _remainder);
+				_chunkEndsWithHex = true;
+				return;
+			} else if (_remainder + 2 > len) {
+				_body.append(chunk, _remainder);
+				_chunkEndsWithSeparatedCRLF = true;
+				return;
 			}
-			// } else if (_remainder + 2 > len) {
-			// 	_body.append(chunk, _remainder);
-				
-			// }
 			else {
 				_body.append(chunk, _remainder);
 				i = _remainder;
