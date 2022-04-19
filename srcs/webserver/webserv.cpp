@@ -11,6 +11,10 @@
 using namespace webserv;
 
 static void registerResponse( serverData& serverData, int current_fd, HTTPResponseMessage response ) {
+    if ( response.getStatus() == HTTPResponseMessage::PAYLOAD_TOO_LARGE ){
+        serverData.closeConnection = true;
+        response.closeConnection();
+    }
     REQUESTS.erase( current_fd );
     printf( "  register respond event - %d\n", current_fd );
     struct kevent new_socket_change;
@@ -66,6 +70,7 @@ int findRequestedLocation( httpData config, std::vector<std::string> path ) {
 }
 
 static void disconnected( int fd, int& nbr_conn, serverData& serverData ) {
+    serverData.closeConnection = false;
     std::cerr << "client disconnected" << std::endl;
 	REQUESTS.erase( fd );
     close( fd );
@@ -199,6 +204,8 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
         else
             takeRequest( serverData, current_fd, bytesread );
     }
+    if ( serverData.closeConnection )
+        disconnected( current_fd, KQ.nbrConnections, serverData );
 }
 
 void webserv::kqueueFailure( int fd ) {

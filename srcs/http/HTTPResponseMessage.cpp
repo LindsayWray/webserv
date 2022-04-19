@@ -75,6 +75,22 @@ HTTPResponseMessage& HTTPResponseMessage::addLocation( const std::string locatio
     return * this;
 }
 
+HTTPResponseMessage::e_responseStatusCode HTTPResponseMessage::getStatus() const{
+    return this->status;
+}
+
+HTTPResponseMessage& HTTPResponseMessage::closeConnection( void ){
+    this->_closeConnection = true;
+    return * this;
+}
+
+const std::string HTTPResponseMessage::_headerConnection( void ) const {
+    if ( _closeConnection )
+        return "connection: Closed\r\n";
+    else
+        return "";
+}
+
 const std::string HTTPResponseMessage::_headerContentLengthToString( void ) const {
     // if ( body != "" )
         return "content-length: " + std::to_string( length ) + "\r\n";

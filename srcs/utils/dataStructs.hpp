@@ -92,6 +92,7 @@ namespace webserv {
 
         char* buf;
         int buflen;
+        bool closeConnection;
     } serverData;
 }
 
