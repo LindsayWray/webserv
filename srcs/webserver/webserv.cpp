@@ -148,7 +148,9 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
                 ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
             else {
                 locationData location = serverblock.locations[location_index];
-                if ( location.CGI || isCGI( serverblock, location_index, request ) ) {
+                if ( !location.allowed_response[request.getMethod()] )
+                    registerResponse( serverData, current_fd, errorResponse( CLIENTS[current_fd], HTTPResponseMessage::METHOD_NOT_ALLOWED ) );
+                else if ( location.CGI || isCGI( serverblock, location_index, request ) ) {
                     ret = CGIRegister( location, serverData, current_fd, request );
                     if ( ret != HTTPResponseMessage::OK )
                         ERROR_RESPONSE( ret );

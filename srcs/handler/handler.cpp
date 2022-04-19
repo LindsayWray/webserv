@@ -133,8 +133,6 @@ HTTPResponseMessage webserv::handler( Request request, httpData server, location
 
     for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
         requestPath += request.getPath()[i];
-    if ( !location.allowed_response[request.getMethod()] )
-        return errorResponse( server, HTTPResponseMessage::METHOD_NOT_ALLOWED );
     if ( request.getMethod() == Request::GET )
         return GET_handler( requestPath, server, location );
     else if ( request.getMethod() == Request::POST )
