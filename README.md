@@ -9,48 +9,53 @@ an example config file can look like this:
 
     server {
 
-      listen 80;
+        listen 80;
   
-      serverName localhost www.localhost;
+        serverName localhost www.localhost;
   
-      index   index.html index.htm;
+        errorPage 404 /error.html;
   
-      errorPage 404 /error.html;
+        return 302 http://localhost:8200$uri;
   
-      return 302 http://localhost:8200$uri;
-  
-      location /example_directory/ {
-           root    /var/www/html;
-           index  file.html;
-      }
+        location /example_directory/ {
+            root    /var/www/html;
+            index  file.html;
+        }
 
-      location /example_file {
-           root	/var/www/html;
-           autoindex on;
-      }
+        location /example_file {
+            root	/var/www/html;
+            autoindex on;
+        }
 
-      location /cgt_executable {
-           root	/var/cgi-bin;
-           cgi_param /ret_time.py;
-      }
+        location /cgt_executable {
+            root	/var/cgi-bin;
+            cgi_param /ret_time.py;
+        }
+
+        location \.py$ {
+            root /var/www/html;
+            cgi_param /cgi-dir/;
+            autoindexing on;
+        }
     }
 
 * The standard port where a server will listen to is 80
-* Index will define the index if none is specified for a directory
 * Within errorPage you can define custom error pages formatted as: 
 > 'nbr'-'space'-'file'-'space'-...;
 * If a serverblock should redirect the return statement can be used as follows:
 > 'nbr'-'space'-'destination''$uri';  
 
 for the location blocks there are some rules as well:
+  * Index will define the index for a location
   * if the specified location ends with a **'/'** it will be handles like a directory
     > example of a directory: ***location /example_directory/*** will be a directory  
-     ***location /example_file*** will be a file  
-  * if it ends without a '/' it will be handles as a file
-  * the root will always be handles like a directory
-  * if the cgi_param is defined it will be handles by cgi
+     ***location /example_file*** will be a file
+  * the root will always be handled like a directory
+  * if the cgi_param is defined it will be handled by cgi
   * the default root for cgi programs is ~/var/cgi-bin
   * only python scripts will be handled by CGI
+  * by specifying a **\\.py$** location block, all .py files 
+    in the specified root/cgi_param/ dir en sub dir's will be handled by CGI
 
 ## How to run
 ```bash
