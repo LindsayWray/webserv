@@ -26,6 +26,7 @@ static void registerResponse( serverData& serverData, int current_fd, HTTPRespon
 
 static httpData findServerBlock( serverData serverData, Request request, int current_fd ) {
     std::pair<int, std::string> pairs( CLIENTS[current_fd].port, request.getHost() );
+
     if ( serverData.hostServername.find( pairs ) != serverData.hostServername.end() )
         return serverData.hostServername[pairs];
     return CLIENTS[current_fd];

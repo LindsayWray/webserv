@@ -3,8 +3,6 @@ server {
 
 	server_name www.localhost;
 
-	index   /index.html;
-
 	error_page 404 error404.html 403 error403.html;
 
 	client_max_body_size 100;
@@ -67,10 +65,7 @@ server {
     listen         80;
     server_name     example.com;
 
-	index   /index.html;
-
 	location / {
-		autoindex on;
 		root    /var/www/html;
 	}
 }

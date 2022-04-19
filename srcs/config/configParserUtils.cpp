@@ -78,6 +78,9 @@ int configParser::checkErrorCode( void ) {
         case EMPTYFILE:
             std::cerr << "File error: Empty File" << std::endl;
             break;
+        case SERVER:
+            std::cerr << "File error: Server definition" << std::endl;
+            break;
         case SOCKET:
             std::cerr << "Parsing error: Port definition" << std::endl;
             break;

@@ -72,6 +72,10 @@ int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& ht
             ret = setClientMaxBodySize( httpData );
         else if ( * _it == "}" )
             return SUCCES;
+        else {
+            _errorCode = SERVER;
+            ret = ERROR;
+        }
         if ( ret == ERROR )
             return ret;
     }
