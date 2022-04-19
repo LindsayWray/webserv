@@ -12,6 +12,7 @@
 #include "../sockets/listeningSocket.hpp"
 
 #define COMPLETE_MAP std::map<int, std::pair<webserv::listeningSocket*,webserv::httpData> >
+#define REDIRECTION -3
 #define NOTFOUND -2
 #define ERROR -1
 #define SUCCES 0

@@ -125,22 +125,7 @@ static HTTPResponseMessage DELETE_handler( std::string requestPath, httpData ser
     }
 }
 
-static HTTPResponseMessage REDIRECT_handler( Request request, httpData server ) {
-    HTTPResponseMessage response;
-    std::string requestPath;
-    std::string location = server.redirect.second;
-    int pos = location.find_first_of( "$uri" );
-    if ( pos != std::string::npos ) {
-        location.erase( pos, 4 );
-        for ( int i = 0; i < request.getPath().size(); i++ )
-            location.append( request.getPath()[i] );
-    }
-    response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(server.redirect.first) )
-            .addLength( 0 )
-            .addBody( "" )
-            .addLocation( location );
-    return response;
-}
+
 
 HTTPResponseMessage webserv::handler( Request request, httpData server, locationData location ) {
     HTTPResponseMessage response;
@@ -150,8 +135,6 @@ HTTPResponseMessage webserv::handler( Request request, httpData server, location
         requestPath += request.getPath()[i];
     if ( !location.allowed_response[request.getMethod()] )
         return errorResponse( server, HTTPResponseMessage::METHOD_NOT_ALLOWED );
-    if ( server.redirect.first > 0 )
-        return REDIRECT_handler( request, server );
     if ( request.getMethod() == Request::GET )
         return GET_handler( requestPath, server, location );
     else if ( request.getMethod() == Request::POST )
