@@ -17,6 +17,7 @@ namespace webserv {
             NOFILE,
             BADFILE,
             EMPTYFILE,
+            SERVER,
             SOCKET,
             WORKERC,
             INDEX,
