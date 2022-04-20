@@ -93,7 +93,7 @@ namespace webserv {
 
         char* buf;
         int buflen;
-        bool closeConnection;
+        std::set<int> closeConnections;
     } serverData;
 }
 

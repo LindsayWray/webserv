@@ -12,7 +12,7 @@ using namespace webserv;
 
 static void registerResponse( serverData& serverData, int current_fd, HTTPResponseMessage response ) {
     if ( response.getStatus() == HTTPResponseMessage::PAYLOAD_TOO_LARGE ){
-        serverData.closeConnection = true;
+        serverData.closeConnections.insert(current_fd);
         response.closeConnection();
     }
     REQUESTS.erase( current_fd );
@@ -70,8 +70,7 @@ int findRequestedLocation( httpData config, std::vector<std::string> path ) {
 }
 
 static void disconnected( int fd, int& nbr_conn, serverData& serverData ) {
-    serverData.closeConnection = false;
-	REQUESTS.erase( fd );
+    REQUESTS.erase( fd );
     close( fd );
     nbr_conn--;
 }
@@ -185,8 +184,10 @@ void webserv::processEvent( serverData& serverData, struct kevent& event ) {
             EV_SET( & deregister_socket_change, current_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL );
             if ( kevent( KQ.kq, & deregister_socket_change, 1, NULL, 0, NULL ) == ERROR )
                 return kqueueFailure( current_fd );
-            if ( serverData.closeConnection )
+            if ( serverData.closeConnections.count(current_fd) ){
                 disconnected( current_fd, KQ.nbrConnections, serverData );
+                serverData.closeConnections.erase(current_fd);
+            }
         }
     } else if ( CGI_RESPONSES.find( current_fd ) != CGI_RESPONSES.end() ) {
         responseFromCGI( serverData, current_fd );

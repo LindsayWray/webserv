@@ -54,7 +54,7 @@ int webserv::init_servers( serverData& serverData, std::string filename, char** 
     std::vector<httpData> http_vec;
     socketData socket_vec;
 
-    serverData.closeConnection = false;
+    //serverData.closeConnection = false;
 
     int server = 0, ret = NEOF;
 
