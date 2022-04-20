@@ -53,10 +53,14 @@ class RequestHandlingTest {
 	void transferEncodingLastChunkTooBig(int& sock);
 
 	void contentLengthBodyLargerThanMaxBodySize(int& sock);
+	void contentLengthBodyLargerThanMaxBodySizeTwoChunks(int& sock);
 	void transferEncodingBodyLargerThanMaxBodySize(int& sock);
+	void transferEncodingBodyLargerThanMaxBodySizeTwoChunks(int& sock);
 
 	void urlTooLarge(int& sock);
 	void headersTooLarge(int& sock);
+	void methodNotImplemented(int& sock);
+	void versionNotImplemented(int& sock);
 
 	RequestHandlingTest() {}
 	~RequestHandlingTest() {}
