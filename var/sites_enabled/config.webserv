@@ -5,8 +5,6 @@ server {
 
 	error_page 404 error404.html 403 error403.html;
 
-
-
 	location / {
 		autoindex on;
 		root    /var/www/html;
