@@ -43,19 +43,32 @@ void Request::parse_statusline( std::string &method ) {
         _method = POST;
     else if ( method == "DELETE" )
         _method = DELETE;
-	// else if ( method == "PUT" )
-		// _method = POST;
+	else if (	method == "HEAD"	||
+				method == "PUT"		||
+				method == "CONNECT" ||
+				method == "OPTIONS"	||
+				method == "TRACE"	||
+				method == "PATCH") {
+		throw ( NotImplementedException());
+	}
     else {
         printf( "Fault in the statusline, (method)\n" );
-        throw ( MethodNotAllowedException());
+        throw ( IncorrectRequestException());
     }
 
     if ( _path[0] != "/" ) {
         printf( "Fault in the statusline, (path)\n" );
         throw ( IncorrectRequestException());
     }
+	if ( _requestPath.len() > 2048 ) {
+		throw (URITooLongException());
+	}
 
-    if ( _version != "HTTP/1.1" ) {
+
+	if ( _version == "HTTP/2.0" || _version == "HTTP/2" || _version == "HTTP/3.0") {
+        throw ( VersionNotSupportedException());
+	}
+    else if ( _version != "HTTP/1.1" ) {
         printf( "Fault in the statusline, (version)\n" );
         throw ( IncorrectRequestException());
     }

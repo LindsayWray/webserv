@@ -80,6 +80,24 @@ namespace webserv {
                 return "Request Not Valid";
             }
         };
+        class NotImplementedException : public std::exception {
+        public:
+            const char *what() const throw() {
+                return "Method Not Implemented";
+            }
+        };
+        class VersionNotSupportedException : public std::exception {
+        public:
+            const char *what() const throw() {
+                return "HTTP Version Not Implemented";
+            }
+        };
+        class URITooLongException : public std::exception {
+        public:
+            const char *what() const throw() {
+                return "URI Too Long";
+            }
+        };
 		class MaxClientBodyException : public std::exception {
         public:
             const char *what() const throw() {
