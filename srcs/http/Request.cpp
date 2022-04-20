@@ -172,17 +172,19 @@ void	Request::appendBody(const char* chunk, int len) {
 				_body.append(chunk + i, size);
 				i += size;
 				i += 2; // \r\n
+				_remainder = 0;
+				_chunkedComplete = false;
 			} else if (charsLeft >= size + 1) {
 				_body.append(chunk + i, size);
 				_remainder = 0;
-				_chunkedComplete = false;
 				_chunkEndsWithSeparatedCRLF = true;
+				_chunkedComplete = false;
 				return;
 			} else if (charsLeft >= size) {
 				_body.append(chunk + i, size);
 				_remainder = 0;
-				_chunkedComplete = false;
 				_chunkEndsWithHex = true;
+				_chunkedComplete = false;
 				return;
 			}
 			else {
