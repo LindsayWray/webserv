@@ -5,10 +5,10 @@ server {
 
 	error_page 404 error404.html 403 error403.html;
 
-	client_max_body_size 100;
+
 
 	location / {
-		autoindex off;
+		autoindex on;
 		root    /var/www/html;
 	}
 
@@ -42,6 +42,11 @@ server {
         cgi_param /endless.py;
     }
 
+    location /toupper_delay {
+            root	/var/cgi-bin;
+            cgi_param /toupper_delay.py;
+        }
+
     location /red_to_time {
         return 302 http://localhost:8080/time;
     }
@@ -54,7 +59,6 @@ server {
 	location \.py$ {
 		root /var/www/html;
 		cgi_param /cgi-dir/;
-		autoindex on;
 	}
 }
 

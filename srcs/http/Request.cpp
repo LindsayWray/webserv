@@ -61,7 +61,7 @@ void Request::parse_statusline( std::string &method ) {
         throw ( IncorrectRequestException());
     }
 	if ( _requestPath.length() > 2048 ) {
-		throw (URITooLongException());
+		throw ( URITooLongException());
 	}
 
 
@@ -244,7 +244,7 @@ void	Request::parseChunk(char* chunk, int len){
 
 		decodePath();
 		setPath( _requestPath );
-		parse_statusline( method );
+		parse_statusline(method);
 
 		std::string header;
 		while ( std::getline( ss, header )) {

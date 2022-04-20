@@ -3,5 +3,5 @@
 import time
 
 print( "first" )
-time.sleep( 20 )
+time.sleep( 10 )
 print( "end" )

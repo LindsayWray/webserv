@@ -138,6 +138,10 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
 		std::cerr << e.what() << std::endl;
 		return ERROR_RESPONSE( HTTPResponseMessage::METHOD_NOT_ALLOWED );
 	}
+    catch ( webserv::Request::NotImplementedException &e ) {
+        std::cerr << e.what() << std::endl;
+        return ERROR_RESPONSE( HTTPResponseMessage::METHOD_NOT_ALLOWED );
+    }
 
     if ( request.isComplete() ) {
         try {
