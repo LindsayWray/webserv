@@ -140,6 +140,18 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
 		std::cerr << e.what() << std::endl;
 		return ERROR_RESPONSE( HTTPResponseMessage::METHOD_NOT_ALLOWED );
 	}
+    catch ( webserv::Request::NotImplementedException &e ) {
+		std::cerr << e.what() << std::endl;
+		return ERROR_RESPONSE( HTTPResponseMessage::NOT_IMPLEMENTED );
+	}
+    catch ( webserv::Request::VersionNotSupportedException &e ) {
+		std::cerr << e.what() << std::endl;
+		return ERROR_RESPONSE( HTTPResponseMessage::HTTP_VERSION_NOT_SUPPORTED );
+	}
+    catch ( webserv::Request::URITooLongException &e ) {
+		std::cerr << e.what() << std::endl;
+		return ERROR_RESPONSE( HTTPResponseMessage::URI_TOO_LONG );
+	}
 
     if ( request.isComplete() ) {
         try {
