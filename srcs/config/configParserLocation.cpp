@@ -67,7 +67,7 @@ int webserv::configParser::setLocation( httpData& httpData ) {
 }
 
 int webserv::configParser::_setLocation( locationData& element ) {
-    if ( _isWrongInput( "{" ) ) {
+    if ( _isWrongInput( "{" ) || *(_it + 2) == "}") {
         _errorCode = LOCATION;
         return ERROR;
     }
