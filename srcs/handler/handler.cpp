@@ -94,6 +94,10 @@ static HTTPResponseMessage POST_handler( std::string requestPath, Request reques
     if ( fileAlreadyExists ) {
         return responseWhenFileAlreadyExists( server );
     } else {
+        std::string substr = fullPath.substr( 0, fullPath.find_last_of('/') );
+        bool directoryExists = ( ::stat( substr.c_str(), & buf ) != -1 );
+        if ( !directoryExists )
+            return responseWhenFileCreationFails( server );
         std::ofstream file;
         file.open( fullPath, std::ios::out | std::ios::binary );
         if ( file.good() ) {
