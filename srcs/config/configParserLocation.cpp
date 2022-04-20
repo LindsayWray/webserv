@@ -20,8 +20,10 @@ int webserv::configParser::setLocation( httpData& httpData ) {
                 ret = _setCgiParam( element );
             else if ( * _it == "return" )
                 ret = _setRedirect( element );
-            else
+            else {
+                _errorCode = LOCATION;
                 ret = ERROR;
+            }
             if ( ret )
                 return ret;
         }
@@ -48,6 +50,18 @@ int webserv::configParser::setLocation( httpData& httpData ) {
     }
     if ( element.index.empty() )
         element.index = "index.html";
+    for ( int location = 0; location < httpData.locations.size(); location++ ){
+        if ( httpData.locations[location].path.size() != element.path.size() )
+            continue;
+        for ( int token = 0; token < element.path.size(); token++) {
+            if (httpData.locations[location].path[token] != element.path[token] )
+                break;
+            if ( token == element.path.size() - 1 ){
+                _errorCode = LOCATION;
+                ret = ERROR;
+            }
+        }
+    }
     httpData.locations.push_back( element );
     return ret;
 }

@@ -13,6 +13,8 @@ webserv::configParser::configParser( std::string config_file ) {
         _errorCode = EMPTYFILE;
     else {
         tokenizer();
+        if ( _tokens.empty() )
+            _errorCode = EMPTYFILE;
         _it = _tokens.begin();
     }
     return;
@@ -55,8 +57,10 @@ int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& ht
     TokenType::iterator it = _tokens.begin();
     int ret;
 
-    if ( _it++->compare( "server" ) || * _it != "{" )
+    if ( _it++->compare( "server" ) || * _it != "{" ){
+        _errorCode = SERVER;
         return ERROR;
+    }
     while ( ++_it != _tokens.end() && * _it != "}" ) {
         if ( * _it == "listen" )
             ret = setSocket( socketData, httpData );
@@ -76,6 +80,10 @@ int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& ht
         }
         if ( ret == ERROR )
             return ret;
+    }
+    if ( httpData.locations.empty() ){
+        _errorCode = SERVER;
+        ret = ERROR;
     }
     httpData.organizeLocations();
     httpData.setErrorPages();
