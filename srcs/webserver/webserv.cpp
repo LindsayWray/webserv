@@ -108,7 +108,7 @@ static HTTPResponseMessage REDIRECT_handler( Request request, locationData reque
     HTTPResponseMessage response;
     std::string requestPath;
     std::string location = request_location.redirect.second;
-    int pos = location.find_first_of( "$uri" );
+    int pos = location.find( "$uri" );
     if ( pos != std::string::npos ) {
         location.erase( pos, 4 );
         for ( int i = 0; i < request.getPath().size(); i++ )
