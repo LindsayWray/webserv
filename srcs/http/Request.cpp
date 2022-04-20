@@ -60,7 +60,7 @@ void Request::parse_statusline( std::string &method ) {
         printf( "Fault in the statusline, (path)\n" );
         throw ( IncorrectRequestException());
     }
-	if ( _requestPath.len() > 2048 ) {
+	if ( _requestPath.length() > 2048 ) {
 		throw (URITooLongException());
 	}
 
