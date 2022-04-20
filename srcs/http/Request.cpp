@@ -125,7 +125,7 @@ void	Request::appendBody(const char* chunk, int len) {
 				i += size;
 				i += 2; // \r\n
 			} else {
-				_body.append(chunk + i, charsLeft);
+			    _body.append(chunk + i, charsLeft);
 				_remainder = size - charsLeft;
 				_chunkedComplete = false;
 				return;

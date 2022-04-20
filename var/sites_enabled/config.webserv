@@ -8,7 +8,7 @@ server {
 	client_max_body_size 100;
 
 	location / {
-		autoindex on;
+		autoindex off;
 		root    /var/www/html;
 	}
 
@@ -42,6 +42,10 @@ server {
         cgi_param /endless.py;
     }
 
+    location /red_to_time {
+        return 302 http://localhost:8080/time;
+    }
+
 	location /images/limited/ {
 		root /var/www/html/resources;
 		limit_method POST;
@@ -56,9 +60,10 @@ server {
 
 server {
     listen          80;
-    server_name     localhost;
 
-    return 302 http://localhost:8080$uri;
+    location / {
+        return 302 http://localhost:8080$uri;
+    }
 }
 
 server {
@@ -71,7 +76,7 @@ server {
 }
 
 server {
-    listen          8100;
+    listen          80;
     server_name     banaan.org;
 
     location / {
@@ -81,8 +86,9 @@ server {
 }
 
 server {
-    listen 8100;
-    server_name     webserv.com blabla;
+    listen 80;
+    server_name     trapserv.org webserv.com;
+    server_name     willie.hoi;
 
     location / {
 		autoindex off;
@@ -91,7 +97,7 @@ server {
 }
 
 server {
-    listen 8100;
+    listen 80;
     server_name     clapserv.com;
 
     location / {

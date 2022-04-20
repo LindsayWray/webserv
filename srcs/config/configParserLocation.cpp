@@ -6,7 +6,7 @@ int webserv::configParser::setLocation( httpData& httpData ) {
     int ret = SUCCES;
     locationData element( httpData.absPath );
     ret = _setLocation( element );
-    if ( ret == SUCCES && * _it == "{" ) {
+    if ( ret >= SUCCES && * _it == "{" ) {
         while ( ++_it != _tokens.end() && * _it != "}" ) {
             if ( * _it == "root" )
                 ret = _setRoot( element );
@@ -18,29 +18,31 @@ int webserv::configParser::setLocation( httpData& httpData ) {
                 ret = _setAutoindex( element );
             else if ( * _it == "cgi_param" )
                 ret = _setCgiParam( element );
+            else if ( * _it == "return" )
+                ret = _setRedirect( element );
             else
                 ret = ERROR;
             if ( ret )
                 return ret;
         }
-    } else if ( ret == CGI_SIGN && * _it == "{" ){
-        while ( ++_it != _tokens.end() && * _it != "}" ) {
-            if ( * _it == "root" )
-                ret = _setRoot( element );
-            else if ( * _it == "limit_method" )
-                ret = _setLimitedMethod( element );
-            else if ( * _it == "index" )
-                ret = _setIndex( element );
-            else if ( * _it == "autoindex" )
-                ret = _setAutoindex( element );
-            else if ( * _it == "cgi_param" )
-                ret = _setCgiParam( element );//element.tokenizer( * (_it + 1) ) == SUCCES ? _setCgiParam( element ) : ERROR;
-            else
-                ret = ERROR;
-            if ( ret )
-                return ret;
-        }
-    } else if ( ret == ERROR ){
+//    } else if ( ret == CGI_SIGN && * _it == "{" ){
+//        while ( ++_it != _tokens.end() && * _it != "}" ) {
+//            if ( * _it == "root" )
+//                ret = _setRoot( element );
+//            else if ( * _it == "limit_method" )
+//                ret = _setLimitedMethod( element );
+//            else if ( * _it == "index" )
+//                ret = _setIndex( element );
+//            else if ( * _it == "autoindex" )
+//                ret = _setAutoindex( element );
+//            else if ( * _it == "cgi_param" )
+//                ret = _setCgiParam( element );//element.tokenizer( * (_it + 1) ) == SUCCES ? _setCgiParam( element ) : ERROR;
+//            else
+//                ret = ERROR;
+//            if ( ret )
+//                return ret;
+//        }
+    } else {
         _errorCode = LOCATION;
         return ERROR;
     }
@@ -72,7 +74,12 @@ int webserv::configParser::_setIndex( locationData& element ) {
         _errorCode = INDEX;
         return ERROR;
     }
-    element.index = * _it++;
+    if ( element.index.empty() )
+        element.index = * _it++;
+    else {
+        _errorCode = INDEX;
+        return ERROR;
+    }
     return _endOfLine( INDEX );
 }
 
@@ -120,6 +127,38 @@ int webserv::configParser::_setLimitedMethod( locationData& element ) {
         _it++;
     }
     return _endOfLine( LIMITEDMETHOD );
+}
+
+
+int configParser::_setRedirect( locationData& element ) {
+    int code;
+    if ( _isWrongInput( NULL ) ) {
+        _errorCode = REDIRECT;
+        return ERROR;
+    }
+    if ( element.redirect.first != -1 ) {
+        _errorCode = REDIRECT;
+        return ERROR;
+    }
+    try {
+        code = std::stoi( * ( _it++ ) );
+    } catch ( std::exception& e ) {
+        std::cerr << "configParser::setRedirect " << * _it << " " << e.what() << std::endl;
+        _errorCode = REDIRECT;
+        return ERROR;
+    }
+    if ( code != 301 && code != 302 && code != 303 && code != 307 ) {
+        std::cerr << "configParser::setRedirect wrong redirection code" << std::endl;
+        _errorCode = REDIRECT;
+        return ERROR;
+    }
+    element.redirect = std::make_pair( code, ( * _it++ ) );
+    if ( element.redirect.second.find( "$uri" ) != std::string::npos )
+        if ( element.redirect.second.find( "$uri" ) + 4 < element.redirect.second.size() ) {
+            _errorCode = REDIRECT;
+            return ERROR;
+        }
+    return _endOfLine( REDIRECT );
 }
 
 int webserv::configParser::_setAutoindex( locationData& element ) {

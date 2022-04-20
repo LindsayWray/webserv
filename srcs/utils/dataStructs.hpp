@@ -25,6 +25,7 @@ namespace webserv {
         std::vector<std::string> path;
         std::string root;
         std::vector<std::string> cgi_param;
+        std::pair<int, std::string> redirect;
         std::string index;
         bool allowed_response[3];
         bool autoindex;
@@ -43,7 +44,6 @@ namespace webserv {
         std::string absPath;
         std::vector<std::string> serverName;
         std::map<int, std::string> errorPage;
-        std::pair<int, std::string> redirect;
         std::vector<locationData> locations;
         int maxClientBody; // in kb
         int port;

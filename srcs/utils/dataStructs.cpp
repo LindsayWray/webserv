@@ -6,7 +6,7 @@ using namespace webserv;
  * locationData struct method functions
  */
 
-webserv::locationData::locationData( std::string _root ) {
+webserv::locationData::locationData( std::string _root ) : redirect( std::make_pair( -1, "" ) ) {
     path.push_back( "/" );
     root = _root;
     memset( allowed_response, true, 3 );
@@ -61,7 +61,7 @@ int webserv::locationData::cgiTokenizer( std::string line ) {
 
 webserv::httpData::httpData( void ) { return; }
 
-webserv::httpData::httpData( std::string root ) : absPath( root ), redirect( std::make_pair( -1, "" ) ) {
+webserv::httpData::httpData( std::string root ) : absPath( root ) {
     port = 0;
     maxClientBody = 0;
 }
@@ -75,7 +75,6 @@ httpData& webserv::httpData::operator=( const httpData& original ) {
     this->absPath = original.absPath;
     this->serverName = original.serverName;
     this->errorPage = original.errorPage;
-    this->redirect = original.redirect;
     this->locations = original.locations;
     this->maxClientBody = original.maxClientBody;
     this->port = original.port;

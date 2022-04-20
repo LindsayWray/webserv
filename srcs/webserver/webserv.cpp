@@ -61,11 +61,10 @@ bool	pathIsMatch( std::vector<std::string> requestPath, std::vector<std::string>
 }
 
 int findRequestedLocation( httpData config, std::vector<std::string> path ) {
-    if ( config.redirect.first != -1 )
-        return REDIRECTION;
     for ( int i = 0; i < config.locations.size(); i++ ) {
-		if ( pathIsMatch(path, config.locations[i].path) )
-			return i;
+		if ( pathIsMatch(path, config.locations[i].path) ) {
+		    return i;
+        }
     }
     return NOTFOUND;
 }
@@ -105,17 +104,17 @@ static bool isCGI( httpData serverblock, int default_i, Request request ){
     return false;
 }
 
-static HTTPResponseMessage REDIRECT_handler( Request request, httpData server ) {
+static HTTPResponseMessage REDIRECT_handler( Request request, locationData request_location ) {
     HTTPResponseMessage response;
     std::string requestPath;
-    std::string location = server.redirect.second;
+    std::string location = request_location.redirect.second;
     int pos = location.find_first_of( "$uri" );
     if ( pos != std::string::npos ) {
         location.erase( pos, 4 );
         for ( int i = 0; i < request.getPath().size(); i++ )
             location.append( request.getPath()[i] );
     }
-    response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(server.redirect.first) )
+    response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(request_location.redirect.first) )
             .addLength( 0 )
             .addBody( "" )
             .addLocation( location );
@@ -147,8 +146,8 @@ static void takeRequest( serverData& serverData, int current_fd, int bytesread )
 			std::cout << "FIND LOCATION: " << std::endl;
             int location_index = findRequestedLocation( serverblock, request.getPath() );
             HTTPResponseMessage::e_responseStatusCode ret;
-            if ( location_index == REDIRECTION )
-                registerResponse( serverData, current_fd, REDIRECT_handler(request, CLIENTS[current_fd]) );
+            if ( serverblock.locations[location_index].redirect.first != -1 )
+                registerResponse( serverData, current_fd, REDIRECT_handler(request, CLIENTS[current_fd].locations[location_index]) );
             else if ( location_index == NOTFOUND )
                 ERROR_RESPONSE( HTTPResponseMessage::INTERNAL_SERVER_ERROR );
             else {

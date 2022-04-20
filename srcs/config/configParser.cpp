@@ -66,8 +66,6 @@ int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& ht
             ret = setServerName( httpData );
         else if ( * _it == "error_page" )
             ret = setErrorPage( httpData );
-        else if ( * _it == "return" )
-            ret = setRedirect( httpData );
         else if ( * _it == "client_max_body_size" )
             ret = setClientMaxBodySize( httpData );
         else if ( * _it == "}" )

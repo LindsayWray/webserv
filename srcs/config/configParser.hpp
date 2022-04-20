@@ -57,8 +57,6 @@ namespace webserv {
 
         int setErrorPage( httpData &httpData );
 
-        int setRedirect( httpData &httpData );
-
 // ******* configParserLocation.cpp *******  //
         int setLocation( httpData &httpData );
 
@@ -83,6 +81,8 @@ namespace webserv {
         int _setCgiParam( locationData &element );
 
         int _setLimitedMethod( locationData &element );
+
+        int _setRedirect( locationData &element );
 
         int _setAutoindex( locationData &element );
 
