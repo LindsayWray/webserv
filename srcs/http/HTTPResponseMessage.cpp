@@ -41,6 +41,7 @@ const std::string HTTPResponseMessage::toString() const {
             _headerContentTypeToString() +
             _headerDateToString() +
             _headerLocationToString() +
+            _headerConnection() +
             _headerServerToString() +
             "\r\n" +
 
