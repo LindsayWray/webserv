@@ -58,7 +58,7 @@ private:
     std::string body;        // Need From RequestHandler
 
 public:
-    HTTPResponseMessage() : location(), _closeConnection(false) {};
+    HTTPResponseMessage() : _closeConnection(false), location() {};
 
     ~HTTPResponseMessage() {};
 

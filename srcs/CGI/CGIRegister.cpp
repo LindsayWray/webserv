@@ -8,10 +8,10 @@ static HTTPResponseMessage::e_responseStatusCode createPath( locationData locati
     struct stat buffer;
 
     if ( location.CGI )
-        for ( int i = 0; i < location.cgi_param.size(); i++ )
+        for ( size_t i = 0; i < location.cgi_param.size(); i++ )
             reqPath.append( location.cgi_param[i] );
     else
-        for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
+        for ( size_t i = location.path.size() - 1; i < request.getPath().size(); i++ )
             reqPath += request.getPath()[i];
     args[0] = strdup( "/usr/bin/python" );
     args[1] = strdup( reqPath.c_str() );

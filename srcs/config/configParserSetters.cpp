@@ -4,7 +4,7 @@ using namespace webserv;
 
 int configParser::setSocket( socketData& socketData, httpData& httpData ) {
     int port;
-    if ( _isWrongInput( NULL ) || httpData.port ) {
+    if ( _isWrongInput( "" ) || httpData.port ) {
         _errorCode = SOCKET;
         return ERROR;
     }
@@ -25,7 +25,7 @@ int configParser::setSocket( socketData& socketData, httpData& httpData ) {
 }
 
 int configParser::setServerName( httpData& httpData ) {
-    if ( _isWrongInput( NULL ) ) {
+    if ( _isWrongInput( "" ) ) {
         _errorCode = SERVERNAME;
         return ERROR;
     }
@@ -39,7 +39,7 @@ int configParser::setErrorPage( httpData& httpData ) {
     std::string filepath, line, body;
     std::ifstream file;
 
-    if ( _isWrongInput( NULL ) ) {
+    if ( _isWrongInput( "" ) ) {
         _errorCode = ERRORPAGE;
         return ERROR;
     }
@@ -75,7 +75,7 @@ int configParser::setErrorPage( httpData& httpData ) {
 }
 
 int configParser::setClientMaxBodySize( httpData& httpData ) {
-    if ( _isWrongInput( NULL ) ) {
+    if ( _isWrongInput( "" ) ) {
         _errorCode = MAXBODY;
         return ERROR;
     }

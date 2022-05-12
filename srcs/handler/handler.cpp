@@ -6,7 +6,7 @@
 using namespace webserv;
 
 static std::string file_extension( std::string path ) {
-    int pos = path.find( '.' );
+    size_t pos = path.find_last_of( '.' );
     if ( pos == std::string::npos )
         return "";
     return path.substr( pos + 1 ); // +1 to skip the .
@@ -53,7 +53,7 @@ static HTTPResponseMessage GET_handler( std::string path, httpData server, locat
             std::string body;
             try {
                 std::string concatPath;
-                for ( int i = 0; i < location.path.size() - 1; i++ ) {
+                for ( size_t i = 0; i < location.path.size() - 1; i++ ) {
                     concatPath += location.path[i];
                 }
                 concatPath += path;
@@ -131,7 +131,7 @@ HTTPResponseMessage webserv::handler( Request request, httpData& server, locatio
     HTTPResponseMessage response;
     std::string requestPath;
 
-    for ( int i = location.path.size() - 1; i < request.getPath().size(); i++ )
+    for ( size_t i = location.path.size() - 1; i < request.getPath().size(); i++ )
         requestPath += request.getPath()[i];
     if ( request.getMethod() == Request::GET )
         return GET_handler( requestPath, server, location );

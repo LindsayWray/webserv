@@ -34,18 +34,18 @@ static httpData findServerBlock( serverData serverData, Request request, int cur
 
 bool	pathIsMatch( std::vector<std::string> requestPath, std::vector<std::string> locationPath ){
 	int len = locationPath.size();
-	if ( len > requestPath.size() && !( locationPath.back() == "/" && len == requestPath.size() + 1 ) )
+	if ( len > static_cast<int>(requestPath.size()) && !( locationPath.back() == "/" && len == static_cast<int>(requestPath.size()) + 1 ) )
 		return false;
 	if (locationPath.back() == "/" && len != 1)
 		len--;
-	std::cout << "PATH: ";
-	for(int j = 0; j < locationPath.size(); j++){
-		std::cout << locationPath[j];
-	}
-	std::cout << std::endl;
+	// std::cout << "PATH: ";
+	// for(int j = 0; j < static_cast<int>(requestPath.size()); j++){
+	// 	std::cout << locationPath[j];
+	// }
+	// std::cout << std::endl;
 
 	std::cout << "request PATH: ";
-	for(int j = 0; j < requestPath.size(); j++){
+	for(int j = 0; j < static_cast<int>(requestPath.size()); j++){
 		std::cout << requestPath[j];
 	}
 	std::cout << std::endl;
@@ -61,7 +61,7 @@ bool	pathIsMatch( std::vector<std::string> requestPath, std::vector<std::string>
 }
 
 int findRequestedLocation( httpData config, std::vector<std::string> path ) {
-    for ( int i = 0; i < config.locations.size(); i++ ) {
+    for ( size_t i = 0; i < config.locations.size(); i++ ) {
 		if ( pathIsMatch(path, config.locations[i].path) ) {
 		    return i;
         }
@@ -75,8 +75,8 @@ static void disconnected( int fd, int& nbr_conn, serverData& serverData ) {
     nbr_conn--;
 }
 
-static bool isCGI( httpData serverblock, int default_i, Request request ){
-    int pos = request.getPath().back().find(".py");
+static bool isCGI( httpData serverblock, size_t default_i, Request request ){
+    size_t pos = request.getPath().back().find(".py");
     locationData default_loc = serverblock.locations[default_i];
 
     if ( pos == std::string::npos )
@@ -85,15 +85,15 @@ static bool isCGI( httpData serverblock, int default_i, Request request ){
         return false;
     if ( default_loc.CGI )
         return true;
-    int len = default_loc.path.size();
-    for ( int location_i = 0; location_i < serverblock.locations.size(); location_i++ ){
+    size_t len = default_loc.path.size();
+    for ( size_t location_i = 0; location_i < serverblock.locations.size(); location_i++ ){
         if ( location_i == default_i )
             continue;
         if ( serverblock.locations[location_i].path.back() != "\\.py$" )
             continue;
         if ( default_loc.root != serverblock.locations[location_i].root )
             continue;
-        for ( int param_i = 0; param_i < request.getPath().size(); param_i++ ) {
+        for ( size_t param_i = 0; param_i < request.getPath().size(); param_i++ ) {
             if ( request.getPath()[len + param_i - 1] != serverblock.locations[location_i].cgi_param[param_i] )
                 break;
             if ( serverblock.locations[location_i].cgi_param.size() - 1 == param_i )
@@ -107,10 +107,10 @@ static HTTPResponseMessage REDIRECT_handler( Request request, locationData reque
     HTTPResponseMessage response;
     std::string requestPath;
     std::string location = request_location.redirect.second;
-    int pos = location.find( "$uri" );
+    const size_t pos = location.find( "$uri" );
     if ( pos != std::string::npos ) {
         location.erase( pos, 4 );
-        for ( int i = 0; i < request.getPath().size(); i++ )
+        for ( size_t i = 0; i < request.getPath().size(); i++ )
             location.append( request.getPath()[i] );
     }
     response.addStatus( static_cast<HTTPResponseMessage::e_responseStatusCode>(request_location.redirect.first) )

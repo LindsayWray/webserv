@@ -4,6 +4,8 @@
 
 using namespace webserv;
 
+#define MAX_PORTS 65535 // maximum ports on this
+
 static int findPWD( char** env ) {
     std::string pwd = "PWD=";
     int i = 0, found;
@@ -27,7 +29,7 @@ static std::string setFileLocation( char** env ) {
     if ( pwd == ERROR )
         return "PWDNOTFOUND";
     std::string current( env[pwd] );
-    int pos = current.find( "webserv" );
+    int pos = current.rfind( "webserv" );
     std::string root = current.substr( 4, pos + 3 );
     return root;
 }
@@ -38,7 +40,7 @@ static void initServerData( serverData& serverData, httpData& httpData ) {
 
     if ( serverData.defaultServer.find( port ) == serverData.defaultServer.end() )
         serverData.defaultServer[port] = httpData;
-    for ( int i = 0; i < httpData.serverName.size(); i++ ) {
+    for ( size_t i = 0; i < httpData.serverName.size(); i++ ) {
         pair = std::make_pair( port, httpData.serverName[i] );
         if ( serverData.hostServername.find( pair ) == serverData.hostServername.end() )
             serverData.hostServername[std::make_pair( port, httpData.serverName[i] )] = httpData;
@@ -79,10 +81,10 @@ int webserv::init_servers( serverData& serverData, std::string filename, char** 
         std::cerr << "  kqueue() failed" << std::endl;
         return ERROR;
     }
-    struct kevent in_events[socket_vec.ports.size()];
+    struct kevent in_events[MAX_PORTS];
     listeningSocket* socket_tmp;
     int i = 0;
-    for ( int serv = 0; serv < socket_vec.ports.size(); serv++ ) {
+    for ( size_t serv = 0; serv < socket_vec.ports.size(); serv++ ) {
         socket_tmp = new listeningSocket( socket_vec, socket_vec.ports[serv] );
         serverData.serverMap[socket_tmp->get_sock()] = std::make_pair( socket_tmp, serverData.defaultServer[socket_vec.ports[serv]] );
         EV_SET( & in_events[i++], socket_tmp->get_sock(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL );

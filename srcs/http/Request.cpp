@@ -93,14 +93,14 @@ void Request::setPath( std::string line ) {
 	}
 }
 
-void	Request::appendBody(const char* chunk, int len) {
+void	Request::appendBody(const char* chunk, long len) {
 	if (!_chunked) {
 		_body.append(chunk, len);
-		if (_body.size() > _contentLength)
+		if (static_cast<long>(_body.size()) > _contentLength)
 			throw (IncorrectRequestException());
 	} else {
 		long size;
-		int i = 0;
+		long i = 0;
 
 		if (_chunkEndsWithHex) {
 			while (chunk[i] != '\r') {
@@ -119,7 +119,6 @@ void	Request::appendBody(const char* chunk, int len) {
 			_chunkEndsWithSeparatedCRLF = false;
 		}
 
-		//std::cout << "Remaining" << _remainder << std::endl;
 		if (_remainder != 0) {
 			if (_remainder > len - i)
 			{
@@ -146,7 +145,6 @@ void	Request::appendBody(const char* chunk, int len) {
 		}
 	
 		while (i < len ) {
-			//std::cout << "PEEK " << (int)chunk[i] << std::endl;
 			size = 0;
 			if (chunk[i] == '0'){
 				_chunkedComplete = true;
@@ -155,31 +153,27 @@ void	Request::appendBody(const char* chunk, int len) {
 			char* end;
 			size = strtol( chunk + i, &end, 16 );
 
-			//std::cout << "Chunk size" << size << std::endl;
-			int hexLength = (end - (chunk + i));
+			long hexLength = (end - (chunk + i));
 
 			_chunkEndsWithHex = (i + hexLength == len);
 			_chunkEndsWithSeparatedCRLF = (i + hexLength + 1 == len);
 			if (_chunkEndsWithHex) {					// e.g. "...0x7AF\0"
 				_remainder = size;
 				return;
-				// hex possibly not fully in chunk, save hex string digits for next chunk
 			}
 			else if ( _chunkEndsWithSeparatedCRLF ) { 	// e.g. "...0x7AF\r\0"
 				_remainder = size;
 				return;
-				// skip first character of next chunk
 			}
 			else {
 				i += hexLength;
 				i += 2; // \r\n
 			}
 
-			if ( _maxClientBody != 0 && _body.size() + size > _maxClientBody )
+			if ( _maxClientBody != 0 && static_cast<long>(_body.size()) + size > _maxClientBody )
 				throw (MaxClientBodyException());
 
-			int charsLeft = len - i;
-			//std::cout << "Chars left" << charsLeft << std::endl;
+			long charsLeft = len - i;
 
 			if (charsLeft >= size + 2) {
 				_body.append(chunk + i, size);
@@ -212,7 +206,7 @@ void	Request::appendBody(const char* chunk, int len) {
 
 void	Request::decodePath() {
 	while(true) {
-		int pos = _requestPath.find("%20");
+		size_t pos = _requestPath.find("%20");
 		if (pos == std::string::npos)
 			return;
 		_requestPath.replace(pos, 3, " ");
@@ -220,7 +214,7 @@ void	Request::decodePath() {
 }
 
 static std::string lowercase(std::string str) {
-	for(int i = 0; i < str.size(); i++) {
+	for(size_t i = 0; i < str.size(); i++) {
 		str[i] = tolower(str[i]);
 	}
 	return str;
@@ -313,6 +307,5 @@ bool Request::isComplete() const {
 		return false;
 	if (_chunked)
 		return ( _chunkedComplete );
-	//std::cout << "Checking..." << this->_body.size() << " - " << this->_contentLength << std::endl;
-	return (this->_body.size() >= this->_contentLength);
+	return (static_cast<long>(_body.size()) >= this->_contentLength);
 }

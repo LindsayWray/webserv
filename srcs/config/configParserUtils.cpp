@@ -42,7 +42,7 @@ bool configParser::_isCorrectCode( int input ) {
     return false;
 }
 
-bool configParser::_isWrongInput( char* str ) {
+bool configParser::_isWrongInput( std::string str ) {
     if ( ++_it == _tokens.end() )
         return true;
     if ( * _it == "{" )
@@ -51,7 +51,7 @@ bool configParser::_isWrongInput( char* str ) {
         return true;
     if ( * _it == ";" )
         return true;
-    if ( str && * ( _it + 1 ) != str )
+    if ( !str.empty() && * ( _it + 1 ) != str )
         return true;
     return false;
 }

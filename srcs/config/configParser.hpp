@@ -87,7 +87,7 @@ namespace webserv {
         int _setAutoindex( locationData &element );
 
 // ******* configParserUtils.cpp *******  //
-        bool _isWrongInput( char * );
+        bool _isWrongInput( std::string );
 
         bool _isCorrectCode( int input );
 

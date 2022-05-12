@@ -27,33 +27,16 @@ int webserv::configParser::setLocation( httpData& httpData ) {
             if ( ret )
                 return ret;
         }
-//    } else if ( ret == CGI_SIGN && * _it == "{" ){
-//        while ( ++_it != _tokens.end() && * _it != "}" ) {
-//            if ( * _it == "root" )
-//                ret = _setRoot( element );
-//            else if ( * _it == "limit_method" )
-//                ret = _setLimitedMethod( element );
-//            else if ( * _it == "index" )
-//                ret = _setIndex( element );
-//            else if ( * _it == "autoindex" )
-//                ret = _setAutoindex( element );
-//            else if ( * _it == "cgi_param" )
-//                ret = _setCgiParam( element );//element.tokenizer( * (_it + 1) ) == SUCCES ? _setCgiParam( element ) : ERROR;
-//            else
-//                ret = ERROR;
-//            if ( ret )
-//                return ret;
-//        }
     } else {
         _errorCode = LOCATION;
         return ERROR;
     }
     if ( element.index.empty() )
         element.index = "index.html";
-    for ( int location = 0; location < httpData.locations.size(); location++ ){
+    for ( size_t location = 0; location < httpData.locations.size(); location++ ){
         if ( httpData.locations[location].path.size() != element.path.size() )
             continue;
-        for ( int token = 0; token < element.path.size(); token++) {
+        for ( size_t token = 0; token < element.path.size(); token++) {
             if (httpData.locations[location].path[token] != element.path[token] )
                 break;
             if ( token == element.path.size() - 1 ){
@@ -121,7 +104,7 @@ int webserv::configParser::_setCgiParam( locationData& element ) {
 }
 
 int webserv::configParser::_setLimitedMethod( locationData& element ) {
-    if ( _isWrongInput( NULL ) ) {
+    if ( _isWrongInput( "" ) ) {
         _errorCode = LIMITEDMETHOD;
         return ERROR;
     }
@@ -146,7 +129,7 @@ int webserv::configParser::_setLimitedMethod( locationData& element ) {
 
 int configParser::_setRedirect( locationData& element ) {
     int code;
-    if ( _isWrongInput( NULL ) ) {
+    if ( _isWrongInput( "" ) ) {
         _errorCode = REDIRECT;
         return ERROR;
     }

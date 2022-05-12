@@ -54,7 +54,6 @@ int webserv::configParser::_newToken( std::string line ) {
 
 
 int webserv::configParser::parseIntoPieces( socketData& socketData, httpData& httpData ) {
-    TokenType::iterator it = _tokens.begin();
     int ret;
 
     if ( _it++->compare( "server" ) || * _it != "{" ){

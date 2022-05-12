@@ -20,7 +20,7 @@ bool webserv::responder( int fd, std::map<int, std::pair<std::string, long> >& r
 	}
 
 	responses[fd].second += ret;
-    if ( responses[fd].second < responses[fd].first.length()) {
+    if ( responses[fd].second < static_cast<long>(responses[fd].first.length())) {
         return NOT_FINISHED;
     } else {
         responses.erase( fd );

@@ -24,13 +24,13 @@ namespace webserv {
     private:
 		std::string _rawRequest;
 		bool _headersDone;
-		int _contentLength;
+		long _contentLength;
 		bool _chunked;
 		bool _chunkedComplete;
         bool _chunkEndsWithHex;
         bool _chunkEndsWithSeparatedCRLF;
 		long _remainder;
-		int _maxClientBody;
+		long _maxClientBody;
 
         method _method;
         std::vector<std::string> _path;
@@ -42,7 +42,7 @@ namespace webserv {
 
         void parse_statusline( std::string &method );
 		void setPath( std::string line );
-		void appendBody(const char* chunk, int len);
+		void appendBody(const char* chunk, long len);
 		void decodePath();
 
 
